@@ -1,0 +1,196 @@
+/* ImpactMetrics Component Styles */
+
+.impact-metrics {
+    padding: var(--space-4);
+    background: var(--color-surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-border);
+}
+
+/* Grid */
+.impact-metrics__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+}
+
+@media (min-width: 768px) {
+    .impact-metrics__grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Individual Metric */
+.impact-metric {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: transform var(--transition-fast);
+}
+
+.impact-metric:hover {
+    transform: translateY(-2px);
+}
+
+.impact-metric--nature {
+    background: rgba(76, 175, 80, 0.1);
+}
+
+.impact-metric--social {
+    background: rgba(255, 112, 67, 0.1);
+}
+
+.impact-metric--primary {
+    background: rgba(26, 93, 74, 0.1);
+}
+
+.impact-metric__icon {
+    font-size: 2rem;
+    margin-bottom: var(--space-2);
+    z-index: 1;
+}
+
+.impact-metric__content {
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.impact-metric__value {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+.impact-metric__value small {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-normal);
+    color: var(--color-text-muted);
+}
+
+.impact-metric__label {
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-tight);
+}
+
+/* Background animation */
+.impact-metric__bg {
+    position: absolute;
+    bottom: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    border-radius: 50%;
+    opacity: 0.1;
+    transition: transform var(--transition-slow);
+}
+
+.impact-metric--nature .impact-metric__bg {
+    background: radial-gradient(circle, var(--color-accent-nature), transparent);
+}
+
+.impact-metric--social .impact-metric__bg {
+    background: radial-gradient(circle, var(--color-accent-social), transparent);
+}
+
+.impact-metric--primary .impact-metric__bg {
+    background: radial-gradient(circle, var(--color-primary), transparent);
+}
+
+.impact-metric:hover .impact-metric__bg {
+    transform: scale(1.1);
+}
+
+/* Summary */
+.impact-metrics__summary {
+    margin-top: var(--space-6);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+}
+
+.impact-metrics__total {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.impact-metrics__total-label {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.impact-metrics__total-score {
+    display: flex;
+    align-items: baseline;
+}
+
+.impact-metrics__total-value {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+}
+
+.impact-metrics__total-max {
+    font-size: var(--text-lg);
+    color: var(--color-text-muted);
+}
+
+/* Progress bar */
+.impact-metrics__progress {
+    height: 8px;
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-bottom: var(--space-4);
+}
+
+.impact-metrics__progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent-nature));
+    border-radius: var(--radius-full);
+    transition: width 1s ease-out;
+}
+
+.impact-metrics__encouragement {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+/* Unavailable State */
+.impact-metrics--unavailable {
+    background: var(--color-border-light);
+}
+
+.impact-metrics__unavailable {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-6);
+    text-align: center;
+}
+
+.impact-metrics__unavailable-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-3);
+}
+
+.impact-metrics__unavailable-text {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin: 0;
+}

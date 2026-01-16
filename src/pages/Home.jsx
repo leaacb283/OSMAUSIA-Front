@@ -1,0 +1,121 @@
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import SearchBar from '../components/SearchBar';
+import ThematicFilters from '../components/ThematicFilters';
+import OfferCard from '../components/OfferCard';
+import { getFeaturedOffers, getOffersByCategory } from '../data/mockOffers';
+import './Home.css';
+
+const Home = () => {
+    const { t } = useTranslation();
+    const [activeFilter, setActiveFilter] = useState(null);
+
+    // Get offers based on filter
+    const offers = activeFilter
+        ? getOffersByCategory(activeFilter)
+        : getFeaturedOffers();
+
+    const handleSearch = (searchData) => {
+        console.log('Search:', searchData);
+        // TODO: Navigate to search results page
+    };
+
+    return (
+        <div className="home">
+            {/* Hero Section */}
+            <section className="hero">
+                <div className="hero__background">
+                    <div className="hero__gradient" />
+                    <div className="hero__pattern" />
+                </div>
+
+                <div className="hero__content container">
+                    <h1 className="hero__title animate-slideUp">
+                        {t('home.heroTitle')}
+                        <span className="hero__title-highlight">
+                            {t('home.heroTitleHighlight')}
+                        </span>
+                    </h1>
+
+                    <p className="hero__subtitle animate-slideUp">
+                        {t('home.heroSubtitle')}
+                    </p>
+
+                    {/* Search Bar */}
+                    <div className="hero__search animate-slideUp">
+                        <SearchBar onSearch={handleSearch} variant="hero" />
+                    </div>
+                </div>
+
+                {/* Decorative elements */}
+                <div className="hero__decoration hero__decoration--1">🌿</div>
+                <div className="hero__decoration hero__decoration--2">🌊</div>
+                <div className="hero__decoration hero__decoration--3">🏔️</div>
+            </section>
+
+            {/* Thematic Filters */}
+            <section className="section container">
+                <ThematicFilters
+                    activeFilter={activeFilter}
+                    onFilterChange={setActiveFilter}
+                />
+            </section>
+
+            {/* Featured Offers */}
+            <section className="section section--featured container">
+                <div className="section__header">
+                    <h2 className="section__title">
+                        {activeFilter
+                            ? `${t(`home.filter${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}`)} - ${offers.length} ${offers.length > 1 ? 'offres' : 'offre'}`
+                            : t('home.featuredTitle')
+                        }
+                    </h2>
+                    {!activeFilter && (
+                        <p className="section__subtitle">{t('home.featuredSubtitle')}</p>
+                    )}
+                </div>
+
+                <div className="offers-grid">
+                    {offers.map((offer) => (
+                        <OfferCard
+                            key={offer.id}
+                            offer={offer}
+                            featured={!activeFilter}
+                        />
+                    ))}
+                </div>
+
+                {offers.length === 0 && (
+                    <div className="no-results">
+                        <span className="no-results__icon">🔍</span>
+                        <p>Aucune offre disponible dans cette catégorie pour le moment.</p>
+                    </div>
+                )}
+            </section>
+
+            {/* CTA Section */}
+            <section className="cta-section">
+                <div className="container">
+                    <div className="cta-card glass">
+                        <div className="cta-card__content">
+                            <h2 className="cta-card__title">
+                                Vous êtes un partenaire régénératif ?
+                            </h2>
+                            <p className="cta-card__text">
+                                Rejoignez notre communauté de prestataires engagés et proposez vos expériences éthiques à des voyageurs en quête de sens.
+                            </p>
+                            <a href="/register/partner" className="btn btn-secondary btn-lg">
+                                Devenir partenaire
+                            </a>
+                        </div>
+                        <div className="cta-card__decoration">
+                            🌏
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    );
+};
+
+export default Home;

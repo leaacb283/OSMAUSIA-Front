@@ -1,0 +1,168 @@
+/* ThematicFilters Component Styles */
+
+.thematic-filters {
+    padding: var(--space-8) 0;
+}
+
+.thematic-filters__title {
+    text-align: center;
+    margin-bottom: var(--space-6);
+    font-size: var(--text-2xl);
+    color: var(--color-text-primary);
+}
+
+.thematic-filters__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+    .thematic-filters__grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Individual Filter */
+.thematic-filter {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-6) var(--space-4);
+    background: var(--color-surface);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    overflow: hidden;
+}
+
+.thematic-filter:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.thematic-filter.active {
+    transform: translateY(-4px);
+}
+
+/* Color variants */
+.thematic-filter--nature:hover,
+.thematic-filter--nature.active {
+    border-color: var(--color-accent-nature);
+}
+
+.thematic-filter--social:hover,
+.thematic-filter--social.active {
+    border-color: var(--color-accent-social);
+}
+
+.thematic-filter--culture:hover,
+.thematic-filter--culture.active {
+    border-color: var(--color-accent-culture);
+}
+
+/* Icon */
+.thematic-filter__icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-3);
+    transition: transform var(--transition-normal);
+}
+
+.thematic-filter:hover .thematic-filter__icon {
+    transform: scale(1.1);
+}
+
+.thematic-filter.active .thematic-filter__icon {
+    animation: pulse 1s ease-in-out infinite;
+}
+
+/* Label */
+.thematic-filter__label {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.thematic-filter--nature .thematic-filter__label {
+    color: var(--color-accent-nature);
+}
+
+.thematic-filter--social .thematic-filter__label {
+    color: var(--color-accent-social);
+}
+
+.thematic-filter--culture .thematic-filter__label {
+    color: var(--color-accent-culture);
+}
+
+/* Description */
+.thematic-filter__description {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+}
+
+/* Glow effect */
+.thematic-filter__glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+    pointer-events: none;
+}
+
+.thematic-filter--nature .thematic-filter__glow {
+    background: radial-gradient(circle, rgba(76, 175, 80, 0.15) 0%, transparent 70%);
+}
+
+.thematic-filter--social .thematic-filter__glow {
+    background: radial-gradient(circle, rgba(255, 112, 67, 0.15) 0%, transparent 70%);
+}
+
+.thematic-filter--culture .thematic-filter__glow {
+    background: radial-gradient(circle, rgba(124, 77, 255, 0.15) 0%, transparent 70%);
+}
+
+.thematic-filter:hover .thematic-filter__glow,
+.thematic-filter.active .thematic-filter__glow {
+    opacity: 1;
+}
+
+/* Active checkmark */
+.thematic-filter.active::after {
+    content: '✓';
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-sm);
+    color: white;
+    animation: fadeIn var(--transition-fast) ease-out;
+}
+
+.thematic-filter--nature.active::after {
+    background: var(--color-accent-nature);
+}
+
+.thematic-filter--social.active::after {
+    background: var(--color-accent-social);
+}
+
+.thematic-filter--culture.active::after {
+    background: var(--color-accent-culture);
+}

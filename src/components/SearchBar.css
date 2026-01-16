@@ -1,0 +1,204 @@
+/* SearchBar Component Styles */
+
+.search-bar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--color-surface);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-xl);
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    .search-bar {
+        flex-direction: row;
+        align-items: center;
+        padding: var(--space-2) var(--space-3);
+        gap: 0;
+    }
+}
+
+/* Hero Variant */
+.search-bar--hero {
+    border: 1px solid var(--color-border);
+}
+
+@media (min-width: 768px) {
+    .search-bar--hero {
+        padding: var(--space-2) var(--space-2) var(--space-2) var(--space-6);
+    }
+}
+
+/* Fields */
+.search-bar__field {
+    flex: 1;
+    padding: var(--space-2);
+}
+
+@media (min-width: 768px) {
+    .search-bar__field {
+        padding: var(--space-2) var(--space-4);
+    }
+
+    .search-bar__field--destination {
+        flex: 1.5;
+    }
+
+    .search-bar__field--date {
+        flex: 1;
+    }
+
+    .search-bar__field--guests {
+        flex: 0.8;
+    }
+}
+
+.search-bar__label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-1);
+}
+
+.search-bar__icon {
+    font-size: var(--text-sm);
+}
+
+.search-bar__input {
+    border: none;
+    padding: var(--space-1) 0;
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    background: transparent;
+    color: var(--color-text-primary);
+    width: 100%;
+}
+
+.search-bar__input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.search-bar__input::placeholder {
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-normal);
+}
+
+/* Date input styling */
+.search-bar__input[type="date"] {
+    cursor: pointer;
+}
+
+.search-bar__input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.5;
+    cursor: pointer;
+    transition: opacity var(--transition-fast);
+}
+
+.search-bar__input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Divider */
+.search-bar__divider {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .search-bar__divider {
+        display: block;
+        width: 1px;
+        height: 40px;
+        background: var(--color-border);
+    }
+}
+
+/* Guests Control */
+.search-bar__guests-control {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.search-bar__guests-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.search-bar__guests-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.search-bar__guests-input {
+    width: 40px;
+    text-align: center;
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-semibold);
+    -moz-appearance: textfield;
+}
+
+.search-bar__guests-input::-webkit-outer-spin-button,
+.search-bar__guests-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Submit Button */
+.search-bar__submit {
+    width: 100%;
+    padding: var(--space-4);
+    font-size: var(--text-lg);
+}
+
+@media (min-width: 768px) {
+    .search-bar__submit {
+        width: auto;
+        min-width: 120px;
+        padding: var(--space-4) var(--space-6);
+        border-radius: var(--radius-xl);
+    }
+}
+
+.search-bar__submit-icon {
+    font-size: var(--text-lg);
+}
+
+.search-bar__submit-text {
+    margin-left: var(--space-2);
+}
+
+/* Compact variant */
+.search-bar--compact {
+    padding: var(--space-2);
+}
+
+@media (min-width: 768px) {
+    .search-bar--compact .search-bar__field {
+        padding: var(--space-2);
+    }
+
+    .search-bar--compact .search-bar__submit {
+        min-width: auto;
+        padding: var(--space-3) var(--space-4);
+    }
+}
