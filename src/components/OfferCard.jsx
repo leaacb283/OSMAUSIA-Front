@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import RegenScore from './RegenScore';
-import { calculateRegenScore } from '../data/mockOffers';
+import { calculateRegenScore } from '../utils/scoreUtils';
 import './OfferCard.css';
 
 const OfferCard = ({ offer, featured = false }) => {

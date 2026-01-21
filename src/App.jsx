@@ -12,7 +12,11 @@ import Login from './pages/Login';
 import RegisterTraveler from './pages/RegisterTraveler';
 import RegisterPartner from './pages/RegisterPartner';
 import Dashboard from './pages/Dashboard';
+import PartnerDashboard from './pages/PartnerDashboard';
 import Preferences from './pages/Preferences';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import SearchResults from './pages/SearchResults';
 
 // Placeholder pages
 const ExplorePage = () => (
@@ -48,7 +52,9 @@ function App() {
                             <Route path="/" element={<Home />} />
                             <Route path="/explore" element={<ExplorePage />} />
                             <Route path="/about" element={<AboutPage />} />
+                            <Route path="/search" element={<SearchResults />} />
                             <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/partner/dashboard" element={<PartnerDashboard />} />
                             <Route path="/preferences" element={<Preferences />} />
                             <Route path="*" element={<NotFoundPage />} />
                         </Route>
@@ -57,6 +63,8 @@ function App() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/register/traveler" element={<RegisterTraveler />} />
                         <Route path="/register/partner" element={<RegisterPartner />} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/reset-password" element={<ResetPassword />} />
                     </Routes>
                 </AuthProvider>
             </ThemeProvider>
@@ -65,3 +73,4 @@ function App() {
 }
 
 export default App;
+

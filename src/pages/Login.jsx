@@ -43,25 +43,11 @@ const Login = () => {
                 navigate('/dashboard');
             }
         } else {
-            setError(t(result.error));
+            // Afficher directement le message d'erreur (déjà en français depuis l'API)
+            setError(result.error);
         }
 
         setLoading(false);
-    };
-
-    // Demo accounts for testing
-    const demoAccounts = [
-        { email: 'marie.dupont@email.com', password: 'SecurePass123!@#', label: 'Voyageur' },
-        { email: 'contact@ecosuites-maurice.com', password: 'Partner@Secure1!', label: 'Partenaire' }
-    ];
-
-    const fillDemoAccount = (account) => {
-        setFormData(prev => ({
-            ...prev,
-            email: account.email,
-            password: account.password
-        }));
-        setError('');
     };
 
     return (
@@ -86,23 +72,6 @@ const Login = () => {
                                 <span>⚠️</span> {error}
                             </div>
                         )}
-
-                        {/* Demo Accounts */}
-                        <div className="auth-demo">
-                            <p className="auth-demo-label">Comptes de démonstration :</p>
-                            <div className="auth-demo-buttons">
-                                {demoAccounts.map((account, index) => (
-                                    <button
-                                        key={index}
-                                        type="button"
-                                        className="auth-demo-btn"
-                                        onClick={() => fillDemoAccount(account)}
-                                    >
-                                        {account.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
 
                         {/* Form */}
                         <form className="auth-form" onSubmit={handleSubmit}>

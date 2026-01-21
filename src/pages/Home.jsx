@@ -1,23 +1,54 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SearchBar from '../components/SearchBar';
 import ThematicFilters from '../components/ThematicFilters';
 import OfferCard from '../components/OfferCard';
-import { getFeaturedOffers, getOffersByCategory } from '../data/mockOffers';
+import { searchAll, mapAccommodationToOffer, mapActivityToOffer } from '../services/searchService';
 import './Home.css';
 
 const Home = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [activeFilter, setActiveFilter] = useState(null);
+    const [offers, setOffers] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Get offers based on filter
-    const offers = activeFilter
-        ? getOffersByCategory(activeFilter)
-        : getFeaturedOffers();
+    // Fetch offers from API
+    useEffect(() => {
+        const fetchOffers = async () => {
+            setLoading(true);
+            try {
+                const { accommodations, activities } = await searchAll('', { limit: 20 });
+                const mappedAccommodations = (accommodations.hits || []).map(mapAccommodationToOffer);
+                const mappedActivities = (activities.hits || []).map(mapActivityToOffer);
+                let results = [...mappedAccommodations, ...mappedActivities];
+
+                // Mark first 4 as featured
+                results = results.slice(0, 6).map((offer, idx) => ({ ...offer, featured: idx < 4 }));
+                setOffers(results);
+            } catch (err) {
+                console.error('Failed to fetch offers:', err);
+                setOffers([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchOffers();
+    }, []);
+
+    // Filter offers by category
+    const filteredOffers = activeFilter
+        ? offers.filter(offer => offer.category === activeFilter)
+        : offers.filter(offer => offer.featured);
 
     const handleSearch = (searchData) => {
-        console.log('Search:', searchData);
-        // TODO: Navigate to search results page
+        const params = new URLSearchParams();
+        if (searchData.destination) params.set('destination', searchData.destination);
+        if (searchData.checkIn) params.set('checkIn', searchData.checkIn);
+        if (searchData.checkOut) params.set('checkOut', searchData.checkOut);
+        if (searchData.guests) params.set('guests', searchData.guests);
+        navigate(`/search?${params.toString()}`);
     };
 
     return (
@@ -66,7 +97,7 @@ const Home = () => {
                 <div className="section__header">
                     <h2 className="section__title">
                         {activeFilter
-                            ? `${t(`home.filter${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}`)} - ${offers.length} ${offers.length > 1 ? 'offres' : 'offre'}`
+                            ? `${t(`home.filter${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}`)} - ${filteredOffers.length} ${filteredOffers.length > 1 ? 'offres' : 'offre'}`
                             : t('home.featuredTitle')
                         }
                     </h2>
@@ -75,21 +106,30 @@ const Home = () => {
                     )}
                 </div>
 
-                <div className="offers-grid">
-                    {offers.map((offer) => (
-                        <OfferCard
-                            key={offer.id}
-                            offer={offer}
-                            featured={!activeFilter}
-                        />
-                    ))}
-                </div>
-
-                {offers.length === 0 && (
+                {loading ? (
                     <div className="no-results">
-                        <span className="no-results__icon">🔍</span>
-                        <p>Aucune offre disponible dans cette catégorie pour le moment.</p>
+                        <span className="no-results__icon">⏳</span>
+                        <p>Chargement des offres...</p>
                     </div>
+                ) : (
+                    <>
+                        <div className="offers-grid">
+                            {filteredOffers.map((offer) => (
+                                <OfferCard
+                                    key={offer.id}
+                                    offer={offer}
+                                    featured={!activeFilter}
+                                />
+                            ))}
+                        </div>
+
+                        {filteredOffers.length === 0 && (
+                            <div className="no-results">
+                                <span className="no-results__icon">🔍</span>
+                                <p>Aucune offre disponible dans cette catégorie pour le moment.</p>
+                            </div>
+                        )}
+                    </>
                 )}
             </section>
 

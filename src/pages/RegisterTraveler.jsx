@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../contexts/AuthContext';
+import { registerTravelerAPI } from '../services/authService';
 import {
     validatePassword,
     validateEmail,
@@ -13,7 +13,6 @@ import './Auth.css';
 
 const RegisterTraveler = () => {
     const { t } = useTranslation();
-    const { registerTraveler } = useAuth();
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -28,6 +27,7 @@ const RegisterTraveler = () => {
     });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
 
     const passwordStrength = calculatePasswordStrength(formData.password);
     const passwordLevel = getPasswordStrengthLabel(passwordStrength);
@@ -39,7 +39,6 @@ const RegisterTraveler = () => {
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
-        // Clear error when user types
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
         }
@@ -77,17 +76,81 @@ const RegisterTraveler = () => {
         if (!validate()) return;
 
         setLoading(true);
+        setErrors({});
 
-        const result = await registerTraveler(formData);
+        try {
+            // Appeler l'API d'inscription
+            await registerTravelerAPI(formData);
 
-        if (result.success) {
-            navigate('/dashboard');
-        } else {
-            setErrors({ submit: result.error });
+            // Afficher le message de succès au lieu de connecter automatiquement
+            setSuccess(true);
+
+        } catch (error) {
+            console.error('Register error:', error);
+
+            let errorMessage = 'Erreur lors de l\'inscription';
+
+            if (error.data?.message) {
+                errorMessage = error.data.message;
+            } else if (error.data?.fieldErrors?.length > 0) {
+                errorMessage = error.data.fieldErrors.map(e => e.message).join('. ');
+            } else if (error.status === 409) {
+                errorMessage = 'Cet email est déjà utilisé';
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+
+            setErrors({ submit: errorMessage });
         }
 
         setLoading(false);
     };
+
+    // Afficher le message de succès
+    if (success) {
+        return (
+            <div className="auth-page">
+                <div className="auth-container">
+                    <div className="auth-form-section">
+                        <div className="auth-form-wrapper">
+                            <div className="auth-header">
+                                <Link to="/" className="auth-logo">
+                                    <span className="logo-icon">🌿</span>
+                                    <span className="logo-text">OSMAUSIA</span>
+                                </Link>
+                            </div>
+
+                            <div className="auth-success">
+                                <span className="auth-success-icon">📧</span>
+                                <h2>Inscription réussie !</h2>
+                                <p>
+                                    Un email de confirmation a été envoyé à <strong>{formData.email}</strong>.
+                                    <br /><br />
+                                    Veuillez cliquer sur le lien dans l'email pour activer votre compte avant de vous connecter.
+                                </p>
+                            </div>
+
+                            <Link
+                                to="/login"
+                                className="btn btn-primary btn-lg"
+                                style={{ width: '100%', marginTop: 'var(--space-6)' }}
+                            >
+                                Aller à la connexion
+                            </Link>
+                        </div>
+                    </div>
+
+                    <div className="auth-visual-section">
+                        <div className="auth-visual-content">
+                            <div className="auth-visual-icon">✉️</div>
+                            <h2>Vérifiez votre boîte mail</h2>
+                            <p>Pensez à vérifier vos spams si vous ne trouvez pas l'email.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="auth-page">
@@ -172,15 +235,16 @@ const RegisterTraveler = () => {
 
                             {/* Phone */}
                             <div className="form-group">
-                                <label htmlFor="phone">{t('auth.phone')}</label>
+                                <label htmlFor="phone">{t('auth.phone')} <small>(optionnel)</small></label>
                                 <input
                                     type="tel"
                                     id="phone"
                                     name="phone"
                                     value={formData.phone}
                                     onChange={handleChange}
-                                    placeholder={t('auth.phonePlaceholder')}
+                                    placeholder="+33612345678"
                                 />
+                                <span className="form-hint">Format: +33612345678 (sans espaces)</span>
                             </div>
 
                             {/* Password */}
@@ -195,18 +259,16 @@ const RegisterTraveler = () => {
                                     className={errors.password ? 'error' : ''}
                                     required
                                 />
-                                {/* Password Strength Indicator */}
                                 {formData.password && (
                                     <div className="password-strength">
                                         <div className="password-strength-bar">
                                             <div className={`password-strength-fill ${passwordLevel}`} />
                                         </div>
                                         <span className="password-strength-label">
-                                            {t('auth.passwordStrength')}: {t(`auth.password${passwordLevel.charAt(0).toUpperCase() + passwordLevel.slice(1)}`)}
+                                            Force: {passwordLevel === 'weak' ? 'Faible' : passwordLevel === 'medium' ? 'Moyen' : 'Fort'}
                                         </span>
                                     </div>
                                 )}
-                                {/* Requirements checklist */}
                                 <div className="form-hint">
                                     {passwordChecks.length ? '✓' : '○'} 12+ caractères |
                                     {passwordChecks.uppercase ? ' ✓' : ' ○'} Majuscule |

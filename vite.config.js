@@ -12,7 +12,19 @@ export default defineConfig({
       '@data': '/src/data',
       '@utils': '/src/utils',
       '@styles': '/src/styles',
-      '@i18n': '/src/i18n'
+      '@i18n': '/src/i18n',
+      '@services': '/src/services'
+    }
+  },
+  server: {
+    port: 5173,
+    // Proxy pour éviter les problèmes CORS en développement
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      }
     }
   }
 })

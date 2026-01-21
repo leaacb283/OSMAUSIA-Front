@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { calculateRegenScore } from '../data/mockOffers';
+import { calculateRegenScore } from '../utils/scoreUtils';
 import './RegenScore.css';
 
 const RegenScore = ({

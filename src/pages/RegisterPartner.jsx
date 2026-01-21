@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../contexts/AuthContext';
+import { registerProviderAPI } from '../services/authService';
 import {
     validatePassword,
     validateEmail,
@@ -13,7 +13,6 @@ import './Auth.css';
 
 const RegisterPartner = () => {
     const { t } = useTranslation();
-    const { registerPartner } = useAuth();
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -30,6 +29,7 @@ const RegisterPartner = () => {
     });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
 
     const passwordStrength = calculatePasswordStrength(formData.password);
     const passwordLevel = getPasswordStrengthLabel(passwordStrength);
@@ -81,17 +81,83 @@ const RegisterPartner = () => {
         if (!validate()) return;
 
         setLoading(true);
+        setErrors({});
 
-        const result = await registerPartner(formData);
+        try {
+            // Appeler l'API d'inscription
+            await registerProviderAPI(formData);
 
-        if (result.success) {
-            navigate('/partner/dashboard');
-        } else {
-            setErrors({ submit: result.error });
+            // Afficher le message de succès
+            setSuccess(true);
+
+        } catch (error) {
+            console.error('Register error:', error);
+
+            let errorMessage = 'Erreur lors de l\'inscription';
+
+            if (error.data?.message) {
+                errorMessage = error.data.message;
+            } else if (error.data?.fieldErrors?.length > 0) {
+                errorMessage = error.data.fieldErrors.map(e => e.message).join('. ');
+            } else if (error.status === 409) {
+                errorMessage = 'Cet email est déjà utilisé';
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+
+            setErrors({ submit: errorMessage });
         }
 
         setLoading(false);
     };
+
+    // Afficher le message de succès
+    if (success) {
+        return (
+            <div className="auth-page">
+                <div className="auth-container">
+                    <div className="auth-form-section">
+                        <div className="auth-form-wrapper">
+                            <div className="auth-header">
+                                <Link to="/" className="auth-logo">
+                                    <span className="logo-icon">🌿</span>
+                                    <span className="logo-text">OSMAUSIA</span>
+                                </Link>
+                            </div>
+
+                            <div className="auth-success">
+                                <span className="auth-success-icon">📧</span>
+                                <h2>Inscription réussie !</h2>
+                                <p>
+                                    Un email de confirmation a été envoyé à <strong>{formData.email}</strong>.
+                                    <br /><br />
+                                    Veuillez cliquer sur le lien dans l'email pour activer votre compte.
+                                    <br /><br />
+                                    <small>⏳ Après validation de votre email, votre compte partenaire sera examiné par notre équipe.</small>
+                                </p>
+                            </div>
+
+                            <Link
+                                to="/login"
+                                className="btn btn-primary btn-lg"
+                                style={{ width: '100%', marginTop: 'var(--space-6)' }}
+                            >
+                                Aller à la connexion
+                            </Link>
+                        </div>
+                    </div>
+
+                    <div className="auth-visual-section">
+                        <div className="auth-visual-content">
+                            <div className="auth-visual-icon">✉️</div>
+                            <h2>Vérifiez votre boîte mail</h2>
+                            <p>Pensez à vérifier vos spams si vous ne trouvez pas l'email.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="auth-page">

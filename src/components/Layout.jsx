@@ -82,17 +82,17 @@ const Layout = () => {
                                     aria-expanded={userMenuOpen}
                                 >
                                     <span className="user-avatar">
-                                        {user?.profile?.firstName?.[0] || user?.profile?.companyName?.[0] || '?'}
+                                        {user?.profile?.firstName?.[0] || user?.profile?.companyName?.[0] || user?.email?.[0]?.toUpperCase() || '?'}
                                     </span>
                                     <span className="user-name">
-                                        {user?.profile?.firstName || user?.profile?.companyName}
+                                        {user?.profile?.firstName || user?.profile?.companyName || user?.email?.split('@')[0]}
                                     </span>
                                     <span className="dropdown-arrow">▼</span>
                                 </button>
 
                                 {userMenuOpen && (
                                     <div className="user-menu">
-                                        <Link to="/dashboard" className="user-menu-item" onClick={() => setUserMenuOpen(false)}>
+                                        <Link to={user?.role === 'partner' ? '/partner/dashboard' : '/dashboard'} className="user-menu-item" onClick={() => setUserMenuOpen(false)}>
                                             {t('nav.dashboard')}
                                         </Link>
                                         <Link to="/preferences" className="user-menu-item" onClick={() => setUserMenuOpen(false)}>
@@ -146,7 +146,7 @@ const Layout = () => {
 
                     {isAuthenticated ? (
                         <>
-                            <NavLink to="/dashboard" className="nav-mobile-link" onClick={closeMobileMenu}>
+                            <NavLink to={user?.role === 'partner' ? '/partner/dashboard' : '/dashboard'} className="nav-mobile-link" onClick={closeMobileMenu}>
                                 {t('nav.dashboard')}
                             </NavLink>
                             <NavLink to="/preferences" className="nav-mobile-link" onClick={closeMobileMenu}>
