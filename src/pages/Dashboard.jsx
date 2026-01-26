@@ -1,23 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import BookingsList from '../components/BookingsList';
 import ImpactMetrics from '../components/ImpactMetrics';
-import { getBookingsByUserId } from '../data/mockBookings';
+import { getMyReservations } from '../services/reservationService';
 import './Dashboard.css';
 
 const Dashboard = () => {
     const { t } = useTranslation();
-    const { user, isAuthenticated, loading } = useAuth();
+    const { user, isAuthenticated, loading: authLoading } = useAuth(); // Rename loading to avoid conflict
     const [activeTab, setActiveTab] = useState('upcoming');
+    const [bookings, setBookings] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fetch bookings from API
+    useEffect(() => {
+        const fetchBookings = async () => {
+            if (!isAuthenticated) return;
+            try {
+                const data = await getMyReservations();
+                setBookings(data);
+            } catch (err) {
+                console.error('Failed to fetch dashboard bookings:', err);
+                setError('Failed to load bookings');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (!authLoading) {
+            fetchBookings();
+        }
+    }, [isAuthenticated, authLoading]);
 
     // Redirect if not authenticated
-    if (!loading && !isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
         return <Navigate to="/login" replace />;
     }
 
-    if (loading) {
+    if (authLoading || loading) {
         return (
             <div className="dashboard-loading">
                 <span className="spinner"></span>
@@ -26,15 +49,12 @@ const Dashboard = () => {
         );
     }
 
-    // Get user's bookings
-    const allBookings = getBookingsByUserId(user.id);
-
-    // Filter bookings by tab
-    const upcomingBookings = allBookings.filter(b =>
-        b.status === 'pending' || b.status === 'confirmed'
+    // Filter bookings by tab (Handle API Uppercase Status)
+    const upcomingBookings = bookings.filter(b =>
+        ['CREATED', 'PENDING_PAYMENT', 'CONFIRMED'].includes(b.status)
     );
-    const pastBookings = allBookings.filter(b =>
-        b.status === 'completed' || b.status === 'cancelled'
+    const pastBookings = bookings.filter(b =>
+        ['CANCELLED', 'COMPLETED'].includes(b.status)
     );
 
     const displayedBookings = activeTab === 'upcoming' ? upcomingBookings : pastBookings;
@@ -54,7 +74,7 @@ const Dashboard = () => {
                 <header className="dashboard-header">
                     <div className="dashboard-welcome">
                         <h1>
-                            {t('dashboard.welcomeBack')} {user.profile?.firstName || user.profile?.companyName}! 👋
+                            {t('dashboard.welcomeBack')} {user.profile?.firstName || user.profile?.companyName}!
                         </h1>
                         <p className="dashboard-date">
                             {new Date().toLocaleDateString(user.profile?.language === 'en' ? 'en-GB' : 'fr-FR', {
@@ -67,7 +87,7 @@ const Dashboard = () => {
                     </div>
                     <div className="dashboard-actions">
                         <Link to="/" className="btn btn-primary">
-                            🔍 {t('dashboard.discoverButton')}
+                            {t('dashboard.discoverButton')}
                         </Link>
                     </div>
                 </header>
@@ -75,28 +95,28 @@ const Dashboard = () => {
                 {/* Stats Cards */}
                 <section className="dashboard-stats">
                     <div className="stat-card stat-card--trips">
-                        <span className="stat-card__icon">✈️</span>
+                        <span className="stat-card__icon"></span>
                         <div className="stat-card__content">
                             <span className="stat-card__value">{user.impact?.totalTrips || 0}</span>
                             <span className="stat-card__label">Voyages régénératifs</span>
                         </div>
                     </div>
                     <div className="stat-card stat-card--pending">
-                        <span className="stat-card__icon">⏳</span>
+                        <span className="stat-card__icon"></span>
                         <div className="stat-card__content">
                             <span className="stat-card__value">{upcomingBookings.length}</span>
                             <span className="stat-card__label">Réservations à venir</span>
                         </div>
                     </div>
                     <div className="stat-card stat-card--score">
-                        <span className="stat-card__icon">🌱</span>
+                        <span className="stat-card__icon"></span>
                         <div className="stat-card__content">
                             <span className="stat-card__value">{impact.co2Saved}</span>
                             <span className="stat-card__label">kg CO₂ économisés</span>
                         </div>
                     </div>
                     <div className="stat-card stat-card--communities">
-                        <span className="stat-card__icon">🤝</span>
+                        <span className="stat-card__icon"></span>
                         <div className="stat-card__content">
                             <span className="stat-card__value">{impact.communitiesSupported}</span>
                             <span className="stat-card__label">Communautés soutenues</span>
@@ -161,19 +181,19 @@ const Dashboard = () => {
                     <h3>Actions rapides</h3>
                     <div className="quick-actions-grid">
                         <Link to="/preferences" className="quick-action">
-                            <span className="quick-action__icon">⚙️</span>
+                            <span className="quick-action__icon"></span>
                             <span className="quick-action__label">Préférences</span>
                         </Link>
                         <Link to="/profile" className="quick-action">
-                            <span className="quick-action__icon">👤</span>
+                            <span className="quick-action__icon"></span>
                             <span className="quick-action__label">Profil</span>
                         </Link>
                         <Link to="/support" className="quick-action">
-                            <span className="quick-action__icon">💬</span>
+                            <span className="quick-action__icon"></span>
                             <span className="quick-action__label">Support</span>
                         </Link>
                         <Link to="/refer" className="quick-action">
-                            <span className="quick-action__icon">🎁</span>
+                            <span className="quick-action__icon"></span>
                             <span className="quick-action__label">Parrainage</span>
                         </Link>
                     </div>

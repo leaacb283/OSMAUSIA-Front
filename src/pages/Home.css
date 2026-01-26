@@ -18,23 +18,18 @@
     position: absolute;
     inset: 0;
     z-index: 0;
+    overflow: hidden;
 }
 
-.hero__gradient {
+/* Overlay for carousel readability */
+.hero__overlay {
     position: absolute;
     inset: 0;
     background: linear-gradient(135deg,
-            var(--color-primary) 0%,
-            var(--color-primary-dark) 50%,
-            #0a2e24 100%);
-}
-
-.hero__pattern {
-    position: absolute;
-    inset: 0;
-    background-image:
-        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 40%);
+            rgba(77, 140, 98, 0.75) 0%,
+            rgba(47, 107, 107, 0.65) 50%,
+            rgba(26, 47, 42, 0.8) 100%);
+    z-index: 1;
 }
 
 .hero__content {
@@ -92,41 +87,51 @@
     animation-delay: 0.2s;
 }
 
-/* Decorations */
-.hero__decoration {
+/* Turtle Mascot with Dotted Lines - OSMAUSIA Brand Element */
+.hero__turtle {
     position: absolute;
-    font-size: 3rem;
-    opacity: 0.3;
-    animation: float 6s ease-in-out infinite;
+    bottom: 2%;
+    right: 3%;
+    width: 100px;
+    height: auto;
+    opacity: 1;
+    animation: swim 8s ease-in-out infinite;
+    z-index: 2;
+    /* Remove white background - blend with hero */
+    mix-blend-mode: multiply;
 }
 
-.hero__decoration--1 {
-    top: 20%;
-    left: 10%;
-    animation-delay: 0s;
+@media (min-width: 768px) {
+    .hero__turtle {
+        width: 120px;
+        bottom: 10%;
+        right: 8%;
+    }
 }
 
-.hero__decoration--2 {
-    top: 60%;
-    right: 5%;
-    animation-delay: 2s;
+@media (min-width: 1024px) {
+    .hero__turtle {
+        width: 150px;
+    }
 }
 
-.hero__decoration--3 {
-    bottom: 15%;
-    left: 15%;
-    animation-delay: 4s;
-}
-
-@keyframes float {
+@keyframes swim {
 
     0%,
     100% {
-        transform: translateY(0) rotate(0deg);
+        transform: translateY(0) translateX(0) rotate(0deg);
+    }
+
+    25% {
+        transform: translateY(-10px) translateX(5px) rotate(3deg);
     }
 
     50% {
-        transform: translateY(-20px) rotate(5deg);
+        transform: translateY(0) translateX(10px) rotate(-2deg);
+    }
+
+    75% {
+        transform: translateY(5px) translateX(5px) rotate(2deg);
     }
 }
 

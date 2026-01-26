@@ -20,9 +20,16 @@ export const searchAccommodations = async (query = '', params = {}) => {
     const queryParams = new URLSearchParams();
 
     if (query) queryParams.set('q', query);
+    // Filtres avancés
+    if (params.city) queryParams.set('city', params.city);
+    if (params.priceMin) queryParams.set('priceMin', params.priceMin);
+    if (params.priceMax) queryParams.set('priceMax', params.priceMax);
+    if (params.tags) queryParams.set('tags', Array.isArray(params.tags) ? params.tags.join(',') : params.tags);
+    // Geo search
     if (params.lat) queryParams.set('lat', params.lat);
     if (params.lng) queryParams.set('lng', params.lng);
     if (params.radius) queryParams.set('radius', params.radius);
+    // Pagination
     if (params.offset) queryParams.set('offset', params.offset);
     if (params.limit) queryParams.set('limit', params.limit);
 
@@ -83,6 +90,34 @@ export const searchAll = async (query = '', params = {}) => {
 };
 
 /**
+ * Fallback images for offers when API doesn't provide them
+ */
+const FALLBACK_ACCOMMODATION_IMAGES = [
+    '/images/offers/overwater-bungalow.jpg',
+    '/images/offers/chalet-montagne.jpg',
+    '/images/offers/maison-coloniale.jpg',
+    '/images/offers/eco-lodge.jpg'
+];
+
+const FALLBACK_ACTIVITY_IMAGES = [
+    '/images/offers/turtle.png',
+    '/images/offers/waterfall.jpg',
+    '/images/offers/mountains.png',
+    '/images/offers/hiker.jpg'
+];
+
+/**
+ * Get fallback image based on offer ID (cycles through available images)
+ */
+const getFallbackImage = (id, imageArray) => {
+    // Ensure id is a number for modulo operation
+    const numericId = typeof id === 'number' ? id : parseInt(id) || 0;
+    const index = Math.abs(numericId) % imageArray.length;
+    console.log('[DEBUG] getFallbackImage:', { id, numericId, index, image: imageArray[index] });
+    return imageArray[index];
+};
+
+/**
  * Mapper un résultat API hébergement vers le format frontend
  * @param {Object} hit - Résultat de recherche Meilisearch
  * @returns {Object} - Format compatible avec OfferCard
@@ -120,7 +155,10 @@ export const mapAccommodationToOffer = (hit) => ({
         social: hit.regenScore || 80,
         experience: hit.regenScore || 80
     },
-    images: [],
+    // Use API images if available, otherwise use fallback
+    images: hit.images?.length > 0
+        ? hit.images
+        : [getFallbackImage(hit.id, FALLBACK_ACCOMMODATION_IMAGES)],
     featured: false,
     available: true,
     tags: hit.tags || []
@@ -164,7 +202,10 @@ export const mapActivityToOffer = (hit) => ({
         social: 85,
         experience: 85
     },
-    images: [],
+    // Use API images if available, otherwise use fallback
+    images: hit.images?.length > 0
+        ? hit.images
+        : [getFallbackImage(hit.id, FALLBACK_ACTIVITY_IMAGES)],
     featured: false,
     available: true,
     duration: hit.durationMin ? `${hit.durationMin} min` : null,

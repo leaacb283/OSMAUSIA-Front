@@ -34,8 +34,7 @@ const Layout = () => {
                 <div className="header-container container">
                     {/* Logo */}
                     <Link to="/" className="logo" onClick={closeMobileMenu}>
-                        <span className="logo-icon">🌿</span>
-                        <span className="logo-text">{t('common.appName')}</span>
+                        <img src="/images/brand/logo-black.png" alt="OSMAUSIA" className="logo-img" />
                     </Link>
 
                     {/* Desktop Navigation */}
@@ -181,7 +180,6 @@ const Layout = () => {
                         {/* About */}
                         <div className="footer-section">
                             <div className="footer-logo">
-                                <span className="logo-icon">🌿</span>
                                 <span className="logo-text">{t('common.appName')}</span>
                             </div>
                             <p className="footer-about">{t('footer.aboutText')}</p>

@@ -1,0 +1,86 @@
+/* Image Carousel Component */
+.image-carousel {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+}
+
+/* Slides container */
+.carousel__slides {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.carousel__slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+}
+
+.carousel__slide.active {
+    opacity: 1;
+}
+
+.carousel__slide.transitioning {
+    transition: opacity 0.5s ease-out;
+}
+
+/* Dots navigation */
+.carousel__dots {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+}
+
+.carousel__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.carousel__dot:hover {
+    opacity: 1;
+}
+
+.carousel__dot.active {
+    background: white;
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+/* Variant for hero section */
+.image-carousel--hero {
+    position: absolute;
+    inset: 0;
+    border-radius: 0;
+}
+
+.image-carousel--hero .carousel__dots {
+    bottom: 2rem;
+}
+
+/* Variant for cards */
+.image-carousel--card {
+    height: 200px;
+}
+
+@media (min-width: 768px) {
+    .image-carousel--card {
+        height: 250px;
+    }
+}

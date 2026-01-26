@@ -120,13 +120,12 @@ const RegisterPartner = () => {
                         <div className="auth-form-wrapper">
                             <div className="auth-header">
                                 <Link to="/" className="auth-logo">
-                                    <span className="logo-icon">🌿</span>
                                     <span className="logo-text">OSMAUSIA</span>
                                 </Link>
                             </div>
 
                             <div className="auth-success">
-                                <span className="auth-success-icon">📧</span>
+                                <span className="auth-success-icon"></span>
                                 <h2>Inscription réussie !</h2>
                                 <p>
                                     Un email de confirmation a été envoyé à <strong>{formData.email}</strong>.
@@ -149,7 +148,7 @@ const RegisterPartner = () => {
 
                     <div className="auth-visual-section">
                         <div className="auth-visual-content">
-                            <div className="auth-visual-icon">✉️</div>
+                            <div className="auth-visual-icon"></div>
                             <h2>Vérifiez votre boîte mail</h2>
                             <p>Pensez à vérifier vos spams si vous ne trouvez pas l'email.</p>
                         </div>
@@ -168,7 +167,6 @@ const RegisterPartner = () => {
                         {/* Header */}
                         <div className="auth-header">
                             <Link to="/" className="auth-logo">
-                                <span className="logo-icon">🌿</span>
                                 <span className="logo-text">OSMAUSIA</span>
                             </Link>
                             <h1 className="auth-title">{t('auth.registerPartnerTitle')}</h1>
@@ -178,17 +176,17 @@ const RegisterPartner = () => {
                         {/* Type Toggle */}
                         <div className="auth-type-toggle">
                             <Link to="/register/traveler" className="auth-type-btn">
-                                🧳 {t('auth.traveler')}
+                                {t('auth.traveler')}
                             </Link>
                             <Link to="/register/partner" className="auth-type-btn active">
-                                🏢 {t('auth.partner')}
+                                {t('auth.partner')}
                             </Link>
                         </div>
 
                         {/* Error Message */}
                         {errors.submit && (
                             <div className="auth-error">
-                                <span>⚠️</span> {errors.submit}
+                                {errors.submit}
                             </div>
                         )}
 
@@ -390,21 +388,21 @@ const RegisterPartner = () => {
                 {/* Right Side - Visual */}
                 <div className="auth-visual-section">
                     <div className="auth-visual-content">
-                        <div className="auth-visual-icon">🏢</div>
+                        <div className="auth-visual-icon"></div>
                         <h2>Rejoignez notre réseau de partenaires</h2>
                         <p>Proposez vos expériences régénératives à des voyageurs en quête de sens et d'authenticité.</p>
 
                         <div className="auth-visual-stats">
                             <div className="auth-stat">
-                                <span className="auth-stat-value">📈</span>
+                                <span className="auth-stat-value"></span>
                                 <span className="auth-stat-label">Visibilité accrue</span>
                             </div>
                             <div className="auth-stat">
-                                <span className="auth-stat-value">🎯</span>
+                                <span className="auth-stat-value"></span>
                                 <span className="auth-stat-label">Voyageurs qualifiés</span>
                             </div>
                             <div className="auth-stat">
-                                <span className="auth-stat-value">💚</span>
+                                <span className="auth-stat-value"></span>
                                 <span className="auth-stat-label">Impact certifié</span>
                             </div>
                         </div>

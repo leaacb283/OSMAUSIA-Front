@@ -59,7 +59,6 @@ const Login = () => {
                         {/* Header */}
                         <div className="auth-header">
                             <Link to="/" className="auth-logo">
-                                <span className="logo-icon">🌿</span>
                                 <span className="logo-text">OSMAUSIA</span>
                             </Link>
                             <h1 className="auth-title">{t('auth.loginTitle')}</h1>
@@ -69,7 +68,7 @@ const Login = () => {
                         {/* Error Message */}
                         {error && (
                             <div className="auth-error">
-                                <span>⚠️</span> {error}
+                                {error}
                             </div>
                         )}
 
@@ -154,7 +153,7 @@ const Login = () => {
                 {/* Right Side - Visual */}
                 <div className="auth-visual-section">
                     <div className="auth-visual-content">
-                        <div className="auth-visual-icon">🌍</div>
+                        <div className="auth-visual-icon"></div>
                         <h2>Voyagez avec impact</h2>
                         <p>Découvrez des expériences authentiques qui régénèrent les communautés et l'environnement.</p>
 

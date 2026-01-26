@@ -115,13 +115,12 @@ const RegisterTraveler = () => {
                         <div className="auth-form-wrapper">
                             <div className="auth-header">
                                 <Link to="/" className="auth-logo">
-                                    <span className="logo-icon">🌿</span>
                                     <span className="logo-text">OSMAUSIA</span>
                                 </Link>
                             </div>
 
                             <div className="auth-success">
-                                <span className="auth-success-icon">📧</span>
+                                <span className="auth-success-icon"></span>
                                 <h2>Inscription réussie !</h2>
                                 <p>
                                     Un email de confirmation a été envoyé à <strong>{formData.email}</strong>.
@@ -142,7 +141,7 @@ const RegisterTraveler = () => {
 
                     <div className="auth-visual-section">
                         <div className="auth-visual-content">
-                            <div className="auth-visual-icon">✉️</div>
+                            <div className="auth-visual-icon"></div>
                             <h2>Vérifiez votre boîte mail</h2>
                             <p>Pensez à vérifier vos spams si vous ne trouvez pas l'email.</p>
                         </div>
@@ -161,7 +160,6 @@ const RegisterTraveler = () => {
                         {/* Header */}
                         <div className="auth-header">
                             <Link to="/" className="auth-logo">
-                                <span className="logo-icon">🌿</span>
                                 <span className="logo-text">OSMAUSIA</span>
                             </Link>
                             <h1 className="auth-title">{t('auth.registerTravelerTitle')}</h1>
@@ -171,17 +169,17 @@ const RegisterTraveler = () => {
                         {/* Type Toggle */}
                         <div className="auth-type-toggle">
                             <Link to="/register/traveler" className="auth-type-btn active">
-                                🧳 {t('auth.traveler')}
+                                {t('auth.traveler')}
                             </Link>
                             <Link to="/register/partner" className="auth-type-btn">
-                                🏢 {t('auth.partner')}
+                                {t('auth.partner')}
                             </Link>
                         </div>
 
                         {/* Error Message */}
                         {errors.submit && (
                             <div className="auth-error">
-                                <span>⚠️</span> {errors.submit}
+                                {errors.submit}
                             </div>
                         )}
 
@@ -353,21 +351,21 @@ const RegisterTraveler = () => {
                 {/* Right Side - Visual */}
                 <div className="auth-visual-section">
                     <div className="auth-visual-content">
-                        <div className="auth-visual-icon">🧳</div>
+                        <div className="auth-visual-icon"></div>
                         <h2>Devenez un voyageur régénératif</h2>
                         <p>Créez votre compte et accédez à des expériences uniques qui font la différence.</p>
 
                         <div className="auth-visual-stats">
                             <div className="auth-stat">
-                                <span className="auth-stat-value">🌱</span>
+                                <span className="auth-stat-value"></span>
                                 <span className="auth-stat-label">Impact positif</span>
                             </div>
                             <div className="auth-stat">
-                                <span className="auth-stat-value">🤝</span>
+                                <span className="auth-stat-value"></span>
                                 <span className="auth-stat-label">Communautés locales</span>
                             </div>
                             <div className="auth-stat">
-                                <span className="auth-stat-value">⭐</span>
+                                <span className="auth-stat-value"></span>
                                 <span className="auth-stat-label">Expériences uniques</span>
                             </div>
                         </div>

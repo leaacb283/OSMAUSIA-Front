@@ -14,9 +14,9 @@ const OfferCard = ({ offer, featured = false }) => {
 
     // Badge based on category
     const categoryBadges = {
-        nature: { label: t('home.filterNature'), class: 'badge-nature', icon: '🌿' },
-        social: { label: t('home.filterSocial'), class: 'badge-social', icon: '🤝' },
-        culture: { label: t('home.filterCulture'), class: 'badge-culture', icon: '🎭' }
+        nature: { label: t('home.filterNature'), class: 'badge-nature', icon: '' },
+        social: { label: t('home.filterSocial'), class: 'badge-social', icon: '' },
+        culture: { label: t('home.filterCulture'), class: 'badge-culture', icon: '' }
     };
 
     const badge = categoryBadges[offer.category];
@@ -39,11 +39,15 @@ const OfferCard = ({ offer, featured = false }) => {
                 <div
                     className="offer-card__image"
                     style={{
-                        backgroundImage: `linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.7)), url(${offer.images[0] || '/images/placeholder.jpg'})`
+                        backgroundImage: offer.images?.[0]
+                            ? `linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.7)), url(${offer.images[0]})`
+                            : 'none'
                     }}
                 >
-                    {/* Fallback gradient for demo */}
-                    <div className="offer-card__image-fallback" data-category={offer.category} />
+                    {/* Fallback gradient only when no image */}
+                    {!offer.images?.[0] && (
+                        <div className="offer-card__image-fallback" data-category={offer.category} />
+                    )}
                 </div>
 
                 {/* Category Badge */}
@@ -75,7 +79,7 @@ const OfferCard = ({ offer, featured = false }) => {
                 <h3 className="offer-card__title">{title}</h3>
 
                 <p className="offer-card__location">
-                    📍 {offer.location.city}, {offer.location.country}
+                    {offer.location.city}, {offer.location.country}
                 </p>
 
                 <p className="offer-card__description">{description}</p>
@@ -99,7 +103,7 @@ const OfferCard = ({ offer, featured = false }) => {
                         <span className="offer-card__price-unit">{priceUnit}</span>
                     </div>
 
-                    <Link to={`/offers/${offer.id}`} className="btn btn-primary btn-sm">
+                    <Link to={`/offer/${offer.type}/${offer.id}`} className="btn btn-primary btn-sm">
                         {t('common.viewMore')}
                     </Link>
                 </div>

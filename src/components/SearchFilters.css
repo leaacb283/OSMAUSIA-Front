@@ -1,0 +1,196 @@
+/**
+ * SearchFilters Styles
+ * Premium design with glassmorphism and smooth animations
+ */
+
+.search-filters {
+    background: var(--glass-bg, rgba(255, 255, 255, 0.1));
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.search-filters__toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    background: transparent;
+    border: none;
+    color: var(--text-primary, #1a1a2e);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.search-filters__toggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.search-filters__toggle-icon {
+    font-size: 1.1rem;
+}
+
+.search-filters__badge {
+    background: var(--primary, #00b894);
+    color: white;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.search-filters__chevron {
+    margin-left: auto;
+    font-size: 0.7rem;
+    transition: transform 0.3s ease;
+}
+
+.search-filters__chevron--up {
+    transform: rotate(180deg);
+}
+
+.search-filters__content {
+    padding: 0 1.25rem 1.25rem;
+    display: grid;
+    gap: 1.25rem;
+    animation: slideDown 0.25s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.search-filters__group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.search-filters__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary, #666);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.search-filters__input {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background: var(--bg-primary, #fff);
+}
+
+.search-filters__input:focus {
+    outline: none;
+    border-color: var(--primary, #00b894);
+    box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.15);
+}
+
+.search-filters__input--small {
+    flex: 1;
+}
+
+.search-filters__price-range {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.search-filters__separator {
+    color: var(--text-muted, #999);
+}
+
+.search-filters__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.search-filters__tag {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.85rem;
+    background: var(--bg-secondary, #f5f5f5);
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.search-filters__tag:hover {
+    background: var(--bg-hover, #eee);
+    transform: translateY(-1px);
+}
+
+.search-filters__tag--active {
+    background: var(--primary, #00b894);
+    border-color: var(--primary, #00b894);
+    color: white;
+}
+
+.search-filters__tag--active:hover {
+    background: var(--primary-dark, #00a085);
+}
+
+.search-filters__clear {
+    padding: 0.6rem 1rem;
+    background: transparent;
+    border: 1px solid var(--danger, #e74c3c);
+    border-radius: 8px;
+    color: var(--danger, #e74c3c);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 0.5rem;
+}
+
+.search-filters__clear:hover {
+    background: var(--danger, #e74c3c);
+    color: white;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+    .search-filters__content {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .search-filters__group:last-of-type {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Dark mode support */
+[data-theme="dark"] .search-filters {
+    background: rgba(30, 30, 40, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .search-filters__input {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+[data-theme="dark"] .search-filters__tag {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}

@@ -3,11 +3,12 @@
  * Displays filtered offers based on search criteria
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import OfferCard from '../components/OfferCard';
 import SearchBar from '../components/SearchBar';
+import SearchFilters from '../components/SearchFilters';
 import { searchAll, mapAccommodationToOffer, mapActivityToOffer } from '../services/searchService';
 import './SearchResults.css';
 
@@ -25,6 +26,7 @@ const SearchResults = () => {
     const [sortBy, setSortBy] = useState('featured');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [advancedFilters, setAdvancedFilters] = useState({});
 
     // Fetch offers from API based on search criteria
     useEffect(() => {
@@ -33,9 +35,10 @@ const SearchResults = () => {
             setError(null);
 
             try {
-                // Appel à l'API Meilisearch ou directe
+                // Appel à l'API Meilisearch avec filtres avancés
                 const { accommodations, activities } = await searchAll(destination, {
-                    limit: 50
+                    limit: 50,
+                    ...advancedFilters
                 });
 
                 // Mapper les résultats API vers le format frontend
@@ -82,7 +85,12 @@ const SearchResults = () => {
         };
 
         fetchOffers();
-    }, [destination, guests, sortBy]);
+    }, [destination, guests, sortBy, advancedFilters]);
+
+    // Callback stable pour éviter les re-renders
+    const handleFiltersChange = useCallback((newFilters) => {
+        setAdvancedFilters(newFilters);
+    }, []);
 
     const handleSearch = (searchData) => {
         const params = new URLSearchParams();
@@ -99,6 +107,7 @@ const SearchResults = () => {
             <section className="search-results__header">
                 <div className="container">
                     <SearchBar onSearch={handleSearch} variant="compact" />
+                    <SearchFilters onFiltersChange={handleFiltersChange} />
                 </div>
             </section>
 
@@ -139,7 +148,7 @@ const SearchResults = () => {
                     {/* Error Message */}
                     {error && (
                         <div className="search-results__warning">
-                            <span>⚠️</span> {error}
+                            {error}
                         </div>
                     )}
 
@@ -161,7 +170,7 @@ const SearchResults = () => {
                         </div>
                     ) : (
                         <div className="search-results__empty">
-                            <span className="search-results__empty-icon">🔍</span>
+                            <span className="search-results__empty-icon"></span>
                             <h2>Aucune offre trouvée</h2>
                             <p>
                                 Essayez de modifier vos critères de recherche ou explorez toutes nos offres.

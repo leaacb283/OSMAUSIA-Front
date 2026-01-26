@@ -8,21 +8,21 @@ const ThematicFilters = ({ activeFilter, onFilterChange }) => {
         {
             id: 'nature',
             label: t('home.filterNature'),
-            icon: '🌿',
+            icon: '',
             color: 'nature',
             description: 'Écotourisme, randonnées, biodiversité'
         },
         {
             id: 'social',
             label: t('home.filterSocial'),
-            icon: '🤝',
+            icon: '',
             color: 'social',
             description: 'Communautés locales, commerce équitable'
         },
         {
             id: 'culture',
             label: t('home.filterCulture'),
-            icon: '🎭',
+            icon: '',
             color: 'culture',
             description: 'Artisanat, gastronomie, traditions'
         }

@@ -17,14 +17,13 @@ import Preferences from './pages/Preferences';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import SearchResults from './pages/SearchResults';
+import OfferDetails from './pages/OfferDetails';
+import MyReservations from './pages/MyReservations';
+import CheckoutPage from './pages/CheckoutPage';
+import PaymentSuccess from './pages/PaymentSuccess';
+import Explore from './pages/Explore';
 
-// Placeholder pages
-const ExplorePage = () => (
-    <div className="container" style={{ padding: '100px 20px', textAlign: 'center' }}>
-        <h1>🔍 Explorer</h1>
-        <p>Page en construction - Découvrez toutes nos offres régénératives</p>
-    </div>
-);
+
 
 const AboutPage = () => (
     <div className="container" style={{ padding: '100px 20px', textAlign: 'center' }}>
@@ -50,9 +49,13 @@ function App() {
                         {/* Routes with Layout */}
                         <Route element={<Layout />}>
                             <Route path="/" element={<Home />} />
-                            <Route path="/explore" element={<ExplorePage />} />
+                            <Route path="/explore" element={<Explore />} />
                             <Route path="/about" element={<AboutPage />} />
                             <Route path="/search" element={<SearchResults />} />
+                            <Route path="/offer/:type/:id" element={<OfferDetails />} />
+                            <Route path="/my-reservations" element={<MyReservations />} />
+                            <Route path="/checkout/:reservationId" element={<CheckoutPage />} />
+                            <Route path="/payment/success" element={<PaymentSuccess />} />
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/partner/dashboard" element={<PartnerDashboard />} />
                             <Route path="/preferences" element={<Preferences />} />

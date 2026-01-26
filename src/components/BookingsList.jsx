@@ -11,22 +11,22 @@ const BookingsList = ({ bookings, showActions = true }) => {
         pending: {
             label: t('booking.statusPending'),
             class: 'badge-pending',
-            icon: '⏳'
+            icon: ''
         },
         confirmed: {
             label: t('booking.statusConfirmed'),
             class: 'badge-confirmed',
-            icon: '✓'
+            icon: ''
         },
         cancelled: {
             label: t('booking.statusCancelled'),
             class: 'badge-cancelled',
-            icon: '✕'
+            icon: ''
         },
         completed: {
             label: t('booking.statusCompleted'),
             class: 'badge-confirmed',
-            icon: '★'
+            icon: ''
         }
     };
 
@@ -43,7 +43,7 @@ const BookingsList = ({ bookings, showActions = true }) => {
     if (!bookings || bookings.length === 0) {
         return (
             <div className="bookings-empty">
-                <span className="bookings-empty__icon">📭</span>
+                <span className="bookings-empty__icon"></span>
                 <p className="bookings-empty__text">{t('dashboard.noBookings')}</p>
                 <Link to="/" className="btn btn-primary">
                     {t('dashboard.discoverButton')}
@@ -55,13 +55,14 @@ const BookingsList = ({ bookings, showActions = true }) => {
     return (
         <div className="bookings-list">
             {bookings.map((booking) => {
-                const status = statusConfig[booking.status];
-                const title = booking.offerTitle[lang] || booking.offerTitle.fr;
+                const status = statusConfig[booking.status?.toLowerCase()] || statusConfig.pending;
+                // API keys are flat: hebergementTitle, activiteName
+                const title = booking.hebergementTitle || booking.activiteName || `Réservation #${booking.id}`;
 
                 return (
                     <article key={booking.id} className="booking-card">
                         {/* Status indicator */}
-                        <div className={`booking-card__status-bar status-${booking.status}`} />
+                        <div className={`booking-card__status-bar status-${booking.status?.toLowerCase()}`} />
 
                         <div className="booking-card__content">
                             {/* Header */}
@@ -78,23 +79,15 @@ const BookingsList = ({ bookings, showActions = true }) => {
                             <div className="booking-card__details">
                                 {/* Dates */}
                                 <div className="booking-card__detail">
-                                    <span className="booking-card__detail-icon">📅</span>
+                                    <span className="booking-card__detail-icon"></span>
                                     <span className="booking-card__detail-text">
-                                        {booking.dates.checkIn ? (
+                                        {booking.checkInDate ? (
                                             <>
-                                                {formatDate(booking.dates.checkIn)} → {formatDate(booking.dates.checkOut)}
-                                                <span className="booking-card__detail-sub">
-                                                    ({booking.dates.nights} {booking.dates.nights > 1 ? t('booking.nights') : t('booking.night')})
-                                                </span>
+                                                {formatDate(booking.checkInDate)} → {formatDate(booking.checkOutDate)}
                                             </>
                                         ) : (
                                             <>
-                                                {formatDate(booking.dates.date)}
-                                                {booking.dates.duration && (
-                                                    <span className="booking-card__detail-sub">
-                                                        ({booking.dates.duration})
-                                                    </span>
-                                                )}
+                                                {formatDate(booking.startDateTime)}
                                             </>
                                         )}
                                     </span>
@@ -102,76 +95,34 @@ const BookingsList = ({ bookings, showActions = true }) => {
 
                                 {/* Guests */}
                                 <div className="booking-card__detail">
-                                    <span className="booking-card__detail-icon">👥</span>
+                                    <span className="booking-card__detail-icon"></span>
                                     <span className="booking-card__detail-text">
-                                        {booking.guests} {booking.guests > 1 ? t('booking.guests') : t('booking.guest')}
+                                        {booking.guestCount} {booking.guestCount > 1 ? t('booking.guests') : t('booking.guest')}
                                     </span>
                                 </div>
 
                                 {/* Price */}
                                 <div className="booking-card__detail">
-                                    <span className="booking-card__detail-icon">💰</span>
+                                    <span className="booking-card__detail-icon"></span>
                                     <span className="booking-card__detail-text booking-card__price">
-                                        {booking.pricing.total} {booking.pricing.currency}
-                                        {booking.pricing.refunded && (
-                                            <span className="booking-card__refunded">(Remboursé)</span>
-                                        )}
+                                        {booking.totalPrice} €
                                     </span>
                                 </div>
                             </div>
-
-                            {/* Impact preview */}
-                            {booking.impact && booking.status !== 'cancelled' && (
-                                <div className="booking-card__impact">
-                                    {booking.impact.co2Saved && (
-                                        <span className="booking-card__impact-item">
-                                            🌱 -{booking.impact.co2Saved}kg CO₂
-                                        </span>
-                                    )}
-                                    {booking.impact.localRevenue && (
-                                        <span className="booking-card__impact-item">
-                                            💚 {booking.impact.localRevenue}€ local
-                                        </span>
-                                    )}
-                                    {booking.impact.treesPlanted && (
-                                        <span className="booking-card__impact-item">
-                                            🌳 {booking.impact.treesPlanted} {lang === 'fr' ? 'arbres' : 'trees'}
-                                        </span>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Review */}
-                            {booking.review && (
-                                <div className="booking-card__review">
-                                    <div className="booking-card__review-rating">
-                                        {'★'.repeat(booking.review.rating)}{'☆'.repeat(5 - booking.review.rating)}
-                                    </div>
-                                    <p className="booking-card__review-text">
-                                        "{booking.review.comment[lang] || booking.review.comment.fr}"
-                                    </p>
-                                </div>
-                            )}
 
                             {/* Actions */}
                             {showActions && (
                                 <div className="booking-card__actions">
                                     <Link
-                                        to={`/bookings/${booking.id}`}
+                                        to={`/checkout/${booking.id}`}
                                         className="btn btn-secondary btn-sm"
                                     >
                                         {t('booking.viewDetails')}
                                     </Link>
 
-                                    {booking.status === 'confirmed' && (
+                                    {booking.status === 'CONFIRMED' && (
                                         <button className="btn btn-ghost btn-sm">
                                             {t('booking.cancelBooking')}
-                                        </button>
-                                    )}
-
-                                    {booking.status === 'completed' && !booking.review && (
-                                        <button className="btn btn-primary btn-sm">
-                                            {t('booking.leaveReview')}
                                         </button>
                                     )}
                                 </div>

@@ -31,7 +31,7 @@ const SearchBar = ({ onSearch, variant = 'hero' }) => {
             {/* Destination */}
             <div className="search-bar__field search-bar__field--destination">
                 <label htmlFor="destination" className="search-bar__label">
-                    <span className="search-bar__icon">📍</span>
+                    <span className="search-bar__icon"></span>
                     {t('home.searchPlaceholder').split('?')[0]}
                 </label>
                 <input
@@ -50,7 +50,7 @@ const SearchBar = ({ onSearch, variant = 'hero' }) => {
             {/* Check-in Date */}
             <div className="search-bar__field search-bar__field--date">
                 <label htmlFor="check-in" className="search-bar__label">
-                    <span className="search-bar__icon">📅</span>
+                    <span className="search-bar__icon"></span>
                     {t('home.searchDate')}
                 </label>
                 <input
@@ -69,7 +69,7 @@ const SearchBar = ({ onSearch, variant = 'hero' }) => {
             {/* Check-out Date */}
             <div className="search-bar__field search-bar__field--date">
                 <label htmlFor="check-out" className="search-bar__label">
-                    <span className="search-bar__icon">📅</span>
+                    <span className="search-bar__icon"></span>
                     {t('home.searchDate')}
                 </label>
                 <input
@@ -88,7 +88,7 @@ const SearchBar = ({ onSearch, variant = 'hero' }) => {
             {/* Guests */}
             <div className="search-bar__field search-bar__field--guests">
                 <label htmlFor="guests" className="search-bar__label">
-                    <span className="search-bar__icon">👥</span>
+                    <span className="search-bar__icon"></span>
                     {t('home.searchGuests')}
                 </label>
                 <div className="search-bar__guests-control">
@@ -122,7 +122,7 @@ const SearchBar = ({ onSearch, variant = 'hero' }) => {
 
             {/* Search Button */}
             <button type="submit" className="search-bar__submit btn btn-primary">
-                <span className="search-bar__submit-icon">🔍</span>
+                <span className="search-bar__submit-icon"></span>
                 <span className="search-bar__submit-text">{t('home.searchButton')}</span>
             </button>
         </form>
