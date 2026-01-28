@@ -25,138 +25,77 @@ const SearchResults = () => {
     const [filteredOffers, setFilteredOffers] = useState([]);
     const [sortBy, setSortBy] = useState('featured');
     const [loading, setLoading] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState(null);
     const [advancedFilters, setAdvancedFilters] = useState({});
 
+    // Pagination states
+    const [nextCursor, setNextCursor] = useState(0);
+    const [totalHits, setTotalHits] = useState(0);
+
     // Fetch offers from API based on search criteria
-    useEffect(() => {
-        const fetchOffers = async () => {
+    const fetchOffers = useCallback(async (isLoadMore = false) => {
+        if (isLoadMore) setLoadingMore(true);
+        else {
             setLoading(true);
-            setError(null);
+            setNextCursor(0);
+        }
+        setError(null);
 
-            try {
-                // 1. Parallel Fetch: Search Results (Meili) + Full Catalog (Source of Truth for Images)
-                const [searchRes, hebergementsRes, activitiesRes] = await Promise.all([
-                    searchAll(destination, { limit: 50, ...advancedFilters }),
-                    // We catch errors on catalog fetch to avoid breaking search if catalog fails
-                    import('../services/api').then(m => m.default.get('/offer/hebergements')).catch(() => ({ data: [] })),
-                    import('../services/api').then(m => m.default.get('/offer/activites')).catch(() => ({ data: [] }))
-                ]);
+        try {
+            const currentOffset = isLoadMore ? nextCursor : 0;
+            const limit = 20;
 
-                const { accommodations, activities } = searchRes;
-                const fullHebergements = hebergementsRes.data || [];
-                const fullActivities = activitiesRes.data || [];
+            // 1. Fetch only verified search results (Meili + Deep Pagination check is done server-side)
+            const searchRes = await searchAll(destination, {
+                limit,
+                offset: currentOffset,
+                checkInDate: checkIn,
+                checkOutDate: checkOut,
+                ...advancedFilters
+            });
 
-                // 2. Map Search Results
-                const mappedAccommodations = (accommodations.hits || []).map(mapAccommodationToOffer);
-                const mappedActivities = (activities.hits || []).map(mapActivityToOffer);
+            const { accommodations, activities } = searchRes;
 
-                // 3. Hydrate with Images from Catalog
-                // Since Meilisearch index doesn't have images (yet), we match by ID with the catalog data
-                const hydratedAccommodations = mappedAccommodations.map(offer => {
-                    const fullData = fullHebergements.find(h => h.id === offer.id);
-                    if (fullData && fullData.medias?.length > 0) {
-                        return {
-                            ...offer,
-                            images: fullData.medias
-                                .sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0))
-                                .map(m => m.url)
-                        };
-                    }
-                    return offer;
-                });
+            // 2. Map Results (Images are already in the hits from Meilisearch)
+            const mappedAccommodations = (accommodations.hits || []).map(mapAccommodationToOffer);
+            const mappedActivities = (activities.hits || []).map(mapActivityToOffer);
 
-                const hydratedActivities = mappedActivities.map(offer => {
-                    const fullData = fullActivities.find(a => a.id === offer.id);
-                    if (fullData && fullData.medias?.length > 0) {
-                        return {
-                            ...offer,
-                            images: fullData.medias
-                                .sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0))
-                                .map(m => m.url)
-                        };
-                    }
-                    return offer;
-                });
+            let newResults = [...mappedAccommodations, ...mappedActivities];
 
-                // 4. Hybrid Search Merge (Client-Side Fallback)
-                // If Meili missed the new offer (indexing lag), we find it in fullHebergements
-                let extraMatches = [];
-                if (destination) {
-                    const q = destination.toLowerCase();
-
-                    // Accommodations fallback
-                    const extraAccommodations = fullHebergements.filter(h => {
-                        const alreadyFound = hydratedAccommodations.some(ha => ha.id === h.id);
-                        if (alreadyFound) return false;
-                        const titleMatch = h.title?.toLowerCase().includes(q);
-                        const cityMatch = (h.city || h.etablissement?.city)?.toLowerCase().includes(q);
-                        return titleMatch || cityMatch;
-                    }).map(h => mapBackendToFront({ ...h, type: 'hebergement' }));
-
-                    // Activities fallback
-                    const extraActivities = fullActivities.filter(a => {
-                        const alreadyFound = hydratedActivities.some(ha => ha.id === a.id);
-                        if (alreadyFound) return false;
-                        const titleMatch = a.name?.toLowerCase().includes(q);
-                        const cityMatch = a.city?.toLowerCase().includes(q);
-                        return titleMatch || cityMatch;
-                    }).map(a => mapBackendToFront({ ...a, type: 'activite' }));
-
-                    extraMatches = [...extraAccommodations, ...extraActivities];
-                }
-
-                // Merge and Dedupe (Priority to Meili results as they are ranked, append new matches at top or bottom?)
-                // Appending at top implies "New/Relevant" if manual match
-                let results = [...hydratedAccommodations, ...extraMatches, ...hydratedActivities];
-
-                // Deduplicate by ID just in case
-                const seen = new Set();
-                results = results.filter(o => {
-                    const duplicate = seen.has(o.id);
-                    seen.add(o.id);
-                    return !duplicate;
-                });
-
-                // Filter by capacity
-                if (guests) {
-                    results = results.filter(offer =>
-                        offer.capacity.max >= guests
-                    );
-                }
-
-                // Sort results
-                switch (sortBy) {
-                    case 'price-asc':
-                        results.sort((a, b) => a.price.amount - b.price.amount);
-                        break;
-                    case 'price-desc':
-                        results.sort((a, b) => b.price.amount - a.price.amount);
-                        break;
-                    case 'score':
-                        results.sort((a, b) => {
-                            const scoreA = (a.regenScore.environmental + a.regenScore.social + a.regenScore.experience) / 3;
-                            const scoreB = (b.regenScore.environmental + b.regenScore.social + b.regenScore.experience) / 3;
-                            return scoreB - scoreA;
-                        });
-                        break;
-                    case 'featured':
-                    default:
-                        results.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
-                }
-
-                setFilteredOffers(results);
-            } catch (err) {
-                console.error('Search API error:', err);
-                setError('Impossible de charger les offres. Vérifiez que le serveur est démarré.');
-                setFilteredOffers([]);
-            } finally {
-                setLoading(false);
+            // 3. Update state
+            if (isLoadMore) {
+                setFilteredOffers(prev => [...prev, ...newResults]);
+            } else {
+                setFilteredOffers(newResults);
             }
-        };
 
-        fetchOffers();
-    }, [destination, guests, sortBy, advancedFilters]);
+            // 4. Update Pagination
+            // Strategy: we take the highest cursor from both pools or handle them separately.
+            // For mixed view, we use a combined logic.
+            const accCursor = accommodations.nextCursor || (currentOffset + limit);
+            const actCursor = activities.nextCursor || (currentOffset + limit);
+            setNextCursor(Math.max(accCursor, actCursor));
+            setTotalHits((accommodations.totalHits || 0) + (activities.totalHits || 0));
+
+        } catch (err) {
+            console.error('Search API error:', err);
+            setError('Impossible de charger les offres. Vérifiez que le serveur est démarré.');
+            if (!isLoadMore) setFilteredOffers([]);
+        } finally {
+            setLoading(false);
+            setLoadingMore(false);
+        }
+    }, [destination, checkIn, checkOut, guests, advancedFilters, nextCursor]);
+
+    // Initial fetch or filter change
+    useEffect(() => {
+        fetchOffers(false);
+    }, [destination, checkIn, checkOut, guests, sortBy, advancedFilters]);
+
+    const handleLoadMore = () => {
+        fetchOffers(true);
+    };
 
     // Callback stable pour éviter les re-renders
     const handleFiltersChange = useCallback((newFilters) => {
@@ -246,7 +185,7 @@ const SearchResults = () => {
                     <div className="search-results__info">
                         <div className="search-results__count">
                             <h1>
-                                {filteredOffers.length} {filteredOffers.length === 1 ? 'offre trouvée' : 'offres trouvées'}
+                                {totalHits} {totalHits === 1 ? 'offre trouvée' : 'offres trouvées'}
                             </h1>
                             {destination && (
                                 <p className="search-results__query">
@@ -287,14 +226,29 @@ const SearchResults = () => {
                             <p>Recherche en cours...</p>
                         </div>
                     ) : filteredOffers.length > 0 ? (
-                        <div className="offers-grid">
-                            {filteredOffers.map((offer) => (
-                                <OfferCard
-                                    key={offer.id}
-                                    offer={offer}
-                                    featured={false}
-                                />
-                            ))}
+                        <div className="search-results__grid-container">
+                            <div className="offers-grid">
+                                {filteredOffers.map((offer) => (
+                                    <OfferCard
+                                        key={`${offer.type}-${offer.id}`}
+                                        offer={offer}
+                                        featured={false}
+                                    />
+                                ))}
+                            </div>
+
+                            {/* Load More Button */}
+                            {filteredOffers.length < totalHits && (
+                                <div className="search-results__load-more">
+                                    <button
+                                        className="btn btn-secondary"
+                                        onClick={handleLoadMore}
+                                        disabled={loadingMore}
+                                    >
+                                        {loadingMore ? 'Chargement...' : 'Voir plus d\'offres'}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="search-results__empty">

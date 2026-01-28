@@ -17,42 +17,54 @@ import api from './api';
  * @returns {Promise<SearchResponse>}
  */
 export const searchAccommodations = async (query = '', params = {}) => {
-    const queryParams = new URLSearchParams();
+    const payload = {
+        query: query || params.q,
+        // Mapping names to match SearchRequestDTO on Backend
+        latitude: params.lat || params.latitude,
+        longitude: params.lng || params.longitude,
+        radiusKm: params.radius || params.radiusKm,
+        offset: params.offset || 0,
+        limit: params.limit || 20,
+        // Filters
+        city: params.city,
+        category: params.category,
+        minPrice: params.priceMin || params.minPrice,
+        maxPrice: params.priceMax || params.maxPrice,
+        minGuests: params.guests || params.minGuests,
+        tags: Array.isArray(params.tags) ? params.tags : (params.tags ? params.tags.split(',') : []),
+        // Dates (Server-side Deep Pagination depends on these!)
+        checkInDate: params.checkInDate || params.checkIn,
+        checkOutDate: params.checkOutDate || params.checkOut,
+        facets: params.facets || ['tags', 'city', 'category'],
+        attributesToRetrieve: params.attributesToRetrieve
+    };
 
-    if (query) queryParams.set('q', query);
-    // Filtres avancés
-    if (params.city) queryParams.set('city', params.city);
-    if (params.priceMin) queryParams.set('priceMin', params.priceMin);
-    if (params.priceMax) queryParams.set('priceMax', params.priceMax);
-    if (params.tags) queryParams.set('tags', Array.isArray(params.tags) ? params.tags.join(',') : params.tags);
-    // Geo search
-    if (params.lat) queryParams.set('lat', params.lat);
-    if (params.lng) queryParams.set('lng', params.lng);
-    if (params.radius) queryParams.set('radius', params.radius);
-    // Pagination
-    if (params.offset) queryParams.set('offset', params.offset);
-    if (params.limit) queryParams.set('limit', params.limit);
-
-    const endpoint = `/search/accommodations${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-    const { data } = await api.get(endpoint);
+    const { data } = await api.post('/search/accommodations', payload);
     return data;
 };
 
 /**
  * Recherche d'activités
  * @param {string} query - Texte de recherche
- * @param {Object} params - Paramètres optionnels (offset, limit)
+ * @param {Object} params - Paramètres optionnels
  * @returns {Promise<SearchResponse>}
  */
 export const searchActivities = async (query = '', params = {}) => {
-    const queryParams = new URLSearchParams();
+    const payload = {
+        query: query || params.q,
+        offset: params.offset || 0,
+        limit: params.limit || 20,
+        // Activities specific
+        minPlaces: params.guests || params.minPlaces || params.minGuests,
+        startDateTime: params.startDateTime || params.startDate,
+        category: params.category,
+        city: params.city,
+        minPrice: params.priceMin || params.minPrice,
+        maxPrice: params.priceMax || params.maxPrice,
+        tags: Array.isArray(params.tags) ? params.tags : (params.tags ? params.tags.split(',') : [])
+    };
 
-    if (query) queryParams.set('q', query);
-    if (params.offset) queryParams.set('offset', params.offset);
-    if (params.limit) queryParams.set('limit', params.limit);
-
-    const endpoint = `/search/activities${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-    const { data } = await api.get(endpoint);
+    const { data } = await api.post('/search/activities', payload);
     return data;
 };
 
@@ -103,7 +115,7 @@ export const mapAccommodationToOffer = (hit) => ({
         en: hit.title
     },
     type: 'hebergement',
-    category: 'nature',
+    category: hit.category || 'nature',
     partnerId: hit.providerId || null,
     partnerName: hit.providerName || 'Partenaire',
     location: {
@@ -144,13 +156,13 @@ export const mapAccommodationToOffer = (hit) => ({
  * @returns {Object} - Format compatible avec OfferCard
  */
 export const mapActivityToOffer = (hit) => ({
-    id: hit.id,
+    id: typeof hit.id === 'string' && hit.id.includes('_') ? parseInt(hit.id.split('_')[1]) : hit.id,
     title: {
         fr: hit.name,
         en: hit.name
     },
     type: 'activite',
-    category: 'culture',
+    category: hit.category || 'culture',
     partnerId: hit.providerId || null,
     partnerName: hit.providerName || 'Partenaire',
     location: {
