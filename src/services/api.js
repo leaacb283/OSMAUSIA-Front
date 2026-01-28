@@ -19,14 +19,19 @@ async function apiRequest(endpoint, options = {}) {
     ...options,
   };
 
-  // Convertir body en JSON si objet
-  if (config.body && typeof config.body === 'object') {
+  // Convertir body en JSON si objet (sauf FormData)
+  if (config.body && typeof config.body === 'object' && !(config.body instanceof FormData)) {
     config.body = JSON.stringify(config.body);
+  }
+
+  // Si FormData, laisser le navigateur gérer le Content-Type (boundary)
+  if (config.body instanceof FormData) {
+    delete config.headers['Content-Type'];
   }
 
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    
+
     // Parse response
     let data;
     const contentType = response.headers.get('content-type');
@@ -59,19 +64,19 @@ async function apiRequest(endpoint, options = {}) {
  * Méthodes HTTP helpers
  */
 export const api = {
-  get: (endpoint, options = {}) => 
+  get: (endpoint, options = {}) =>
     apiRequest(endpoint, { ...options, method: 'GET' }),
-  
-  post: (endpoint, body, options = {}) => 
+
+  post: (endpoint, body, options = {}) =>
     apiRequest(endpoint, { ...options, method: 'POST', body }),
-  
-  put: (endpoint, body, options = {}) => 
+
+  put: (endpoint, body, options = {}) =>
     apiRequest(endpoint, { ...options, method: 'PUT', body }),
-  
-  patch: (endpoint, body, options = {}) => 
+
+  patch: (endpoint, body, options = {}) =>
     apiRequest(endpoint, { ...options, method: 'PATCH', body }),
-  
-  delete: (endpoint, options = {}) => 
+
+  delete: (endpoint, options = {}) =>
     apiRequest(endpoint, { ...options, method: 'DELETE' }),
 };
 

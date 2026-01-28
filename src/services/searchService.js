@@ -89,33 +89,7 @@ export const searchAll = async (query = '', params = {}) => {
     return { accommodations, activities };
 };
 
-/**
- * Fallback images for offers when API doesn't provide them
- */
-const FALLBACK_ACCOMMODATION_IMAGES = [
-    '/images/offers/overwater-bungalow.jpg',
-    '/images/offers/chalet-montagne.jpg',
-    '/images/offers/maison-coloniale.jpg',
-    '/images/offers/eco-lodge.jpg'
-];
 
-const FALLBACK_ACTIVITY_IMAGES = [
-    '/images/offers/turtle.png',
-    '/images/offers/waterfall.jpg',
-    '/images/offers/mountains.png',
-    '/images/offers/hiker.jpg'
-];
-
-/**
- * Get fallback image based on offer ID (cycles through available images)
- */
-const getFallbackImage = (id, imageArray) => {
-    // Ensure id is a number for modulo operation
-    const numericId = typeof id === 'number' ? id : parseInt(id) || 0;
-    const index = Math.abs(numericId) % imageArray.length;
-    console.log('[DEBUG] getFallbackImage:', { id, numericId, index, image: imageArray[index] });
-    return imageArray[index];
-};
 
 /**
  * Mapper un résultat API hébergement vers le format frontend
@@ -123,7 +97,7 @@ const getFallbackImage = (id, imageArray) => {
  * @returns {Object} - Format compatible avec OfferCard
  */
 export const mapAccommodationToOffer = (hit) => ({
-    id: hit.id,
+    id: typeof hit.id === 'string' && hit.id.includes('_') ? parseInt(hit.id.split('_')[1]) : hit.id,
     title: {
         fr: hit.title,
         en: hit.title
@@ -156,9 +130,9 @@ export const mapAccommodationToOffer = (hit) => ({
         experience: hit.regenScore || 80
     },
     // Use API images if available, otherwise use fallback
-    images: hit.images?.length > 0
-        ? hit.images
-        : [getFallbackImage(hit.id, FALLBACK_ACCOMMODATION_IMAGES)],
+    images: hit.medias?.length > 0
+        ? hit.medias.sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0)).map(m => m.url)
+        : (hit.images?.length > 0 ? hit.images : ['/images/placeholder-offer.jpg']),
     featured: false,
     available: true,
     tags: hit.tags || []
@@ -189,23 +163,23 @@ export const mapActivityToOffer = (hit) => ({
         en: hit.storyContent || ''
     },
     price: {
-        amount: hit.pricePerPerson || 0,
+        amount: hit.pricePerson || hit.pricePerPerson || 0,
         currency: 'EUR',
         unit: 'person'
     },
     capacity: {
         min: 1,
-        max: hit.maxPlaces || 10
+        max: hit.nbrMaxPlaces || hit.maxPlaces || 10
     },
     regenScore: {
-        environmental: 85,
-        social: 85,
-        experience: 85
+        environmental: 95,
+        social: 95,
+        experience: 95
     },
     // Use API images if available, otherwise use fallback
-    images: hit.images?.length > 0
-        ? hit.images
-        : [getFallbackImage(hit.id, FALLBACK_ACTIVITY_IMAGES)],
+    images: hit.medias?.length > 0
+        ? hit.medias.sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0)).map(m => m.url)
+        : (hit.images?.length > 0 ? hit.images : ['/images/placeholder-offer.jpg']),
     featured: false,
     available: true,
     duration: hit.durationMin ? `${hit.durationMin} min` : null,

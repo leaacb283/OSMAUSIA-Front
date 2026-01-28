@@ -35,17 +35,88 @@ const SearchResults = () => {
             setError(null);
 
             try {
-                // Appel à l'API Meilisearch avec filtres avancés
-                const { accommodations, activities } = await searchAll(destination, {
-                    limit: 50,
-                    ...advancedFilters
-                });
+                // 1. Parallel Fetch: Search Results (Meili) + Full Catalog (Source of Truth for Images)
+                const [searchRes, hebergementsRes, activitiesRes] = await Promise.all([
+                    searchAll(destination, { limit: 50, ...advancedFilters }),
+                    // We catch errors on catalog fetch to avoid breaking search if catalog fails
+                    import('../services/api').then(m => m.default.get('/offer/hebergements')).catch(() => ({ data: [] })),
+                    import('../services/api').then(m => m.default.get('/offer/activites')).catch(() => ({ data: [] }))
+                ]);
 
-                // Mapper les résultats API vers le format frontend
+                const { accommodations, activities } = searchRes;
+                const fullHebergements = hebergementsRes.data || [];
+                const fullActivities = activitiesRes.data || [];
+
+                // 2. Map Search Results
                 const mappedAccommodations = (accommodations.hits || []).map(mapAccommodationToOffer);
                 const mappedActivities = (activities.hits || []).map(mapActivityToOffer);
 
-                let results = [...mappedAccommodations, ...mappedActivities];
+                // 3. Hydrate with Images from Catalog
+                // Since Meilisearch index doesn't have images (yet), we match by ID with the catalog data
+                const hydratedAccommodations = mappedAccommodations.map(offer => {
+                    const fullData = fullHebergements.find(h => h.id === offer.id);
+                    if (fullData && fullData.medias?.length > 0) {
+                        return {
+                            ...offer,
+                            images: fullData.medias
+                                .sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0))
+                                .map(m => m.url)
+                        };
+                    }
+                    return offer;
+                });
+
+                const hydratedActivities = mappedActivities.map(offer => {
+                    const fullData = fullActivities.find(a => a.id === offer.id);
+                    if (fullData && fullData.medias?.length > 0) {
+                        return {
+                            ...offer,
+                            images: fullData.medias
+                                .sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0))
+                                .map(m => m.url)
+                        };
+                    }
+                    return offer;
+                });
+
+                // 4. Hybrid Search Merge (Client-Side Fallback)
+                // If Meili missed the new offer (indexing lag), we find it in fullHebergements
+                let extraMatches = [];
+                if (destination) {
+                    const q = destination.toLowerCase();
+
+                    // Accommodations fallback
+                    const extraAccommodations = fullHebergements.filter(h => {
+                        const alreadyFound = hydratedAccommodations.some(ha => ha.id === h.id);
+                        if (alreadyFound) return false;
+                        const titleMatch = h.title?.toLowerCase().includes(q);
+                        const cityMatch = (h.city || h.etablissement?.city)?.toLowerCase().includes(q);
+                        return titleMatch || cityMatch;
+                    }).map(h => mapBackendToFront({ ...h, type: 'hebergement' }));
+
+                    // Activities fallback
+                    const extraActivities = fullActivities.filter(a => {
+                        const alreadyFound = hydratedActivities.some(ha => ha.id === a.id);
+                        if (alreadyFound) return false;
+                        const titleMatch = a.name?.toLowerCase().includes(q);
+                        const cityMatch = a.city?.toLowerCase().includes(q);
+                        return titleMatch || cityMatch;
+                    }).map(a => mapBackendToFront({ ...a, type: 'activite' }));
+
+                    extraMatches = [...extraAccommodations, ...extraActivities];
+                }
+
+                // Merge and Dedupe (Priority to Meili results as they are ranked, append new matches at top or bottom?)
+                // Appending at top implies "New/Relevant" if manual match
+                let results = [...hydratedAccommodations, ...extraMatches, ...hydratedActivities];
+
+                // Deduplicate by ID just in case
+                const seen = new Set();
+                results = results.filter(o => {
+                    const duplicate = seen.has(o.id);
+                    seen.add(o.id);
+                    return !duplicate;
+                });
 
                 // Filter by capacity
                 if (guests) {
@@ -99,6 +170,63 @@ const SearchResults = () => {
         if (searchData.checkOut) params.set('checkOut', searchData.checkOut);
         if (searchData.guests) params.set('guests', searchData.guests);
         navigate(`/search?${params.toString()}`);
+    };
+
+    // Helper to map Backend DTO (from full catalog) to Frontend Offer
+    const mapBackendToFront = (item) => {
+        // Fallbacks
+        const FALLBACK_IMAGES = [
+            '/images/offers/overwater-bungalow.jpg',
+            '/images/offers/chalet-montagne.jpg',
+            '/images/offers/maison-coloniale.jpg',
+            '/images/offers/eco-lodge.jpg'
+        ];
+        const getFallback = (id) => FALLBACK_IMAGES[Math.abs(id || 0) % FALLBACK_IMAGES.length];
+
+        const isActivity = item.type === 'activite' || item.id_activity || item.pricePerson;
+
+        return {
+            id: item.id || item.idActivity,
+            title: {
+                fr: item.title || item.name || (isActivity ? 'Activité' : 'Hébergement'),
+                en: item.title || item.name || (isActivity ? 'Activity' : 'Accommodation')
+            },
+            type: isActivity ? 'activite' : 'hebergement',
+            category: item.category || (isActivity ? 'culture' : 'nature'),
+            partnerId: item.providerId || item.provider?.id || null,
+            partnerName: item.providerName || item.provider?.name || 'Partenaire',
+            location: {
+                city: item.city || item.etablissement?.city || 'Île Maurice',
+                country: 'Île Maurice',
+                coordinates: {
+                    lat: item.latitude || item.etablissement?.latitude || -20.0,
+                    lng: item.longitude || item.etablissement?.longitude || 57.5
+                }
+            },
+            description: {
+                fr: item.description || item.hDescription || item.storyContent || '',
+                en: item.description || item.hDescription || item.storyContent || ''
+            },
+            price: {
+                amount: item.basePrice || item.price || item.pricePerson || 0,
+                currency: 'EUR',
+                unit: isActivity ? 'person' : 'night'
+            },
+            capacity: { min: 1, max: item.maxGuests || item.nbrMaxPlaces || 4 },
+            regenScore: {
+                environmental: item.regenScore || 95,
+                social: item.regenScore || 95,
+                experience: item.regenScore || 95
+            },
+            // Images
+            images: item.medias?.length > 0
+                ? item.medias.sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0)).map(m => m.url)
+                : [getFallback(item.id || item.idActivity)],
+            medias: item.medias || [],
+            featured: false,
+            available: true,
+            tags: item.tags || []
+        };
     };
 
     return (

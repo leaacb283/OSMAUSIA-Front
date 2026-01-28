@@ -22,23 +22,11 @@ import MyReservations from './pages/MyReservations';
 import CheckoutPage from './pages/CheckoutPage';
 import PaymentSuccess from './pages/PaymentSuccess';
 import Explore from './pages/Explore';
+import ComingSoon from './pages/ComingSoon';
 
 
 
-const AboutPage = () => (
-    <div className="container" style={{ padding: '100px 20px', textAlign: 'center' }}>
-        <h1>🌱 À propos d'OSMAUSIA</h1>
-        <p>Notre mission : régénérer le monde par le tourisme responsable</p>
-    </div>
-);
 
-const NotFoundPage = () => (
-    <div className="container" style={{ padding: '100px 20px', textAlign: 'center' }}>
-        <h1>404</h1>
-        <p>Page non trouvée</p>
-        <a href="/" className="btn btn-primary">Retour à l'accueil</a>
-    </div>
-);
 
 function App() {
     return (
@@ -50,7 +38,7 @@ function App() {
                         <Route element={<Layout />}>
                             <Route path="/" element={<Home />} />
                             <Route path="/explore" element={<Explore />} />
-                            <Route path="/about" element={<AboutPage />} />
+                            <Route path="/about" element={<ComingSoon title="À propos d'OSMAUSIA" />} />
                             <Route path="/search" element={<SearchResults />} />
                             <Route path="/offer/:type/:id" element={<OfferDetails />} />
                             <Route path="/my-reservations" element={<MyReservations />} />
@@ -59,7 +47,15 @@ function App() {
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/partner/dashboard" element={<PartnerDashboard />} />
                             <Route path="/preferences" element={<Preferences />} />
-                            <Route path="*" element={<NotFoundPage />} />
+
+                            {/* Pages en construction */}
+                            <Route path="/cgu" element={<ComingSoon title="Conditions Générales" />} />
+                            <Route path="/privacy" element={<ComingSoon title="Politique de Confidentialité" />} />
+                            <Route path="/legal" element={<ComingSoon title="Mentions Légales" />} />
+                            <Route path="/contact" element={<ComingSoon title="Contactez-nous" message="Notre formulaire de contact arrive très bientôt." />} />
+
+                            {/* 404 Fallback - Joli */}
+                            <Route path="*" element={<ComingSoon title="Page introuvable" message="Oups ! Cette page n'existe pas ou est en cours de création." />} />
                         </Route>
 
                         {/* Auth routes (no layout) */}

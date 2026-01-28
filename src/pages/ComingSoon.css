@@ -1,0 +1,70 @@
+.coming-soon {
+    position: relative;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: var(--color-text-primary);
+    /* Dark text */
+    text-align: center;
+    background-color: var(--color-background);
+    /* Beige background */
+}
+
+.coming-soon__content {
+    position: relative;
+    z-index: 2;
+    padding: 4rem;
+    /* Increased padding */
+    padding-bottom: 5rem;
+    /* Extra space at bottom */
+    max-width: 600px;
+    border-radius: var(--radius-2xl);
+}
+
+/* Specific glass override removed, using standard surface */
+
+
+
+.coming-soon__title {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    color: var(--color-primary-dark);
+    /* Dark green title */
+    text-shadow: none;
+}
+
+.coming-soon__message {
+    font-size: 1.25rem;
+    margin-bottom: 3rem;
+    /* More space before buttons */
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+@media (max-width: 768px) {
+    .coming-soon__title {
+        font-size: 2rem;
+    }
+
+    .coming-soon__content {
+        margin: 1rem;
+        padding: 2rem;
+    }
+}

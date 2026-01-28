@@ -3,11 +3,11 @@
  * Dashboard for partners to manage their offers
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
-import { createHebergement, getAllHebergements } from '../services/offerService';
+import { createHebergement, updateHebergement, getAllHebergements, uploadFile, getProviderEtablissements, createEtablissement, getProviderActivities, createActivite, updateActivite, deleteHebergement, deleteActivite } from '../services/offerService';
 import './PartnerDashboard.css';
 
 // Fonction utilitaire pour calculer le score régénératif
@@ -22,38 +22,52 @@ const calculateRegenScore = (scores) => {
 };
 
 // Mapper DTO backend vers format frontend
-const mapDTOToOffer = (dto) => ({
-    id: dto.id,
-    title: { fr: dto.title, en: dto.title },
-    type: 'hebergement',
-    category: 'nature',
-    partnerId: dto.providerDTO?.id,
-    partnerName: dto.providerDTO?.companyName,
-    location: {
-        city: dto.locationDTO?.city,
-        country: 'Île Maurice',
-        coordinates: {
-            lat: dto.locationDTO?.latitude || -20.0,
-            lng: dto.locationDTO?.longitude || 57.5
-        }
-    },
-    description: { fr: dto.hDescription, en: dto.hDescription },
-    price: {
-        amount: dto.basePrice,
-        currency: 'EUR',
-        unit: 'night'
-    },
-    capacity: { min: 1, max: dto.maxGuests },
-    regenScore: {
-        environmental: dto.regenScore,
-        social: dto.regenScore,
-        experience: dto.regenScore
-    },
-    images: ['/images/offers/default.jpg'],
-    featured: false,
-    available: true, // Par défaut true car pas de champ dans le DTO
-    tags: []
-});
+const mapDTOToOffer = (dto) => {
+    const isActivity = !!dto.idActivity || (dto.pricePerson !== undefined);
+    const rawId = dto.id || dto.idHebergement || dto.idActivity;
+    return {
+        // Préfixer l'ID pour éviter les collisions entre types dans le dashboard
+        id: isActivity ? `act_${rawId}` : `heb_${rawId}`,
+        rawId: rawId,
+        title: { fr: dto.title || dto.name, en: dto.title || dto.name },
+        type: isActivity ? 'activite' : 'hebergement',
+        category: dto.category || 'nature',
+        partnerId: dto.etablissement?.provider?.id,
+        partnerName: dto.etablissement?.provider?.companyName,
+        // ... rest of mapping
+        location: {
+            city: dto.city || dto.locationDTO?.city || dto.etablissement?.city || 'Île Maurice',
+            country: 'Île Maurice',
+            coordinates: {
+                lat: dto.etablissement?.latitude || -20.0,
+                lng: dto.etablissement?.longitude || 57.5
+            }
+        },
+        description: {
+            fr: dto.description || dto.storyContent || dto.hDescription || '',
+            en: dto.description || dto.storyContent || dto.hDescription || ''
+        },
+        price: {
+            amount: dto.basePrice || dto.price || dto.pricePerson || 0,
+            currency: 'EUR',
+            unit: isActivity ? 'person' : 'night'
+        },
+        capacity: { min: 1, max: dto.maxGuests || dto.nbrMaxPlaces || 10 },
+        regenScore: {
+            environmental: dto.regenScore || 80,
+            social: dto.regenScore || 80,
+            experience: dto.regenScore || 80
+        },
+        images: dto.medias?.length > 0
+            ? dto.medias.sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0)).map(m => m.url)
+            : ['/images/offers/default.jpg'],
+        medias: dto.medias || [], // Keep original structure for editing
+        featured: false,
+        available: true,
+        tags: dto.tags || [],
+        etablissementId: dto.etablissement?.id || dto.etablissementId
+    };
+};
 
 const PartnerDashboard = () => {
     const { t } = useTranslation();
@@ -63,6 +77,14 @@ const PartnerDashboard = () => {
     // Commencer avec une liste vide - les offres seront chargées depuis l'API
     const [offers, setOffers] = useState([]);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+    const [imageUploading, setImageUploading] = useState(false);
+    const [etablissements, setEtablissements] = useState([]);
+    const [loadingEtabs, setLoadingEtabs] = useState(false);
+    const [showEtabForm, setShowEtabForm] = useState(false);
+    const [newEtab, setNewEtab] = useState({ name: '', address: '', city: '' });
+
     const [newOffer, setNewOffer] = useState({
         title: '',
         type: 'hebergement',
@@ -74,29 +96,49 @@ const PartnerDashboard = () => {
         capacity: 2,
         environmental: 80,
         social: 80,
-        experience: 80
+        experience: 80,
+        medias: [], // Array of { url, type: 'IMAGE', isCover: boolean }
+        etablissementId: '' // Selected establishment ID
     });
     const [createError, setCreateError] = useState('');
 
-    // Charger les offres au montage
-    useState(() => {
-        const fetchOffers = async () => {
+    // Charger les offres et établissements au montage
+    useEffect(() => {
+        const fetchData = async () => {
             if (user?.id) {
                 try {
-                    const allOffers = await getAllHebergements();
-                    // Filtrage côté client car endpoint getAll renvoie tout
-                    // On compare l'ID ou l'email du provider
-                    const myOffers = allOffers.filter(o =>
-                        o.providerDTO?.id === user.id ||
-                        o.providerDTO?.email === user.email
+                    // Charger offres (Hebergements + Activites)
+                    const [hebergements, activities] = await Promise.all([
+                        getAllHebergements(),
+                        getProviderActivities(user.id)
+                    ]);
+
+                    const myHebergements = (hebergements || []).filter(o =>
+                        o.etablissement?.provider?.id === user.id ||
+                        o.etablissement?.provider?.email === user.email
                     );
-                    setOffers(myOffers.map(mapDTOToOffer));
+
+                    // Activités are usually already filtered by provider in the endpoint
+                    const myActivities = activities || [];
+
+                    const mappedHebergements = myHebergements.map(mapDTOToOffer);
+                    const mappedActivities = myActivities.map(mapDTOToOffer);
+
+                    setOffers([...mappedHebergements, ...mappedActivities]);
+                } catch (err) {
+                    console.error("Erreur chargement offres:", err);
+                }
+
+                try {
+                    // Charger établissements
+                    const etabs = await getProviderEtablissements(user.id);
+                    setEtablissements(etabs);
                 } catch (error) {
-                    console.error("Erreur chargement offres:", error);
+                    console.error("Erreur chargement établissements:", error);
                 }
             }
         };
-        fetchOffers();
+        fetchData();
     }, [user]);
 
     // Redirect if not authenticated or not a partner
@@ -115,9 +157,179 @@ const PartnerDashboard = () => {
         );
     }
 
+    const handleOpenCreate = () => {
+        setNewOffer({
+            title: '',
+            type: 'hebergement',
+            category: 'nature',
+            description: '',
+            price: '',
+            city: '',
+            country: 'Île Maurice',
+            capacity: 2,
+            environmental: 80,
+            social: 80,
+            experience: 80,
+            medias: [],
+            etablissementId: etablissements.length > 0 ? etablissements[0].id : ''
+        });
+        // Si aucun établissement, ouvrir le formulaire de création
+        if (etablissements.length === 0) {
+            setShowEtabForm(true);
+        } else {
+            setShowEtabForm(false);
+        }
+        setIsEditing(false);
+        setEditingId(null);
+        setShowCreateModal(true);
+    };
+
+    const handleEditOffer = (offer) => {
+        console.log("Editing offer:", offer);
+        setNewOffer({
+            title: offer.title.fr,
+            type: offer.type,
+            category: offer.category,
+            description: offer.description.fr,
+            price: offer.price.amount,
+            city: offer.location.city,
+            country: offer.location.country,
+            capacity: offer.capacity.max,
+            environmental: offer.regenScore.environmental,
+            social: offer.regenScore.social,
+            experience: offer.regenScore.experience,
+            medias: offer.medias || [],
+            etablissementId: offer.etablissementId || (etablissements.length > 0 ? etablissements[0].id : '')
+        });
+        setShowEtabForm(false);
+        setIsEditing(true);
+        setEditingId(offer.id);
+        setShowCreateModal(true);
+    };
+
+    const handleImageUpload = async (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        // Validation taille (Max 1MB par fichier - Limite Spring Boot par défaut)
+        const MAX_SIZE = 1 * 1024 * 1024; // 1MB
+        const oversizedFiles = files.filter(f => f.size > MAX_SIZE);
+
+        if (oversizedFiles.length > 0) {
+            setCreateError(`Certaines images sont trop volumineuses (Max 1 Mo). Veuillez les compresser.`);
+            e.target.value = ''; // Reset input
+            return;
+        }
+
+        setImageUploading(true);
+        try {
+            // Upload all files in parallel
+            const uploadPromises = files.map(file => uploadFile(file));
+            const urls = await Promise.all(uploadPromises);
+
+            // Create media objects
+            const newMedias = urls.map((url, index) => ({
+                url: url,
+                type: 'IMAGE',
+                isCover: newOffer.medias.length === 0 && index === 0 // First of batch is cover if no existing media
+            }));
+
+            setNewOffer(prev => ({
+                ...prev,
+                medias: [...prev.medias, ...newMedias]
+            }));
+            setCreateError(''); // Clear previous errors
+        } catch (err) {
+            console.error('Upload failed:', err);
+            setCreateError('Échec du téléchargement des images.');
+        } finally {
+            setImageUploading(false);
+            // Clear input so same files can be selected again if needed
+            e.target.value = '';
+        }
+    };
+    // ... handlesetCover ...
+    // ... handleRemoveImage ...
+    // ... handleCreateOffer ... matches lines 244-279
+    // ... handleDeleteOffer ...
+    // ... stats ...
+    // ... return ...
+    // ... render lines ...
+    <div className="form-group">
+        <label>Photos</label>
+        <div className="partner-media-upload">
+            <div className="partner-media-preview">
+                {newOffer.medias.map((media, idx) => (
+                    <div key={idx} className="media-item">
+                        <img src={media.url} alt={`Photo ${idx + 1}`} />
+                        {media.isCover && <span className="cover-badge">Couverture</span>}
+                        <div className="media-actions">
+                            {!media.isCover && (
+                                <button type="button" onClick={() => handleSetCover(idx)} title="Définir comme couverture">★</button>
+                            )}
+                            <button type="button" onClick={() => handleRemoveImage(idx)} title="Supprimer">✕</button>
+                        </div>
+                    </div>
+                ))}
+                <label className="media-upload-btn">
+                    {imageUploading ? '...' : '+'}
+                    <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageUpload}
+                        disabled={imageUploading}
+                        style={{ display: 'none' }}
+                    />
+                </label>
+            </div>
+            <small>Ajoutez des photos pour mettre en valeur votre offre. La première photo servira de couverture.</small>
+        </div>
+    </div>
+
+    const handleSetCover = (index) => {
+        setNewOffer(prev => ({
+            ...prev,
+            medias: prev.medias.map((m, idx) => ({
+                ...m,
+                isCover: idx === index
+            }))
+        }));
+    };
+
+    const handleRemoveImage = (index) => {
+        setNewOffer(prev => ({
+            ...prev,
+            medias: prev.medias.filter((_, idx) => idx !== index)
+        }));
+    };
+
+    const handleCreateEtablissement = async (e) => {
+        e.preventDefault();
+        try {
+            setLoadingEtabs(true);
+            const created = await createEtablissement(newEtab, user);
+            setEtablissements([...etablissements, created]);
+            setNewOffer(prev => ({ ...prev, etablissementId: created.id, city: created.city }));
+            setShowEtabForm(false);
+            setNewEtab({ name: '', address: '', city: '' });
+        } catch (err) {
+            console.error(err);
+            setCreateError("Erreur lors de la création de l'établissement");
+        } finally {
+            setLoadingEtabs(false);
+        }
+    };
+
     const handleCreateOffer = async (e) => {
         e.preventDefault();
         setCreateError('');
+
+        // Step 1: Check establishment
+        if (!newOffer.etablissementId) {
+            setCreateError('Veuillez sélectionner ou créer un établissement (Lieu).');
+            return;
+        }
 
         // Validation
         if (!newOffer.title.trim() || !newOffer.description.trim() || !newOffer.price) {
@@ -126,36 +338,55 @@ const PartnerDashboard = () => {
         }
 
         try {
-            // Appel API
-            const createdOfferDTO = await createHebergement(newOffer, user);
+            let resultDTO;
+            // Extract raw ID if editing
+            const rawId = isEditing ? editingId.split('_')[1] : null;
+            console.log("Action:", isEditing ? "Updating" : "Creating", "Type:", newOffer.type, "RawID:", rawId);
 
-            // Mapping du DTO backend vers le format frontend local pour affichage immédiat
-            const offer = mapDTOToOffer(createdOfferDTO);
+            if (isEditing) {
+                if (newOffer.type === 'activite') {
+                    resultDTO = await updateActivite(rawId, newOffer, user);
+                } else {
+                    resultDTO = await updateHebergement(rawId, newOffer, user);
+                }
+                // Update local list
+                setOffers(prev => prev.map(o => o.id === editingId ? mapDTOToOffer(resultDTO) : o));
+            } else {
+                if (newOffer.type === 'activite') {
+                    resultDTO = await createActivite(newOffer, user);
+                } else {
+                    resultDTO = await createHebergement(newOffer, user);
+                }
+                setOffers([mapDTOToOffer(resultDTO), ...offers]);
+            }
 
-            setOffers([offer, ...offers]);
             setShowCreateModal(false);
-            setNewOffer({
-                title: '',
-                type: 'hebergement',
-                category: 'nature',
-                description: '',
-                price: '',
-                city: '',
-                country: 'Île Maurice',
-                capacity: 2,
-                environmental: 80,
-                social: 80,
-                experience: 80
-            });
+            setCreateError('');
+            // Reset logic moved to handleOpenCreate
         } catch (error) {
-            console.error('Erreur création offre:', error);
-            setCreateError(error.message || "Erreur lors de la création de l'offre");
+            console.error('Erreur action offre:', error);
+            setCreateError(error.message || "Erreur lors de l'enregistrement de l'offre");
         }
     };
 
-    const handleDeleteOffer = (offerId) => {
-        if (confirm('Êtes-vous sûr de vouloir supprimer cette offre ?')) {
-            setOffers(offers.filter(o => o.id !== offerId));
+    const handleDeleteOffer = async (offerId) => {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cette offre ?')) return;
+
+        try {
+            const [type, rawId] = offerId.split('_');
+            console.log("Deleting:", type, rawId);
+
+            if (type === 'act') {
+                await deleteActivite(rawId);
+            } else {
+                await deleteHebergement(rawId);
+            }
+
+            setOffers(prev => prev.filter(o => o.id !== offerId));
+            setCreateError(''); // Clear any generic error
+        } catch (err) {
+            console.error("Erreur suppression:", err);
+            alert("Erreur lors de la suppression de l'offre. Veuillez réessayer.");
         }
     };
 
@@ -185,7 +416,7 @@ const PartnerDashboard = () => {
                         </div>
                         <button
                             className="btn btn-primary"
-                            onClick={() => setShowCreateModal(true)}
+                            onClick={handleOpenCreate}
                         >
                             ➕ Créer une offre
                         </button>
@@ -250,7 +481,9 @@ const PartnerDashboard = () => {
                             {offers.map(offer => (
                                 <div key={offer.id} className="partner-offer-card">
                                     <div className="partner-offer-card__image">
-                                        <div className="partner-offer-card__placeholder">🏨</div>
+                                        <div className="partner-offer-card__placeholder">
+                                            {offer.type === 'activite' ? '🎯' : '🏨'}
+                                        </div>
                                     </div>
                                     <div className="partner-offer-card__content">
                                         <div className="partner-offer-card__header">
@@ -272,7 +505,12 @@ const PartnerDashboard = () => {
                                         </div>
                                     </div>
                                     <div className="partner-offer-card__actions">
-                                        <button className="btn btn-secondary btn-sm">✏️ Modifier</button>
+                                        <button
+                                            className="btn btn-secondary btn-sm"
+                                            onClick={() => handleEditOffer(offer)}
+                                        >
+                                            ✏️ Modifier
+                                        </button>
                                         <button
                                             className="btn btn-outline btn-sm"
                                             onClick={() => handleDeleteOffer(offer.id)}
@@ -292,7 +530,7 @@ const PartnerDashboard = () => {
                 <div className="partner-modal-overlay" onClick={() => setShowCreateModal(false)}>
                     <div className="partner-modal" onClick={e => e.stopPropagation()}>
                         <div className="partner-modal__header">
-                            <h2>Créer une nouvelle offre</h2>
+                            <h2>{isEditing ? 'Modifier l\'offre' : 'Créer une nouvelle offre'}</h2>
                             <button
                                 className="partner-modal__close"
                                 onClick={() => setShowCreateModal(false)}
@@ -320,13 +558,93 @@ const PartnerDashboard = () => {
                                 />
                             </div>
 
+                            {/* Etablissement Selection */}
+                            <div className="form-group" style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '15px' }}>
+                                <label>Établissement (Lieu) *</label>
+
+                                {!showEtabForm ? (
+                                    <div className="etablissement-select-row" style={{ display: 'flex', gap: '10px' }}>
+                                        <select
+                                            value={newOffer.etablissementId}
+                                            onChange={(e) => setNewOffer({ ...newOffer, etablissementId: e.target.value })}
+                                            required
+                                            style={{ flex: 1 }}
+                                        >
+                                            <option value="">-- Sélectionner un lieu --</option>
+                                            {etablissements.map(etab => (
+                                                <option key={etab.id} value={etab.id}>{etab.name} ({etab.city})</option>
+                                            ))}
+                                        </select>
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary btn-sm"
+                                            onClick={() => setShowEtabForm(true)}
+                                        >
+                                            + Nouveau
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="new-etablissement-form">
+                                        <h4>Nouvel Établissement</h4>
+                                        <div className="form-group">
+                                            <input
+                                                type="text"
+                                                placeholder="Nom de l'établissement (ex: Villa Sunset)"
+                                                value={newEtab.name}
+                                                onChange={e => setNewEtab({ ...newEtab, name: e.target.value })}
+                                                required={showEtabForm}
+                                            />
+                                        </div>
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Ville"
+                                                    value={newEtab.city}
+                                                    onChange={e => setNewEtab({ ...newEtab, city: e.target.value })}
+                                                    required={showEtabForm}
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Adresse"
+                                                    value={newEtab.address}
+                                                    onChange={e => setNewEtab({ ...newEtab, address: e.target.value })}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                                            <button
+                                                type="button"
+                                                className="btn btn-primary btn-sm"
+                                                onClick={handleCreateEtablissement}
+                                                disabled={loadingEtabs || !newEtab.name || !newEtab.city}
+                                            >
+                                                {loadingEtabs ? '...' : 'Enregistrer le lieu'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="btn btn-outline btn-sm"
+                                                onClick={() => setShowEtabForm(false)}
+                                                disabled={etablissements.length === 0} // Can't cancel if no etabs exist
+                                            >
+                                                Annuler
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label htmlFor="type">Type</label>
+                                    <label htmlFor="type">Type {isEditing && <small>(Non modifiable)</small>}</label>
                                     <select
                                         id="type"
                                         value={newOffer.type}
                                         onChange={(e) => setNewOffer({ ...newOffer, type: e.target.value })}
+                                        disabled={isEditing}
+                                        style={isEditing ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : {}}
                                     >
                                         <option value="hebergement">🏨 Hébergement</option>
                                         <option value="activite">🎯 Activité</option>
@@ -446,6 +764,39 @@ const PartnerDashboard = () => {
                                 </div>
                             </div>
 
+                            {/* Image Upload Section */}
+                            <div className="form-group">
+                                <label>Photos</label>
+                                <div className="partner-media-upload">
+                                    <div className="partner-media-preview">
+                                        {newOffer.medias.map((media, idx) => (
+                                            <div key={idx} className="media-item">
+                                                <img src={media.url} alt={`Photo ${idx + 1}`} />
+                                                {media.isCover && <span className="cover-badge">Couverture</span>}
+                                                <div className="media-actions">
+                                                    {!media.isCover && (
+                                                        <button type="button" onClick={() => handleSetCover(idx)} title="Définir comme couverture">★</button>
+                                                    )}
+                                                    <button type="button" onClick={() => handleRemoveImage(idx)} title="Supprimer">✕</button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <label className="media-upload-btn">
+                                            {imageUploading ? '...' : '+'}
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                multiple
+                                                onChange={handleImageUpload}
+                                                disabled={imageUploading}
+                                                style={{ display: 'none' }}
+                                            />
+                                        </label>
+                                    </div>
+                                    <small>Ajoutez des photos pour mettre en valeur votre offre. La première photo servira de couverture.</small>
+                                </div>
+                            </div>
+
                             <div className="partner-modal__actions">
                                 <button
                                     type="button"
@@ -454,15 +805,15 @@ const PartnerDashboard = () => {
                                 >
                                     Annuler
                                 </button>
-                                <button type="submit" className="btn btn-primary">
-                                    Créer l'offre
+                                <button type="submit" className="btn btn-primary" disabled={imageUploading}>
+                                    {isEditing ? 'Mettre à jour' : 'Créer l\'offre'}
                                 </button>
                             </div>
                         </form>
                     </div>
-                </div>
+                </div >
             )}
-        </div>
+        </div >
     );
 };
 

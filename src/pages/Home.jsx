@@ -10,10 +10,9 @@ import './Home.css';
 
 // Hero carousel images - landscapes and destinations
 const HERO_IMAGES = [
-    '/images/hero/le-morne-water.jpg',
-    '/images/hero/le-morne-aerial.png',
-    '/images/hero/beach-palm.png',
-    '/images/hero/beach-lounge.jpg'
+    'https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?q=80&w=2070&auto=format&fit=crop',   // Grand Bleu Profond (Idéal pour le texte)
+    'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=2070&auto=format&fit=crop', // Plage avec petite maison/paillote
+    'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?q=80&w=2073&auto=format&fit=crop' // Eau Turquoise & Palmiers (Fiable)
 ];
 
 // Fallback images for offers
@@ -28,6 +27,8 @@ const getFallbackImage = (id) => {
     const numericId = typeof id === 'number' ? id : parseInt(id) || 0;
     return FALLBACK_IMAGES[Math.abs(numericId) % FALLBACK_IMAGES.length];
 };
+
+
 
 const Home = () => {
     const { t } = useTranslation();
@@ -81,49 +82,69 @@ const Home = () => {
                         social: h.regenScore || 80,
                         experience: h.regenScore || 80
                     },
-                    images: h.images?.length > 0 ? h.images : [getFallbackImage(h.id)],
+                    images: h.medias?.length > 0
+                        ? h.medias.sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0)).map(m => m.url)
+                        : ['/images/placeholder-offer.jpg'],
                     featured: true, // Show on home
                     available: true,
                     tags: h.tags || []
                 }));
 
-                // Map activités
+                // Map activities to common format
                 const mappedActivities = (activities || []).map(a => ({
                     id: a.id,
                     title: { fr: a.name || 'Activité', en: a.name || 'Activity' },
                     type: 'activite',
-                    category: 'culture', // Default category
+                    category: 'culture',
                     partnerId: a.providerId || null,
                     partnerName: a.providerName || 'Partenaire',
                     location: {
                         city: a.city || 'Île Maurice',
                         country: 'Île Maurice',
-                        coordinates: { lat: 0, lng: 0 }
+                        coordinates: { lat: a.latitude || 0, lng: a.longitude || 0 }
                     },
                     description: {
                         fr: a.storyContent || '',
                         en: a.storyContent || ''
                     },
                     price: {
-                        amount: a.pricePerPerson || a.price || 0,
+                        amount: a.pricePerson || a.price || 0,
                         currency: 'EUR',
                         unit: 'person'
                     },
                     capacity: { min: 1, max: a.nbrMaxPlaces || 10 },
                     regenScore: {
-                        environmental: 85,
-                        social: 85,
-                        experience: 85
+                        environmental: 95,
+                        social: 95,
+                        experience: 95
                     },
-                    images: [getFallbackImage(a.id + 100)],
-                    featured: true,
+                    images: a.medias?.length > 0
+                        ? a.medias.sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0)).map(m => m.url)
+                        : [getFallbackImage(a.id + 100)],
+                    featured: true, // Force to true for now to see them on home
                     available: true,
                     tags: []
                 }));
 
                 const allOffers = [...mappedHebergements, ...mappedActivities];
-                // Shuffle or sort if needed
-                setOffers(allOffers.map((o, idx) => ({ ...o, featured: idx < 6 }))); // First 6 featured
+
+                // Featured logic: Score > 90
+                const processedOffers = allOffers.map(o => {
+                    const avgScore = (o.regenScore.environmental + o.regenScore.social + o.regenScore.experience) / 3;
+                    return {
+                        ...o,
+                        featured: avgScore > 90
+                    };
+                });
+
+                // Sort by score descending to push best offers to top
+                processedOffers.sort((a, b) => {
+                    const scoreA = (a.regenScore.environmental + a.regenScore.social + a.regenScore.experience) / 3;
+                    const scoreB = (b.regenScore.environmental + b.regenScore.social + b.regenScore.experience) / 3;
+                    return scoreB - scoreA;
+                });
+
+                setOffers(processedOffers);
 
             } catch (err) {
                 console.error('Failed to fetch offers:', err);
@@ -186,52 +207,56 @@ const Home = () => {
             </section>
 
             {/* Thematic Filters */}
-            <section className="section container">
-                <ThematicFilters
-                    activeFilter={activeFilter}
-                    onFilterChange={setActiveFilter}
-                />
+            <section className="section">
+                <div className="container">
+                    <ThematicFilters
+                        activeFilter={activeFilter}
+                        onFilterChange={setActiveFilter}
+                    />
+                </div>
             </section>
 
             {/* Featured Offers */}
-            <section className="section section--featured container">
-                <div className="section__header">
-                    <h2 className="section__title">
-                        {activeFilter && activeFilter !== 'all'
-                            ? `${t(`home.filter${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}`)} - ${filteredOffers.length} ${filteredOffers.length > 1 ? 'offres' : 'offre'}`
-                            : t('home.featuredTitle')
-                        }
-                    </h2>
-                    {(!activeFilter || activeFilter === 'all') && (
-                        <p className="section__subtitle">{t('home.featuredSubtitle')}</p>
+            <section className="section section--featured">
+                <div className="container">
+                    <div className="section__header">
+                        <h2 className="section__title">
+                            {activeFilter && activeFilter !== 'all'
+                                ? `${t(`home.filter${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}`)} - ${filteredOffers.length} ${filteredOffers.length > 1 ? 'offres' : 'offre'}`
+                                : t('home.featuredTitle')
+                            }
+                        </h2>
+                        {(!activeFilter || activeFilter === 'all') && (
+                            <p className="section__subtitle">{t('home.featuredSubtitle')}</p>
+                        )}
+                    </div>
+
+                    {loading ? (
+                        <div className="no-results">
+                            <span className="no-results__icon"></span>
+                            <p>Chargement des offres...</p>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="offers-grid">
+                                {filteredOffers.map((offer) => (
+                                    <OfferCard
+                                        key={`${offer.type}-${offer.id}`}
+                                        offer={offer}
+                                        featured={true}
+                                    />
+                                ))}
+                            </div>
+
+                            {filteredOffers.length === 0 && (
+                                <div className="no-results">
+                                    <span className="no-results__icon"></span>
+                                    <p>Aucune offre disponible dans cette catégorie pour le moment.</p>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
-
-                {loading ? (
-                    <div className="no-results">
-                        <span className="no-results__icon"></span>
-                        <p>Chargement des offres...</p>
-                    </div>
-                ) : (
-                    <>
-                        <div className="offers-grid">
-                            {filteredOffers.map((offer) => (
-                                <OfferCard
-                                    key={`${offer.type}-${offer.id}`}
-                                    offer={offer}
-                                    featured={true}
-                                />
-                            ))}
-                        </div>
-
-                        {filteredOffers.length === 0 && (
-                            <div className="no-results">
-                                <span className="no-results__icon"></span>
-                                <p>Aucune offre disponible dans cette catégorie pour le moment.</p>
-                            </div>
-                        )}
-                    </>
-                )}
             </section>
 
             {/* CTA Section */}

@@ -137,6 +137,10 @@
     font-size: var(--text-sm);
 }
 
+.search-results__content {
+    padding-bottom: 8rem;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     .search-results__info {

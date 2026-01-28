@@ -81,7 +81,9 @@ const Explore = () => {
                         social: h.regenScore || 80,
                         experience: h.regenScore || 80
                     },
-                    images: h.images?.length > 0 ? h.images : [getFallbackImage(h.id)],
+                    images: h.medias?.length > 0
+                        ? h.medias.sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0)).map(m => m.url)
+                        : [getFallbackImage(h.id)],
                     featured: false,
                     available: true,
                     tags: h.tags || []
@@ -98,14 +100,14 @@ const Explore = () => {
                     location: {
                         city: a.city || 'Île Maurice',
                         country: 'Île Maurice',
-                        coordinates: { lat: 0, lng: 0 }
+                        coordinates: { lat: a.latitude || 0, lng: a.longitude || 0 }
                     },
                     description: {
                         fr: a.storyContent || '',
                         en: a.storyContent || ''
                     },
                     price: {
-                        amount: a.pricePerPerson || a.price || 0,
+                        amount: a.pricePerson || a.price || 0,
                         currency: 'EUR',
                         unit: 'person'
                     },
@@ -115,7 +117,9 @@ const Explore = () => {
                         social: 85,
                         experience: 85
                     },
-                    images: [getFallbackImage(a.id + 100)],
+                    images: a.medias?.length > 0
+                        ? a.medias.sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0)).map(m => m.url)
+                        : [getFallbackImage(a.id + 100)],
                     featured: false,
                     available: true,
                     tags: []

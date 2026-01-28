@@ -11,18 +11,7 @@ import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import './OfferDetails.css';
 
-// Fallback images (same as Home/Explore)
-const FALLBACK_IMAGES = [
-    '/images/offers/overwater-bungalow.jpg',
-    '/images/offers/chalet-montagne.jpg',
-    '/images/offers/maison-coloniale.jpg',
-    '/images/offers/eco-lodge.jpg'
-];
 
-const getFallbackImage = (id) => {
-    const numericId = typeof id === 'number' ? id : parseInt(id) || 0;
-    return FALLBACK_IMAGES[Math.abs(numericId) % FALLBACK_IMAGES.length];
-};
 
 const OfferDetails = () => {
     const { type, id } = useParams();
@@ -86,7 +75,7 @@ const OfferDetails = () => {
     const calculateTotal = () => {
         if (!offer) return 0;
 
-        const price = offer.price || offer.basePrice || offer.pricePerPerson || 0;
+        const price = offer.price || offer.basePrice || offer.pricePerson || offer.pricePerPerson || 0;
 
         if (type === 'hebergement') {
             if (!bookingData.checkInDate || !bookingData.checkOutDate) return 0;
@@ -150,9 +139,12 @@ const OfferDetails = () => {
 
     // Image navigation
     const getImages = () => {
+        if (offer && offer.medias && offer.medias.length > 0) {
+            return offer.medias.sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0)).map(m => m.url);
+        }
         if (offer && offer.images && offer.images.length > 0) return offer.images;
         // Fallback
-        return [getFallbackImage(id)];
+        return ['/images/placeholder-offer.jpg'];
     };
 
     const images = getImages();
@@ -199,41 +191,34 @@ const OfferDetails = () => {
     const title = offer.title || offer.name || 'Offre';
     // Description can be in different fields depending on backend entity (Hebergement vs Activity)
     const description = offer.description || offer.hDescription || offer.storyContent || 'Aucune description disponible.';
-    const price = offer.price || offer.basePrice || offer.pricePerPerson || 0;
+    const price = offer.price || offer.basePrice || offer.pricePerson || offer.pricePerPerson || 0;
     const maxGuests = offer.maxGuests || offer.nbrMaxPlaces || 10;
     const locationCity = offer.city || (offer.etablissement ? offer.etablissement.city : 'Île Maurice');
     const locationName = offer.etablissement ? offer.etablissement.name : '';
 
+    const isPartner = user?.role === 'partner';
+
     return (
         <div className="offer-details">
             {/* Image Gallery */}
-            <section className="offer-details__gallery">
-                <div className="offer-details__gallery-main">
-                    <img
-                        src={images[currentImageIndex]}
-                        alt={title}
-                        className="offer-details__image"
-                    />
-                    {images.length > 1 && (
-                        <>
-                            <button className="offer-details__nav offer-details__nav--prev" onClick={prevImage}>
-                                ‹
-                            </button>
-                            <button className="offer-details__nav offer-details__nav--next" onClick={nextImage}>
-                                ›
-                            </button>
-                            <div className="offer-details__dots">
-                                {images.map((_, idx) => (
-                                    <span
-                                        key={idx}
-                                        className={`offer-details__dot ${idx === currentImageIndex ? 'offer-details__dot--active' : ''}`}
-                                        onClick={() => setCurrentImageIndex(idx)}
-                                    />
-                                ))}
-                            </div>
-                        </>
-                    )}
-                </div>
+            {/* Image Gallery - Bento Grid */}
+            <section className="offer-details__gallery-grid">
+                {images.slice(0, 5).map((img, idx) => (
+                    <div
+                        key={idx}
+                        className={`gallery-item gallery-item--${idx}`}
+                        onClick={() => setCurrentImageIndex(idx)}
+                    >
+                        <img src={img} alt={`${title} ${idx + 1}`} />
+                        <div className="gallery-overlay" />
+                    </div>
+                ))}
+
+                {images.length > 5 && (
+                    <button className="btn-show-all-photos">
+                        📸 Afficher toutes les photos ({images.length})
+                    </button>
+                )}
             </section>
 
             <div className="container">
@@ -317,6 +302,7 @@ const OfferDetails = () => {
                                                         ...prev,
                                                         checkInDate: e.target.value
                                                     }))}
+                                                    disabled={isPartner}
                                                 />
                                             </div>
                                             <div className="offer-details__form-group">
@@ -330,6 +316,7 @@ const OfferDetails = () => {
                                                         ...prev,
                                                         checkOutDate: e.target.value
                                                     }))}
+                                                    disabled={isPartner}
                                                 />
                                             </div>
                                         </div>
@@ -347,6 +334,7 @@ const OfferDetails = () => {
                                                 ...prev,
                                                 checkInDate: e.target.value
                                             }))}
+                                            disabled={isPartner}
                                         />
                                     </div>
                                 )}
@@ -359,6 +347,7 @@ const OfferDetails = () => {
                                             ...prev,
                                             guestCount: parseInt(e.target.value)
                                         }))}
+                                        disabled={isPartner}
                                     >
                                         {[...Array(maxGuests)].map((_, i) => (
                                             <option key={i + 1} value={i + 1}>
@@ -381,18 +370,31 @@ const OfferDetails = () => {
                                     </div>
                                 )}
 
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary btn-lg offer-details__submit"
-                                    disabled={submitting}
-                                >
-                                    {submitting ? 'Traitement...' : 'Réserver'}
-                                </button>
-
-                                {!isAuthenticated && (
-                                    <p className="offer-details__login-hint">
-                                        Connectez-vous pour réserver
-                                    </p>
+                                {!isAuthenticated ? (
+                                    <div className="offer-details__login-hint">
+                                        <p>Connectez-vous pour réserver</p>
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline btn-sm"
+                                            onClick={() => navigate('/login', { state: { from: `/offer/${type}/${id}` } })}
+                                            style={{ marginTop: '10px', width: '100%' }}
+                                        >
+                                            Se connecter
+                                        </button>
+                                    </div>
+                                ) : user?.role === 'partner' ? (
+                                    <div className="offer-details__partner-hint">
+                                        <p>🚫 Les comptes partenaires ne peuvent pas effectuer de réservations.</p>
+                                        <small>Connectez-vous avec un compte voyageur pour réserver.</small>
+                                    </div>
+                                ) : (
+                                    <button
+                                        type="submit"
+                                        className="btn btn-primary btn-lg offer-details__submit"
+                                        disabled={submitting}
+                                    >
+                                        {submitting ? 'Traitement...' : 'Réserver'}
+                                    </button>
                                 )}
                             </form>
                         </div>
