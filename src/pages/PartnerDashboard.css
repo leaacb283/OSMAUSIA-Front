@@ -764,3 +764,77 @@
     color: var(--primary-500);
     background: var(--primary-50);
 }
+
+/* Tags Input Styles */
+.tags-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    background: var(--bg-base);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+}
+
+.tags-input-container:focus-within {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: #eef2ff;
+    color: #4f46e5;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    border: 1px solid #c7d2fe;
+    transition: all 0.2s ease;
+}
+
+.tag-chip__icon {
+    font-size: 18px !important;
+    color: #4338ca;
+}
+
+.tag-chip button {
+    background: none;
+    border: none;
+    color: #4f46e5;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 2px;
+    display: flex;
+    align-items: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.tag-chip button:hover {
+    opacity: 1;
+}
+
+.tags-input-container input {
+    border: none !important;
+    padding: var(--space-2) 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-size: var(--text-sm);
+    width: 100%;
+}
+
+.tags-input-container input:focus {
+    outline: none;
+}

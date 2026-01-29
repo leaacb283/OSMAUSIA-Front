@@ -177,6 +177,20 @@
     background: var(--color-border-light);
     padding: var(--space-1) var(--space-2);
     border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    transition: all 0.2s ease;
+}
+
+.offer-card__tag:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+.tag-icon {
+    font-size: 14px !important;
+    color: var(--color-primary);
 }
 
 /* Footer */

@@ -64,7 +64,7 @@ const mapDTOToOffer = (dto) => {
         medias: dto.medias || [], // Keep original structure for editing
         featured: false,
         available: true,
-        tags: dto.tags || [],
+        tags: dto.tags || [], // Now a list of TagDTO objects from backend
         etablissementId: dto.etablissement?.id || dto.etablissementId
     };
 };
@@ -98,6 +98,7 @@ const PartnerDashboard = () => {
         social: 80,
         experience: 80,
         medias: [], // Array of { url, type: 'IMAGE', isCover: boolean }
+        tags: [],
         etablissementId: '' // Selected establishment ID
     });
     const [createError, setCreateError] = useState('');
@@ -171,6 +172,7 @@ const PartnerDashboard = () => {
             social: 80,
             experience: 80,
             medias: [],
+            tags: [],
             etablissementId: etablissements.length > 0 ? etablissements[0].id : ''
         });
         // Si aucun établissement, ouvrir le formulaire de création
@@ -199,6 +201,7 @@ const PartnerDashboard = () => {
             social: offer.regenScore.social,
             experience: offer.regenScore.experience,
             medias: offer.medias || [],
+            tags: offer.tags || [],
             etablissementId: offer.etablissementId || (etablissements.length > 0 ? etablissements[0].id : '')
         });
         setShowEtabForm(false);
@@ -343,19 +346,25 @@ const PartnerDashboard = () => {
             const rawId = isEditing ? editingId.split('_')[1] : null;
             console.log("Action:", isEditing ? "Updating" : "Creating", "Type:", newOffer.type, "RawID:", rawId);
 
+            // Prepare data for API
+            const offerData = {
+                ...newOffer,
+                tags: newOffer.tags
+            };
+
             if (isEditing) {
                 if (newOffer.type === 'activite') {
-                    resultDTO = await updateActivite(rawId, newOffer, user);
+                    resultDTO = await updateActivite(rawId, offerData, user);
                 } else {
-                    resultDTO = await updateHebergement(rawId, newOffer, user);
+                    resultDTO = await updateHebergement(rawId, offerData, user);
                 }
                 // Update local list
                 setOffers(prev => prev.map(o => o.id === editingId ? mapDTOToOffer(resultDTO) : o));
             } else {
                 if (newOffer.type === 'activite') {
-                    resultDTO = await createActivite(newOffer, user);
+                    resultDTO = await createActivite(offerData, user);
                 } else {
-                    resultDTO = await createHebergement(newOffer, user);
+                    resultDTO = await createHebergement(offerData, user);
                 }
                 setOffers([mapDTOToOffer(resultDTO), ...offers]);
             }
@@ -661,6 +670,41 @@ const PartnerDashboard = () => {
                                         <option value="culture">Culture</option>
                                         <option value="social">Social</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            {/* Tags Configuration */}
+                            <div className="form-group">
+                                <label>Tags (Spécialités, Équipements...)</label>
+                                <div className="tags-input-container">
+                                    <div className="tags-list">
+                                        {newOffer.tags.map((tag, index) => (
+                                            <span key={index} className="tag-chip">
+                                                {tag.iconUrl && <span className="material-icons tag-chip__icon">{tag.iconUrl}</span>}
+                                                #{tag.label || tag}
+                                                <button type="button" onClick={() => {
+                                                    setNewOffer(prev => ({ ...prev, tags: prev.tags.filter((_, i) => i !== index) }));
+                                                }}>×</button>
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Ajouter un tag + Entrée (ex: Wifi, Piscine, Randonnée...)"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                const val = e.target.value.trim();
+                                                if (val && !newOffer.tags.some(t => t.label === val)) {
+                                                    setNewOffer(prev => ({ ...prev, tags: [...prev.tags, { label: val }] }));
+                                                    e.target.value = '';
+                                                }
+                                            }
+                                        }}
+                                    />
+                                    <small style={{ display: 'block', marginTop: '5px', color: '#666' }}>
+                                        Appuyez sur Entrée pour valider un tag.
+                                    </small>
                                 </div>
                             </div>
 

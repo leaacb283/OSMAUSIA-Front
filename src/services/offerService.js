@@ -40,6 +40,7 @@ export const createHebergement = async (offerData, user) => {
         providerDTO: providerDTO,
         locationDTO: locationDTO,
         medias: offerData.medias || [],
+        tags: offerData.tags || [],
         ...(offerData.etablissementId ? { etablissement: { id: offerData.etablissementId } } : {})
     };
 
@@ -94,6 +95,7 @@ export const updateHebergement = async (id, offerData, user) => {
         providerDTO: providerDTO,
         locationDTO: locationDTO,
         medias: offerData.medias || [],
+        tags: offerData.tags || [],
         ...(offerData.etablissementId ? { etablissement: { id: offerData.etablissementId } } : {})
     };
 
@@ -190,6 +192,7 @@ export const createActivite = async (offerData, user) => {
         longitude: 57.5,
         provider: { id: user.id, email: user.email },
         medias: offerData.medias || [],
+        tags: offerData.tags || [],
         ...(offerData.etablissementId ? { etablissement: { id: offerData.etablissementId } } : {})
     };
 
@@ -218,6 +221,7 @@ export const updateActivite = async (id, offerData, user) => {
         longitude: 57.5,
         provider: { id: user.id, email: user.email },
         medias: offerData.medias || [],
+        tags: offerData.tags || [],
         ...(offerData.etablissementId ? { etablissement: { id: offerData.etablissementId } } : {})
     };
 

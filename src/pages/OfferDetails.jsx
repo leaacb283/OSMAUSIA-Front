@@ -291,7 +291,10 @@ const OfferDetails = () => {
                         {offer.tags?.length > 0 && (
                             <div className="offer-details__tags">
                                 {offer.tags.map((tag, idx) => (
-                                    <span key={idx} className="offer-details__tag">{tag}</span>
+                                    <span key={tag.id || idx} className="offer-details__tag">
+                                        {tag.iconUrl && <span className="material-icons tag-icon">{tag.iconUrl}</span>}
+                                        {tag.label || tag}
+                                    </span>
                                 ))}
                             </div>
                         )}

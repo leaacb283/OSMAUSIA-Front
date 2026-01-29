@@ -19,7 +19,7 @@ const OfferCard = ({ offer, featured = false }) => {
         culture: { label: t('home.filterCulture'), class: 'badge-culture', icon: '' }
     };
 
-    const badge = categoryBadges[offer.category];
+    const badge = categoryBadges[offer.category] || categoryBadges.nature;
 
     // Type label
     const typeLabels = {
@@ -86,9 +86,10 @@ const OfferCard = ({ offer, featured = false }) => {
 
                 {/* Tags */}
                 <div className="offer-card__tags">
-                    {offer.tags.slice(0, 3).map(tag => (
-                        <span key={tag} className="offer-card__tag">
-                            #{tag}
+                    {offer.tags.slice(0, 3).map((tag, idx) => (
+                        <span key={tag.id || idx} className="offer-card__tag">
+                            {tag.iconUrl && <span className="material-icons tag-icon">{tag.iconUrl}</span>}
+                            #{tag.label || tag}
                         </span>
                     ))}
                 </div>
