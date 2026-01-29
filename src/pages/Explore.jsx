@@ -4,11 +4,14 @@
  * Uses catalog API directly (not Meilisearch) for reliability
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import OfferCard from '../components/OfferCard';
+import SearchBar from '../components/SearchBar';
+import SearchFilters from '../components/SearchFilters';
 import api from '../services/api';
+import { searchAll, mapAccommodationToOffer, mapActivityToOffer } from '../services/searchService';
 import './Explore.css';
 
 const Explore = () => {
@@ -20,127 +23,103 @@ const Explore = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filter, setFilter] = useState('all'); // 'all', 'hebergement', 'activite'
+    const [searchQuery, setSearchQuery] = useState('');
+    const [dateFilter, setDateFilter] = useState({ checkIn: '', checkOut: '' });
+    const [advancedFilters, setAdvancedFilters] = useState({});
 
-    // Fallback images
-    const FALLBACK_IMAGES = [
-        '/images/offers/overwater-bungalow.jpg',
-        '/images/offers/chalet-montagne.jpg',
-        '/images/offers/maison-coloniale.jpg',
-        '/images/offers/eco-lodge.jpg'
-    ];
+    // Import search service
+    // Ensure you have: import { searchAll, mapAccommodationToOffer, mapActivityToOffer } from '../services/searchService';
 
-    const getFallbackImage = (id) => {
-        const numericId = typeof id === 'number' ? id : parseInt(id) || 0;
-        return FALLBACK_IMAGES[Math.abs(numericId) % FALLBACK_IMAGES.length];
+    const fetchOffers = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            // Use searchAll from searchService which handles availability
+            const searchRes = await searchAll(searchQuery, {
+                checkInDate: dateFilter.checkIn,
+                checkOutDate: dateFilter.checkOut,
+                priceMin: advancedFilters.priceMin,
+                priceMax: advancedFilters.priceMax,
+                minRegenScore: advancedFilters.regenScoreMin,
+                limit: 100 // Load more to simulate "all" for explore, or implement pagination later
+            });
+
+            const { accommodations, activities } = searchRes;
+
+            // Map results
+            const mappedAccommodations = (accommodations.hits || []).map(mapAccommodationToOffer);
+            const mappedActivities = (activities.hits || []).map(mapActivityToOffer);
+
+            setOffers([...mappedAccommodations, ...mappedActivities]);
+        } catch (err) {
+            console.error('Failed to fetch offers:', err);
+            setError('Impossible de charger les offres. Vérifiez que le backend est démarré.');
+        } finally {
+            setLoading(false);
+        }
+    }, [searchQuery, dateFilter, advancedFilters]);
+
+    // Fetch on change
+    useEffect(() => {
+        fetchOffers();
+    }, [fetchOffers]);
+
+    // Handle search from SearchBar
+    const handleSearch = (searchParams) => {
+        setSearchQuery(searchParams.destination?.toLowerCase() || '');
+        setDateFilter({
+            checkIn: searchParams.checkIn || '',
+            checkOut: searchParams.checkOut || ''
+        });
     };
 
-    // Fetch all offers from catalog API
-    useEffect(() => {
-        const fetchOffers = async () => {
-            setLoading(true);
-            setError(null);
+    // Reset all filters
+    const handleResetFilters = () => {
+        setSearchQuery('');
+        setDateFilter({ checkIn: '', checkOut: '' });
+        setAdvancedFilters({});
+        setFilter('all');
+    };
 
-            try {
-                // Fetch hébergements directly from catalog API
-                const { data: hebergements } = await api.get('/offer/hebergements');
+    // Check if any filter is active
+    const hasActiveFilters = searchQuery || dateFilter.checkIn || dateFilter.checkOut ||
+        advancedFilters.priceMin || advancedFilters.priceMax || advancedFilters.regenScoreMin;
 
-                // Fetch activités
-                let activities = [];
-                try {
-                    const { data: activitesData } = await api.get('/offer/activites');
-                    activities = activitesData || [];
-                } catch (e) {
-                    console.log('No activities endpoint or error:', e);
-                }
-
-                // Map hébergements to frontend format
-                const mappedHebergements = (hebergements || []).map(h => ({
-                    id: h.id,
-                    title: { fr: h.title || 'Hébergement', en: h.title || 'Accommodation' },
-                    type: 'hebergement',
-                    category: 'nature',
-                    partnerId: h.providerId || null,
-                    partnerName: h.providerName || 'Partenaire OSMAUSIA',
-                    location: {
-                        city: h.city || h.etablissement?.city || 'Île Maurice',
-                        country: 'Île Maurice',
-                        coordinates: { lat: 0, lng: 0 }
-                    },
-                    description: {
-                        fr: h.hDescription || h.description || '',
-                        en: h.hDescription || h.description || ''
-                    },
-                    price: {
-                        amount: h.basePrice || h.price || 0,
-                        currency: 'EUR',
-                        unit: 'night'
-                    },
-                    capacity: { min: 1, max: h.maxGuests || 4 },
-                    regenScore: {
-                        environmental: h.regenScore || 80,
-                        social: h.regenScore || 80,
-                        experience: h.regenScore || 80
-                    },
-                    images: h.medias?.length > 0
-                        ? h.medias.sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0)).map(m => m.url)
-                        : [getFallbackImage(h.id)],
-                    featured: false,
-                    available: true,
-                    tags: h.tags || []
-                }));
-
-                // Map activités
-                const mappedActivities = (activities || []).map(a => ({
-                    id: a.id,
-                    title: { fr: a.name || 'Activité', en: a.name || 'Activity' },
-                    type: 'activite',
-                    category: 'culture',
-                    partnerId: a.providerId || null,
-                    partnerName: a.providerName || 'Partenaire',
-                    location: {
-                        city: a.city || 'Île Maurice',
-                        country: 'Île Maurice',
-                        coordinates: { lat: a.latitude || 0, lng: a.longitude || 0 }
-                    },
-                    description: {
-                        fr: a.storyContent || '',
-                        en: a.storyContent || ''
-                    },
-                    price: {
-                        amount: a.pricePerson || a.price || 0,
-                        currency: 'EUR',
-                        unit: 'person'
-                    },
-                    capacity: { min: 1, max: a.nbrMaxPlaces || 10 },
-                    regenScore: {
-                        environmental: 85,
-                        social: 85,
-                        experience: 85
-                    },
-                    images: a.medias?.length > 0
-                        ? a.medias.sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0)).map(m => m.url)
-                        : [getFallbackImage(a.id + 100)],
-                    featured: false,
-                    available: true,
-                    tags: []
-                }));
-
-                setOffers([...mappedHebergements, ...mappedActivities]);
-            } catch (err) {
-                console.error('Failed to fetch offers:', err);
-                setError('Impossible de charger les offres. Vérifiez que le backend est démarré.');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchOffers();
+    // Handle advanced filters
+    const handleFiltersChange = useCallback((filters) => {
+        setAdvancedFilters(filters);
     }, []);
 
-    // Filter offers
-    const filteredOffers = filter === 'all'
-        ? offers
-        : offers.filter(o => o.type === filter);
+    // Filter offers based on type, search query, and advanced filters
+    const filteredOffers = offers.filter(offer => {
+        // Type filter
+        if (filter !== 'all' && offer.type !== filter) return false;
+
+        // Search query filter
+        if (searchQuery) {
+            const title = offer.title?.fr?.toLowerCase() || '';
+            const city = offer.location?.city?.toLowerCase() || '';
+            if (!title.includes(searchQuery) && !city.includes(searchQuery)) {
+                return false;
+            }
+        }
+
+        // Price filters
+        const price = offer.price?.amount || 0;
+        if (advancedFilters.priceMin && price < advancedFilters.priceMin) return false;
+        if (advancedFilters.priceMax && price > advancedFilters.priceMax) return false;
+
+        // Regen score filter
+        if (advancedFilters.regenScoreMin) {
+            const avgScore = Math.round(
+                (offer.regenScore.environmental + offer.regenScore.social + offer.regenScore.experience) / 3
+            );
+            if (avgScore < advancedFilters.regenScoreMin) return false;
+        }
+
+        return true;
+    });
 
     return (
         <div className="explore">
@@ -150,6 +129,14 @@ const Explore = () => {
                     <h1>Explorer nos offres</h1>
                     <p>Découvrez tous les hébergements et activités régénératifs</p>
                 </header>
+
+                {/* Search Bar */}
+                <div className="explore__search">
+                    <SearchBar onSearch={handleSearch} variant="compact" showDates={true} />
+                </div>
+
+                {/* Advanced Filters */}
+                <SearchFilters onFiltersChange={handleFiltersChange} />
 
                 {/* Filters */}
                 <div className="explore__filters">
@@ -171,7 +158,34 @@ const Explore = () => {
                     >
                         Activités ({offers.filter(o => o.type === 'activite').length})
                     </button>
+
+                    {/* Reset Button */}
+                    {hasActiveFilters && (
+                        <button
+                            className="explore__reset-btn"
+                            onClick={handleResetFilters}
+                        >
+                            Réinitialiser les filtres
+                        </button>
+                    )}
                 </div>
+
+                {/* Active Date Filter Display */}
+                {(dateFilter.checkIn || dateFilter.checkOut) && (
+                    <div className="explore__active-filters">
+                        <span className="explore__active-filter">
+                            Dates: {dateFilter.checkIn && new Date(dateFilter.checkIn).toLocaleDateString('fr-FR')}
+                            {dateFilter.checkIn && dateFilter.checkOut && ' → '}
+                            {dateFilter.checkOut && new Date(dateFilter.checkOut).toLocaleDateString('fr-FR')}
+                            <button
+                                onClick={() => setDateFilter({ checkIn: '', checkOut: '' })}
+                                className="explore__active-filter-remove"
+                            >
+                                ×
+                            </button>
+                        </span>
+                    </div>
+                )}
 
                 {/* Error */}
                 {error && (

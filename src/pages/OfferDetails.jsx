@@ -8,6 +8,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
+import OfferGallery from '../components/OfferGallery';
+import DateRangePicker from '../components/DateRangePicker';
 import api from '../services/api';
 import './OfferDetails.css';
 
@@ -23,6 +25,7 @@ const OfferDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [blockedDates, setBlockedDates] = useState([]); // Calendar blocked periods
 
     // Booking form state
     const [bookingData, setBookingData] = useState({
@@ -33,6 +36,7 @@ const OfferDetails = () => {
 
     const [submitting, setSubmitting] = useState(false);
     const [bookingError, setBookingError] = useState(null);
+    const [dateConflict, setDateConflict] = useState(false);
 
     const lang = i18n.language === 'en' ? 'en' : 'fr';
 
@@ -70,6 +74,71 @@ const OfferDetails = () => {
             fetchOffer();
         }
     }, [id, type]);
+
+    // Fetch calendar availability for hebergements
+    useEffect(() => {
+        const fetchCalendar = async () => {
+            if (type !== 'hebergement' || !id) return;
+
+            try {
+                // Fetch next 6 months of availability
+                const today = new Date();
+                const sixMonthsLater = new Date();
+                sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+
+                const from = today.toISOString().split('T')[0];
+                const to = sixMonthsLater.toISOString().split('T')[0];
+
+                const { data } = await api.get(`/offer/hebergements/${id}/calendar?from=${from}&to=${to}`);
+                setBlockedDates(data || []);
+                console.log('Calendar data:', data);
+            } catch (err) {
+                console.log('Calendar fetch failed (non-blocking):', err);
+                // Non-blocking error - calendar just won't show blocked dates
+            }
+        };
+
+        fetchCalendar();
+    }, [id, type]);
+
+    // Check if a date is blocked
+    const isDateBlocked = (dateStr) => {
+        if (!dateStr || blockedDates.length === 0) return false;
+        const date = new Date(dateStr);
+
+        return blockedDates.some(period => {
+            const start = new Date(period.start);
+            const end = new Date(period.end);
+            return date >= start && date <= end;
+        });
+    };
+
+    // Check if date range overlaps with blocked periods
+    const hasDateConflict = (checkIn, checkOut) => {
+        if (!checkIn || !checkOut || blockedDates.length === 0) return false;
+        const inDate = new Date(checkIn);
+        const outDate = new Date(checkOut);
+
+        return blockedDates.some(period => {
+            const start = new Date(period.start);
+            const end = new Date(period.end);
+            // Check if ranges overlap
+            return inDate <= end && outDate >= start;
+        });
+    };
+
+    // Validate dates when they change
+    useEffect(() => {
+        if (bookingData.checkInDate && bookingData.checkOutDate) {
+            const conflict = hasDateConflict(bookingData.checkInDate, bookingData.checkOutDate);
+            setDateConflict(conflict);
+            if (conflict) {
+                setBookingError('Les dates sélectionnées chevauchent une période déjà réservée.');
+            } else {
+                setBookingError(null);
+            }
+        }
+    }, [bookingData.checkInDate, bookingData.checkOutDate, blockedDates]);
 
     // Calculate total price
     const calculateTotal = () => {
@@ -174,7 +243,7 @@ const OfferDetails = () => {
         return (
             <div className="offer-details offer-details--error">
                 <div className="container" style={{ textAlign: 'center', padding: '100px 0' }}>
-                    <h1>😕 Oups !</h1>
+                    <h1>Oups !</h1>
                     <p>{error || 'Offre non trouvée'}</p>
                     <button className="btn btn-primary" onClick={() => navigate('/')}>
                         Retour à l'accueil
@@ -200,25 +269,11 @@ const OfferDetails = () => {
 
     return (
         <div className="offer-details">
-            {/* Image Gallery */}
-            {/* Image Gallery - Bento Grid */}
-            <section className="offer-details__gallery-grid">
-                {images.slice(0, 5).map((img, idx) => (
-                    <div
-                        key={idx}
-                        className={`gallery-item gallery-item--${idx}`}
-                        onClick={() => setCurrentImageIndex(idx)}
-                    >
-                        <img src={img} alt={`${title} ${idx + 1}`} />
-                        <div className="gallery-overlay" />
-                    </div>
-                ))}
-
-                {images.length > 5 && (
-                    <button className="btn-show-all-photos">
-                        📸 Afficher toutes les photos ({images.length})
-                    </button>
-                )}
+            {/* Image Gallery with Carousel & Thumbnails */}
+            <section className="offer-details__gallery-section">
+                <div className="container">
+                    <OfferGallery images={images} title={title} />
+                </div>
             </section>
 
             <div className="container">
@@ -228,7 +283,7 @@ const OfferDetails = () => {
                         <div className="offer-details__header">
                             <h1 className="offer-details__title">{title}</h1>
                             <p className="offer-details__location">
-                                📍 {locationName ? `${locationName} — ` : ''}{locationCity}
+                                {locationName ? `${locationName} — ` : ''}{locationCity}
                             </p>
                         </div>
 
@@ -244,7 +299,7 @@ const OfferDetails = () => {
                         {/* Regen Score */}
                         {(offer.regenScore || offer.regenScore === 0) && (
                             <div className="offer-details__score">
-                                <span className="offer-details__score-icon">🌱</span>
+                                <span className="offer-details__score-icon"></span>
                                 <span className="offer-details__score-value">{offer.regenScore}</span>
                                 <span className="offer-details__score-label">Score régénératif</span>
                             </div>
@@ -259,20 +314,20 @@ const OfferDetails = () => {
                         {/* Capacity */}
                         <div className="offer-details__info-grid">
                             <div className="offer-details__info-item">
-                                <span className="offer-details__info-icon">👥</span>
+                                <span className="offer-details__info-icon"></span>
                                 <span>Jusqu'à {maxGuests} personnes</span>
                             </div>
                             {/* Hebergement specific */}
                             {offer.isShared !== undefined && (
                                 <div className="offer-details__info-item">
-                                    <span className="offer-details__info-icon">🏠</span>
+                                    <span className="offer-details__info-icon"></span>
                                     <span>{offer.isShared ? 'Hébergement partagé' : 'Logement entier'}</span>
                                 </div>
                             )}
                             {/* Activity specific */}
                             {offer.durationMin && (
                                 <div className="offer-details__info-item">
-                                    <span className="offer-details__info-icon">⏱️</span>
+                                    <span className="offer-details__info-icon"></span>
                                     <span>Durée : {offer.durationMin} min</span>
                                 </div>
                             )}
@@ -290,36 +345,19 @@ const OfferDetails = () => {
                             <form className="offer-details__form" onSubmit={handleBooking}>
                                 {type === 'hebergement' ? (
                                     <>
-                                        <div className="offer-details__form-row">
-                                            <div className="offer-details__form-group">
-                                                <label>Arrivée</label>
-                                                <input
-                                                    type="date"
-                                                    required
-                                                    min={new Date().toISOString().split('T')[0]}
-                                                    value={bookingData.checkInDate}
-                                                    onChange={(e) => setBookingData(prev => ({
-                                                        ...prev,
-                                                        checkInDate: e.target.value
-                                                    }))}
-                                                    disabled={isPartner}
-                                                />
-                                            </div>
-                                            <div className="offer-details__form-group">
-                                                <label>Départ</label>
-                                                <input
-                                                    type="date"
-                                                    required
-                                                    min={bookingData.checkInDate || new Date().toISOString().split('T')[0]}
-                                                    value={bookingData.checkOutDate}
-                                                    onChange={(e) => setBookingData(prev => ({
-                                                        ...prev,
-                                                        checkOutDate: e.target.value
-                                                    }))}
-                                                    disabled={isPartner}
-                                                />
-                                            </div>
-                                        </div>
+                                        <DateRangePicker
+                                            checkIn={bookingData.checkInDate}
+                                            checkOut={bookingData.checkOutDate}
+                                            onDateChange={({ checkIn, checkOut }) => {
+                                                setBookingData(prev => ({
+                                                    ...prev,
+                                                    checkInDate: checkIn,
+                                                    checkOutDate: checkOut
+                                                }));
+                                            }}
+                                            blockedDates={blockedDates}
+                                            disabled={isPartner}
+                                        />
                                     </>
                                 ) : (
                                     /* Activity Date Picker (Simplified) */
@@ -364,9 +402,10 @@ const OfferDetails = () => {
                                     </div>
                                 )}
 
+
                                 {bookingError && (
                                     <div className="offer-details__error">
-                                        ⚠️ {bookingError}
+                                        {bookingError}
                                     </div>
                                 )}
 
@@ -384,16 +423,16 @@ const OfferDetails = () => {
                                     </div>
                                 ) : user?.role === 'partner' ? (
                                     <div className="offer-details__partner-hint">
-                                        <p>🚫 Les comptes partenaires ne peuvent pas effectuer de réservations.</p>
+                                        <p>Les comptes partenaires ne peuvent pas effectuer de réservations.</p>
                                         <small>Connectez-vous avec un compte voyageur pour réserver.</small>
                                     </div>
                                 ) : (
                                     <button
                                         type="submit"
                                         className="btn btn-primary btn-lg offer-details__submit"
-                                        disabled={submitting}
+                                        disabled={submitting || dateConflict}
                                     >
-                                        {submitting ? 'Traitement...' : 'Réserver'}
+                                        {submitting ? 'Traitement...' : dateConflict ? 'Dates indisponibles' : 'Réserver'}
                                     </button>
                                 )}
                             </form>

@@ -137,8 +137,16 @@ const CheckoutPage = () => {
         <div className="checkout">
             <div className="container">
                 <header className="checkout__header">
-                    <h1>Finaliser votre réservation</h1>
-                    <p>Vérifiez les détails et procédez au paiement sécurisé</p>
+                    <h1>
+                        {reservation?.status === 'CONFIRMED'
+                            ? 'Détails de votre réservation'
+                            : 'Finaliser votre réservation'}
+                    </h1>
+                    <p>
+                        {reservation?.status === 'CONFIRMED'
+                            ? 'Recapitulatif de votre séjour confirmé'
+                            : 'Vérifiez les détails et procédez au paiement sécurisé'}
+                    </p>
                 </header>
 
                 <div className="checkout__content">
@@ -174,56 +182,78 @@ const CheckoutPage = () => {
                     </div>
 
                     {/* Payment Form */}
+                    {/* Payment Form OR Confirmation Status */}
                     <div className="checkout__payment">
-                        <h2>Paiement sécurisé</h2>
-
-                        {stripeError ? (
-                            <div className="checkout__stripe-warning">
-                                <p>⚠️ {stripeError}</p>
-                                <p className="checkout__test-info">
-                                    Mode test disponible pour la démonstration :
+                        {reservation?.status === 'CONFIRMED' ? (
+                            <div className="checkout__confirmation-status">
+                                <div className="status-badge success">
+                                    ✅ Réservation confirmée
+                                </div>
+                                <p className="confirmation-text">
+                                    Votre séjour est validé. Vous recevrez un email récapitulatif prochainement.
                                 </p>
-                                <button
-                                    className="btn btn-primary btn-lg"
-                                    onClick={handleTestPayment}
-                                    disabled={paymentLoading}
-                                >
-                                    {paymentLoading ? 'Paiement en cours...' : '💳 Simuler le paiement (Test)'}
-                                </button>
-                            </div>
-                        ) : stripeLoaded && clientSecret ? (
-                            <div className="checkout__stripe-form">
-                                {/* 
-                                 * When Stripe is installed, use:
-                                 * <Elements stripe={stripePromise} options={{ clientSecret }}>
-                                 *   <PaymentForm />
-                                 * </Elements>
-                                 */}
-                                <div className="checkout__stripe-placeholder">
-                                    <p>🔒 Formulaire de paiement Stripe</p>
-                                    <p className="checkout__stripe-note">
-                                        Carte de test : 4242 4242 4242 4242
-                                    </p>
-                                    <button
-                                        className="btn btn-primary btn-lg"
-                                        onClick={handleTestPayment}
-                                        disabled={paymentLoading}
-                                    >
-                                        {paymentLoading ? 'Paiement en cours...' : 'Payer ' + (reservation?.totalPrice || 0) + ' €'}
+                                <div className="checkout__actions">
+                                    <button className="btn btn-primary" onClick={() => window.print()}>
+                                        🖨️ Imprimer la confirmation
+                                    </button>
+                                    <button className="btn btn-secondary">
+                                        📧 Contacter l'hôte
                                     </button>
                                 </div>
                             </div>
                         ) : (
-                            <div className="checkout__loading-payment">
-                                <div className="checkout__spinner checkout__spinner--small"></div>
-                                <p>Chargement du formulaire de paiement...</p>
-                            </div>
-                        )}
+                            <>
+                                <h2>Paiement sécurisé</h2>
 
-                        <div className="checkout__security">
-                            <span>🔐</span>
-                            <span>Paiement sécurisé par Stripe</span>
-                        </div>
+                                {stripeError ? (
+                                    <div className="checkout__stripe-warning">
+                                        <p>⚠️ {stripeError}</p>
+                                        <p className="checkout__test-info">
+                                            Mode test disponible pour la démonstration :
+                                        </p>
+                                        <button
+                                            className="btn btn-primary btn-lg"
+                                            onClick={handleTestPayment}
+                                            disabled={paymentLoading}
+                                        >
+                                            {paymentLoading ? 'Paiement en cours...' : '💳 Simuler le paiement (Test)'}
+                                        </button>
+                                    </div>
+                                ) : stripeLoaded && clientSecret ? (
+                                    <div className="checkout__stripe-form">
+                                        {/* 
+                                         * When Stripe is installed, use:
+                                         * <Elements stripe={stripePromise} options={{ clientSecret }}>
+                                         *   <PaymentForm />
+                                         * </Elements>
+                                         */}
+                                        <div className="checkout__stripe-placeholder">
+                                            <p>🔒 Formulaire de paiement Stripe</p>
+                                            <p className="checkout__stripe-note">
+                                                Carte de test : 4242 4242 4242 4242
+                                            </p>
+                                            <button
+                                                className="btn btn-primary btn-lg"
+                                                onClick={handleTestPayment}
+                                                disabled={paymentLoading}
+                                            >
+                                                {paymentLoading ? 'Paiement en cours...' : 'Payer ' + (reservation?.totalPrice || 0) + ' €'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="checkout__loading-payment">
+                                        <div className="checkout__spinner checkout__spinner--small"></div>
+                                        <p>Chargement du formulaire de paiement...</p>
+                                    </div>
+                                )}
+
+                                <div className="checkout__security">
+                                    <span>🔐</span>
+                                    <span>Paiement sécurisé par Stripe</span>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
 

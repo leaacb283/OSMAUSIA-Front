@@ -174,11 +174,7 @@ const MyReservations = () => {
                                             </Link>
                                         )}
 
-                                        {reservation.status === 'CONFIRMED' && (
-                                            <button className="btn btn-secondary btn-sm">
-                                                Voir les détails
-                                            </button>
-                                        )}
+
                                     </div>
                                 </article>
                             );

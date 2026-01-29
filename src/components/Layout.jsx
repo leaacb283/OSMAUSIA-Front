@@ -34,7 +34,7 @@ const Layout = () => {
                 <div className="header-container container">
                     {/* Logo */}
                     <Link to="/" className="logo" onClick={closeMobileMenu}>
-                        <img src="/images/brand/logo-black.png" alt="OSMAUSIA" className="logo-img" />
+                        <img src="/images/osmausia-logo.png" alt="OSMAUSIA" className="logo-img" />
                     </Link>
 
                     {/* Desktop Navigation */}

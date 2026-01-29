@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import DateRangePicker from './DateRangePicker';
 import './SearchBar.css';
 
-const SearchBar = ({ onSearch, variant = 'hero' }) => {
+const SearchBar = ({ onSearch, variant = 'hero', showDates = true }) => {
     const { t } = useTranslation();
     const [destination, setDestination] = useState('');
     const [checkIn, setCheckIn] = useState('');
@@ -13,17 +14,15 @@ const SearchBar = ({ onSearch, variant = 'hero' }) => {
         e.preventDefault();
         onSearch?.({
             destination,
-            checkIn,
-            checkOut,
+            checkIn: showDates ? checkIn : undefined,
+            checkOut: showDates ? checkOut : undefined,
             guests
         });
     };
 
-    // Get tomorrow's date for min check-in
-    const getTomorrow = () => {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        return tomorrow.toISOString().split('T')[0];
+    const handleDateChange = ({ checkIn: newCheckIn, checkOut: newCheckOut }) => {
+        setCheckIn(newCheckIn);
+        setCheckOut(newCheckOut);
     };
 
     return (
@@ -44,43 +43,20 @@ const SearchBar = ({ onSearch, variant = 'hero' }) => {
                 />
             </div>
 
-            {/* Divider */}
-            <div className="search-bar__divider" />
-
-            {/* Check-in Date */}
-            <div className="search-bar__field search-bar__field--date">
-                <label htmlFor="check-in" className="search-bar__label">
-                    <span className="search-bar__icon"></span>
-                    {t('home.searchDate')}
-                </label>
-                <input
-                    type="date"
-                    id="check-in"
-                    className="search-bar__input"
-                    value={checkIn}
-                    min={getTomorrow()}
-                    onChange={(e) => setCheckIn(e.target.value)}
-                />
-            </div>
-
-            {/* Divider */}
-            <div className="search-bar__divider" />
-
-            {/* Check-out Date */}
-            <div className="search-bar__field search-bar__field--date">
-                <label htmlFor="check-out" className="search-bar__label">
-                    <span className="search-bar__icon"></span>
-                    {t('home.searchDate')}
-                </label>
-                <input
-                    type="date"
-                    id="check-out"
-                    className="search-bar__input"
-                    value={checkOut}
-                    min={checkIn || getTomorrow()}
-                    onChange={(e) => setCheckOut(e.target.value)}
-                />
-            </div>
+            {/* Date Range Picker - Only show if enabled */}
+            {showDates && (
+                <>
+                    <div className="search-bar__divider" />
+                    <div className="search-bar__field search-bar__field--dates">
+                        <DateRangePicker
+                            checkIn={checkIn}
+                            checkOut={checkOut}
+                            onDateChange={handleDateChange}
+                            blockedDates={[]}
+                        />
+                    </div>
+                </>
+            )}
 
             {/* Divider */}
             <div className="search-bar__divider" />

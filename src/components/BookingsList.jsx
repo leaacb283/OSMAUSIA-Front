@@ -113,12 +113,7 @@ const BookingsList = ({ bookings, showActions = true }) => {
                             {/* Actions */}
                             {showActions && (
                                 <div className="booking-card__actions">
-                                    <Link
-                                        to={`/checkout/${booking.id}`}
-                                        className="btn btn-secondary btn-sm"
-                                    >
-                                        {t('booking.viewDetails')}
-                                    </Link>
+
 
                                     {booking.status === 'CONFIRMED' && (
                                         <button className="btn btn-ghost btn-sm">

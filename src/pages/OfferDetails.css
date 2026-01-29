@@ -34,6 +34,13 @@
     }
 }
 
+/* Gallery Section */
+.offer-details__gallery-section {
+    padding: var(--space-4) 0;
+    background: #f8fafc;
+    margin-bottom: var(--space-6);
+}
+
 /* Image Gallery */
 /* Image Gallery - Bento Grid */
 .offer-details__gallery-grid {
@@ -360,6 +367,32 @@
     color: var(--text-muted, #999);
     text-align: center;
     margin-top: 0.5rem;
+}
+
+/* Blocked dates info */
+.offer-details__blocked-info {
+    padding: 0.75rem;
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.offer-details__blocked-label {
+    font-weight: 600;
+    color: #b45309;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.offer-details__blocked-list {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: #92400e;
+}
+
+.offer-details__blocked-list li {
+    margin-bottom: 0.25rem;
 }
 
 /* Dark Mode */

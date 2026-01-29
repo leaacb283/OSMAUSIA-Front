@@ -147,7 +147,7 @@ const PartnerDashboard = () => {
             <div className="partner-dashboard">
                 <div className="container">
                     <div className="partner-not-auth">
-                        <span className="partner-not-auth__icon">🔒</span>
+                        <span className="partner-not-auth__icon"></span>
                         <h2>Accès réservé aux partenaires</h2>
                         <p>Veuillez vous connecter pour accéder à votre dashboard.</p>
                         <Link to="/login" className="btn btn-primary">Se connecter</Link>
@@ -404,12 +404,12 @@ const PartnerDashboard = () => {
                 <div className="container">
                     <div className="partner-header__content">
                         <div className="partner-header__info">
-                            <div className="partner-header__avatar">🏢</div>
+                            <div className="partner-header__avatar"></div>
                             <div className="partner-header__text">
                                 <h1>{user?.profile?.companyName || 'Partenaire'}</h1>
                                 <div className="partner-header__status">
                                     <span className="partner-status partner-status--pending">
-                                        ⏳ En attente de validation
+                                        En attente de validation
                                     </span>
                                 </div>
                             </div>
@@ -418,7 +418,7 @@ const PartnerDashboard = () => {
                             className="btn btn-primary"
                             onClick={handleOpenCreate}
                         >
-                            ➕ Créer une offre
+                            Créer une offre
                         </button>
                     </div>
                 </div>
@@ -429,28 +429,28 @@ const PartnerDashboard = () => {
                 <div className="container">
                     <div className="partner-stats__grid">
                         <div className="partner-stat-card">
-                            <span className="partner-stat-card__icon">📋</span>
+                            <span className="partner-stat-card__icon"></span>
                             <div className="partner-stat-card__content">
                                 <span className="partner-stat-card__value">{stats.totalOffers}</span>
                                 <span className="partner-stat-card__label">Offres totales</span>
                             </div>
                         </div>
                         <div className="partner-stat-card">
-                            <span className="partner-stat-card__icon">✅</span>
+                            <span className="partner-stat-card__icon"></span>
                             <div className="partner-stat-card__content">
                                 <span className="partner-stat-card__value">{stats.activeOffers}</span>
                                 <span className="partner-stat-card__label">Offres actives</span>
                             </div>
                         </div>
                         <div className="partner-stat-card">
-                            <span className="partner-stat-card__icon">👁️</span>
+                            <span className="partner-stat-card__icon"></span>
                             <div className="partner-stat-card__content">
                                 <span className="partner-stat-card__value">{stats.totalViews}</span>
                                 <span className="partner-stat-card__label">Vues ce mois</span>
                             </div>
                         </div>
                         <div className="partner-stat-card">
-                            <span className="partner-stat-card__icon">📅</span>
+                            <span className="partner-stat-card__icon"></span>
                             <div className="partner-stat-card__content">
                                 <span className="partner-stat-card__value">{stats.totalBookings}</span>
                                 <span className="partner-stat-card__label">Réservations</span>
@@ -467,7 +467,7 @@ const PartnerDashboard = () => {
 
                     {offers.length === 0 ? (
                         <div className="partner-offers__empty">
-                            <span className="partner-offers__empty-icon">📭</span>
+                            <span className="partner-offers__empty-icon"></span>
                             <p>Vous n'avez pas encore créé d'offre.</p>
                             <button
                                 className="btn btn-primary"
@@ -482,25 +482,25 @@ const PartnerDashboard = () => {
                                 <div key={offer.id} className="partner-offer-card">
                                     <div className="partner-offer-card__image">
                                         <div className="partner-offer-card__placeholder">
-                                            {offer.type === 'activite' ? '🎯' : '🏨'}
+                                            {offer.type === 'activite' ? 'A' : 'H'}
                                         </div>
                                     </div>
                                     <div className="partner-offer-card__content">
                                         <div className="partner-offer-card__header">
                                             <h3>{offer.title.fr}</h3>
                                             <span className={`partner-offer-card__status ${offer.available ? 'active' : 'inactive'}`}>
-                                                {offer.available ? '✓ Active' : '✗ Inactive'}
+                                                {offer.available ? 'Active' : 'Inactive'}
                                             </span>
                                         </div>
                                         <p className="partner-offer-card__location">
-                                            📍 {offer.location.city}, {offer.location.country}
+                                            {offer.location.city}, {offer.location.country}
                                         </p>
                                         <div className="partner-offer-card__meta">
                                             <span className="partner-offer-card__price">
                                                 {offer.price.amount}€/{offer.price.unit === 'night' ? 'nuit' : 'pers.'}
                                             </span>
                                             <span className="partner-offer-card__score">
-                                                🌿 Score: {calculateRegenScore(offer.regenScore)}
+                                                Score: {calculateRegenScore(offer.regenScore)}
                                             </span>
                                         </div>
                                     </div>
@@ -509,13 +509,13 @@ const PartnerDashboard = () => {
                                             className="btn btn-secondary btn-sm"
                                             onClick={() => handleEditOffer(offer)}
                                         >
-                                            ✏️ Modifier
+                                            Modifier
                                         </button>
                                         <button
                                             className="btn btn-outline btn-sm"
                                             onClick={() => handleDeleteOffer(offer.id)}
                                         >
-                                            🗑️
+                                            Supprimer
                                         </button>
                                     </div>
                                 </div>
@@ -527,7 +527,7 @@ const PartnerDashboard = () => {
 
             {/* Create Offer Modal */}
             {showCreateModal && (
-                <div className="partner-modal-overlay" onClick={() => setShowCreateModal(false)}>
+                <div className="partner-modal-overlay">
                     <div className="partner-modal" onClick={e => e.stopPropagation()}>
                         <div className="partner-modal__header">
                             <h2>{isEditing ? 'Modifier l\'offre' : 'Créer une nouvelle offre'}</h2>
@@ -541,7 +541,7 @@ const PartnerDashboard = () => {
 
                         {createError && (
                             <div className="partner-modal__error">
-                                ⚠️ {createError}
+                                {createError}
                             </div>
                         )}
 
@@ -646,8 +646,8 @@ const PartnerDashboard = () => {
                                         disabled={isEditing}
                                         style={isEditing ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : {}}
                                     >
-                                        <option value="hebergement">🏨 Hébergement</option>
-                                        <option value="activite">🎯 Activité</option>
+                                        <option value="hebergement">Hébergement</option>
+                                        <option value="activite">Activité</option>
                                     </select>
                                 </div>
                                 <div className="form-group">
@@ -657,9 +657,9 @@ const PartnerDashboard = () => {
                                         value={newOffer.category}
                                         onChange={(e) => setNewOffer({ ...newOffer, category: e.target.value })}
                                     >
-                                        <option value="nature">🌿 Nature</option>
-                                        <option value="culture">🎭 Culture</option>
-                                        <option value="social">🤝 Social</option>
+                                        <option value="nature">Nature</option>
+                                        <option value="culture">Culture</option>
+                                        <option value="social">Social</option>
                                     </select>
                                 </div>
                             </div>
@@ -729,35 +729,38 @@ const PartnerDashboard = () => {
                                 <label>Score Régénératif</label>
                                 <div className="regen-score-inputs">
                                     <div className="regen-score-input">
-                                        <label>🌍 Environnement</label>
+                                        <label>Environnement</label>
                                         <input
                                             type="range"
                                             min="0"
                                             max="100"
                                             value={newOffer.environmental}
                                             onChange={(e) => setNewOffer({ ...newOffer, environmental: e.target.value })}
+                                            style={{ '--value': `${newOffer.environmental}%` }}
                                         />
                                         <span>{newOffer.environmental}%</span>
                                     </div>
                                     <div className="regen-score-input">
-                                        <label>🤝 Social</label>
+                                        <label>Social</label>
                                         <input
                                             type="range"
                                             min="0"
                                             max="100"
                                             value={newOffer.social}
                                             onChange={(e) => setNewOffer({ ...newOffer, social: e.target.value })}
+                                            style={{ '--value': `${newOffer.social}%` }}
                                         />
                                         <span>{newOffer.social}%</span>
                                     </div>
                                     <div className="regen-score-input">
-                                        <label>⭐ Expérience</label>
+                                        <label>Expérience</label>
                                         <input
                                             type="range"
                                             min="0"
                                             max="100"
                                             value={newOffer.experience}
                                             onChange={(e) => setNewOffer({ ...newOffer, experience: e.target.value })}
+                                            style={{ '--value': `${newOffer.experience}%` }}
                                         />
                                         <span>{newOffer.experience}%</span>
                                     </div>

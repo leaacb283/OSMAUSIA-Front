@@ -166,7 +166,7 @@ const Dashboard = () => {
 
                         {/* Impact Tips */}
                         <div className="dashboard-tips">
-                            <h4>💡 Conseils pour augmenter votre impact</h4>
+                            <h4>Conseils pour augmenter votre impact</h4>
                             <ul>
                                 <li>Privilégiez les transports bas carbone</li>
                                 <li>Choisissez des hébergements certifiés</li>

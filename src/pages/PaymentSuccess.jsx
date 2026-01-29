@@ -21,7 +21,12 @@ const PaymentSuccess = () => {
         <div className="payment-success">
             <div className="container">
                 <div className="payment-success__card">
-                    <div className="payment-success__icon">✅</div>
+                    <div className="payment-success__icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M9 12l2 2 4-4" />
+                        </svg>
+                    </div>
 
                     <h1 className="payment-success__title">
                         Paiement confirmé !
@@ -42,15 +47,15 @@ const PaymentSuccess = () => {
                     <div className="payment-success__next-steps">
                         <h2>Prochaines étapes</h2>
                         <ul>
-                            <li>📧 Vérifiez votre email pour les détails de la réservation</li>
-                            <li>📅 Notez les dates de votre séjour</li>
-                            <li>🌴 Préparez votre voyage régénératif !</li>
+                            <li>Vérifiez votre email pour les détails de la réservation</li>
+                            <li>Notez les dates de votre séjour</li>
+                            <li>Préparez votre voyage régénératif !</li>
                         </ul>
                     </div>
 
                     <div className="payment-success__actions">
-                        <Link to="/my-reservations" className="btn btn-primary btn-lg">
-                            Voir mes réservations
+                        <Link to="/dashboard" className="btn btn-primary btn-lg">
+                            Voir mon tableau de bord
                         </Link>
                         <Link to="/" className="btn btn-secondary">
                             Retour à l'accueil
@@ -60,9 +65,9 @@ const PaymentSuccess = () => {
 
                 {/* Trust badges */}
                 <div className="payment-success__trust">
-                    <span>🔒 Paiement sécurisé</span>
-                    <span>✓ Confirmation instantanée</span>
-                    <span>💚 Voyage régénératif</span>
+                    <span>Paiement sécurisé</span>
+                    <span>Confirmation instantanée</span>
+                    <span>Voyage régénératif</span>
                 </div>
             </div>
         </div>
