@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getReservationById } from '../services/reservationService';
-import { createPaymentIntent, getStripePublicKey } from '../services/paymentService';
+import { createPaymentIntent, getStripePublicKey, simulatePaymentSuccess } from '../services/paymentService';
 import './CheckoutPage.css';
 
 // Stripe will be loaded dynamically if available
@@ -89,8 +89,10 @@ const CheckoutPage = () => {
             // Simulate payment delay
             await new Promise(resolve => setTimeout(resolve, 2000));
 
-            // In real implementation, this would be handled by Stripe webhook
-            // For now, redirect to success page
+            // Notify backend that simulation was successful
+            await simulatePaymentSuccess(reservationId);
+
+            // Redirect to success page
             navigate('/payment/success?reservation=' + reservationId);
         } catch (err) {
             setError('Erreur de paiement test');

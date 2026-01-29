@@ -8,31 +8,34 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # Dependencies
-node_modules
-.pnp
+/node_modules
+/.pnp
 .pnp.js
 
 # Testing
-coverage
+/coverage
 
 # Production
-dist
-build
+/dist
+/build
+
+# Vite
+.vite/
+*.local
 
 # Misc
 .DS_Store
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env*.local
 
 # Editor
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.patch
+*.diff
