@@ -423,6 +423,14 @@ const OfferDetails = () => {
                                         >
                                             Se connecter
                                         </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-ghost btn-sm"
+                                            onClick={() => navigate('/login', { state: { from: `/offer/${type}/${id}` } })}
+                                            style={{ marginTop: '5px', width: '100%', color: '#6b7280', fontSize: '0.8rem' }}
+                                        >
+                                            ✉️ Contacter l'hôte
+                                        </button>
                                     </div>
                                 ) : user?.role === 'partner' ? (
                                     <div className="offer-details__partner-hint">
@@ -430,13 +438,44 @@ const OfferDetails = () => {
                                         <small>Connectez-vous avec un compte voyageur pour réserver.</small>
                                     </div>
                                 ) : (
-                                    <button
-                                        type="submit"
-                                        className="btn btn-primary btn-lg offer-details__submit"
-                                        disabled={submitting || dateConflict}
-                                    >
-                                        {submitting ? 'Traitement...' : dateConflict ? 'Dates indisponibles' : 'Réserver'}
-                                    </button>
+                                    <>
+                                        <button
+                                            type="submit"
+                                            className="btn btn-primary btn-lg offer-details__submit"
+                                            disabled={submitting || dateConflict}
+                                        >
+                                            {submitting ? 'Traitement...' : dateConflict ? 'Dates indisponibles' : 'Réserver'}
+                                        </button>
+
+                                        {/* Contact Host Button */}
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline btn-lg"
+                                            style={{ marginTop: '0.75rem', width: '100%', borderColor: '#e6a048', color: '#e6a048' }}
+                                            onClick={() => {
+                                                const providerId = offer.etablissement ?
+                                                    offer.etablissement.provider?.id :
+                                                    offer.provider?.id;
+
+                                                if (providerId) {
+                                                    const providerName = offer.etablissement ?
+                                                        offer.etablissement.provider?.companyName :
+                                                        offer.provider?.companyName;
+
+                                                    navigate(`/messages/${providerId}`, {
+                                                        state: {
+                                                            partnerName: providerName || 'Hôte'
+                                                        }
+                                                    });
+                                                } else {
+                                                    console.error('Provider ID not found', offer);
+                                                    alert('Impossible de contacter le propriétaire pour le moment.');
+                                                }
+                                            }}
+                                        >
+                                            ✉️ Contacter l'hôte
+                                        </button>
+                                    </>
                                 )}
                             </form>
                         </div>

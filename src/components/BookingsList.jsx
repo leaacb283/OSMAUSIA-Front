@@ -30,9 +30,12 @@ const BookingsList = ({ bookings, showActions = true }) => {
         }
     };
 
-    // Format date based on locale
+    // Format date based on locale - parse manually to avoid UTC issues
     const formatDate = (dateString) => {
-        const date = new Date(dateString);
+        if (!dateString) return '';
+        // Parse YYYY-MM-DD manually to avoid UTC offset
+        const [year, month, day] = dateString.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
         return date.toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB', {
             day: 'numeric',
             month: 'short',

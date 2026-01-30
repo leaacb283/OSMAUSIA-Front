@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import ScrollToTop from './components/ScrollToTop';
 import './i18n';
 
 // Layout
@@ -23,6 +24,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import PaymentSuccess from './pages/PaymentSuccess';
 import Explore from './pages/Explore';
 import ComingSoon from './pages/ComingSoon';
+import Messages from './pages/Messages';
 
 
 
@@ -31,6 +33,7 @@ import ComingSoon from './pages/ComingSoon';
 function App() {
     return (
         <BrowserRouter>
+            <ScrollToTop />
             <ThemeProvider>
                 <AuthProvider>
                     <Routes>
@@ -47,6 +50,8 @@ function App() {
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/partner/dashboard" element={<PartnerDashboard />} />
                             <Route path="/preferences" element={<Preferences />} />
+                            <Route path="/messages" element={<Messages />} />
+                            <Route path="/messages/:partnerId" element={<Messages />} />
 
                             {/* Pages en construction */}
                             <Route path="/cgu" element={<ComingSoon title="Conditions Générales" />} />

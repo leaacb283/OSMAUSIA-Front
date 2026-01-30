@@ -112,6 +112,7 @@ export const mapApiResponseToUser = (apiResponse) => {
     return {
         id: apiResponse.userId,
         email: apiResponse.email,
+        token: apiResponse.token, // Store JWT for WebSocket communication
         role: apiResponse.userType === 'PROVIDER' ? 'partner' : 'traveler',
         profile: {
             firstName: apiResponse.firstName || null,

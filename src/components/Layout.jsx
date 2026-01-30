@@ -97,6 +97,9 @@ const Layout = () => {
                                         <Link to="/preferences" className="user-menu-item" onClick={() => setUserMenuOpen(false)}>
                                             {t('nav.preferences')}
                                         </Link>
+                                        <Link to="/messages" className="user-menu-item" onClick={() => setUserMenuOpen(false)}>
+                                            Messages
+                                        </Link>
                                         <hr className="user-menu-divider" />
                                         <button className="user-menu-item logout" onClick={handleLogout}>
                                             {t('nav.logout')}
@@ -147,6 +150,9 @@ const Layout = () => {
                         <>
                             <NavLink to={user?.role === 'partner' ? '/partner/dashboard' : '/dashboard'} className="nav-mobile-link" onClick={closeMobileMenu}>
                                 {t('nav.dashboard')}
+                            </NavLink>
+                            <NavLink to="/messages" className="nav-mobile-link" onClick={closeMobileMenu}>
+                                Messages
                             </NavLink>
                             <NavLink to="/preferences" className="nav-mobile-link" onClick={closeMobileMenu}>
                                 {t('nav.preferences')}

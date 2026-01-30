@@ -1,0 +1,92 @@
+.message-bubble {
+    display: flex;
+    margin-bottom: 0.75rem;
+    padding: 0 1rem;
+}
+
+.message-bubble.mine {
+    justify-content: flex-end;
+}
+
+.message-bubble.theirs {
+    justify-content: flex-start;
+}
+
+.message-bubble__content {
+    max-width: 70%;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    position: relative;
+}
+
+/* My messages - right side, golden */
+.message-bubble.mine .message-bubble__content {
+    background: linear-gradient(135deg, #e6a048, #d4902c);
+    color: white;
+    border-bottom-right-radius: 0.25rem;
+}
+
+/* Their messages - left side, gray */
+.message-bubble.theirs .message-bubble__content {
+    background: #f3f4f6;
+    color: #1a1a2e;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.message-bubble__text {
+    margin: 0;
+    line-height: 1.5;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.message-bubble__time {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    margin-top: 0.375rem;
+    opacity: 0.7;
+}
+
+.message-bubble.mine .message-bubble__time {
+    justify-content: flex-end;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.message-bubble.theirs .message-bubble__time {
+    color: #9ca3af;
+}
+
+.message-bubble__read {
+    color: #86efac;
+    font-size: 0.75rem;
+}
+
+/* Animation for new messages */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message-bubble {
+    animation: slideIn 0.2s ease-out;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .message-bubble__content {
+        max-width: 85%;
+    }
+
+    .message-bubble {
+        padding: 0 0.75rem;
+    }
+}

@@ -25,6 +25,12 @@
     color: var(--text-secondary, #666);
 }
 
+.explore__search {
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 20;
+}
+
 .explore__filters {
     display: flex;
     justify-content: center;

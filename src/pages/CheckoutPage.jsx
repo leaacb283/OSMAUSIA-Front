@@ -101,9 +101,13 @@ const CheckoutPage = () => {
         }
     };
 
-    // Format date
+    // Format date - parse manually to avoid UTC offset issues
     const formatDate = (dateStr) => {
-        return new Date(dateStr).toLocaleDateString('fr-FR', {
+        if (!dateStr) return '';
+        // Parse YYYY-MM-DD manually to avoid UTC offset
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const d = new Date(year, month - 1, day);
+        return d.toLocaleDateString('fr-FR', {
             day: 'numeric',
             month: 'long',
             year: 'numeric'

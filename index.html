@@ -22,6 +22,10 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Polyfill for libraries expecting global (like sockjs-client/stompjs)
+      window.global = window;
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -195,7 +195,7 @@ export const mapActivityToOffer = (hit) => ({
     featured: false,
     available: true,
     duration: hit.durationMin ? `${hit.durationMin} min` : null,
-    tags: []
+    tags: hit.tags || []
 });
 
 export default {

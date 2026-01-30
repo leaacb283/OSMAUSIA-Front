@@ -4,54 +4,51 @@
    =========================================== */
 
 :root {
-  /* ===== Colors - OSMAUSIA Official Palette ===== */
-  --color-primary: #4D8C62;
-  /* Vert clair principal - nature, durabilité */
-  --color-primary-light: #6BA57A;
-  /* Vert clair allégé */
-  --color-primary-dark: #2F6B6B;
-  /* Vert foncé - ancrage, profondeur */
+  /* ===== Colors - OSMAUSIA Official Palette (Sober/Matte Update) ===== */
+  --color-primary: #3E5C56;
+  /* Deep Sober Green */
+  --color-primary-light: #5A7D75;
+  --color-primary-dark: #2A4540;
 
-  --color-secondary: #E8B84A;
-  /* Orange doré adouci - chaleureux, moins agressif */
-  --color-secondary-light: #F0C96B;
-  --color-secondary-dark: #C99A2E;
+  --color-secondary: #C5A065;
+  /* Muted Gold */
+  --color-secondary-light: #D4B480;
+  --color-secondary-dark: #A6854A;
 
-  --color-accent: #03BFC0;
-  /* Bleu lagon - fraîcheur, mer */
-  --color-accent-nature: #4D8C62;
-  /* = primary */
-  --color-accent-social: #F2A516;
-  /* = secondary */
-  --color-accent-culture: #2F6B6B;
-  /* = primary dark */
+  --color-accent: #607D8B;
+  /* Blue Grey - Sober accent */
+  --color-accent-nature: #3E5C56;
+  --color-accent-social: #C5A065;
+  --color-accent-culture: #2A4540;
 
-  --color-background: #FDF1E6;
-  /* Beige rosé - douceur, chaleur */
+  --color-background: #F2F0E9;
+  /* Matte Cream (New Favorite) */
   --color-surface: #FFFFFF;
   --color-surface-elevated: #FFFFFF;
 
-  --color-text-primary: #2F2F2F;
-  --color-text-secondary: #5A5A5A;
-  --color-text-muted: #8A8A8A;
+  --color-text-primary: #1F2937;
+  /* Gray 800 - High Contrast */
+  --color-text-secondary: #4B5563;
+  /* Gray 600 */
+  --color-text-muted: #9CA3AF;
+  /* Gray 400 */
   --color-text-inverse: #FFFFFF;
 
-  --color-border: #E5DDD4;
-  /* Beige plus foncé pour bordures */
-  --color-border-light: #F5EDE4;
+  --color-border: #E5E7EB;
+  /* Light Gray */
+  --color-border-light: #F3F4F6;
 
-  --color-success: #4D8C62;
-  /* Réutilise le vert principal */
-  --color-warning: #F2A516;
-  --color-error: #D64545;
-  --color-info: #03BFC0;
+  --color-success: #059669;
+  --color-warning: #D97706;
+  --color-error: #DC2626;
+  --color-info: #2563EB;
 
   /* ===== Shadows ===== */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-glow: 0 0 20px rgba(26, 93, 74, 0.3);
+  --shadow-glow: 0 0 20px rgba(62, 92, 86, 0.3);
 
   /* ===== Typography - OSMAUSIA ===== */
   --font-display: 'Fraunces', 'Georgia', serif;
@@ -117,37 +114,43 @@
      Wide: 1280px+ */
 }
 
-/* ===== Dark Mode - OSMAUSIA ===== */
+/* ===== Dark Mode - Sober Matte ===== */
 [data-theme="dark"] {
-  --color-primary: #6BA57A;
-  /* Vert clair plus lumineux */
-  --color-primary-light: #8DC49A;
-  --color-primary-dark: #4D8C62;
+  --color-primary: #5A7D75;
+  /* Lighter for dark mode */
+  --color-primary-light: #7A9D95;
+  --color-primary-dark: #3E5C56;
 
-  --color-secondary: #F5B84D;
-  --color-secondary-light: #F7C97A;
-  --color-secondary-dark: #F2A516;
+  --color-secondary: #D4B480;
+  --color-secondary-light: #E5C590;
+  --color-secondary-dark: #C5A065;
 
-  --color-accent: #03BFC0;
+  --color-accent: #90A4AE;
 
-  --color-background: #1A2F2A;
-  /* Vert très foncé */
-  --color-surface: #243B35;
-  --color-surface-elevated: #2E4A43;
+  --color-background: #18181B;
+  /* Zinc 950 - Matte Dark */
+  --color-surface: #27272A;
+  /* Zinc 800 */
+  --color-surface-elevated: #3F3F46;
+  /* Zinc 700 */
 
-  --color-text-primary: #F5EDE4;
-  --color-text-secondary: #D4CCC3;
-  --color-text-muted: #A39B92;
-  --color-text-inverse: #1A2F2A;
+  --color-text-primary: #F4F4F5;
+  /* Zinc 100 - High Contrast */
+  --color-text-secondary: #D4D4D8;
+  /* Zinc 300 */
+  --color-text-muted: #A1A1AA;
+  /* Zinc 400 */
+  --color-text-inverse: #18181B;
 
-  --color-border: #3D5550;
-  --color-border-light: #2E4A43;
+  --color-border: #3F3F46;
+  /* Zinc 700 */
+  --color-border-light: #52525B;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 0 20px rgba(45, 212, 168, 0.3);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
+  --shadow-glow: 0 0 20px rgba(90, 125, 117, 0.3);
 }
 
 /* ===== Accessibility: Reduced Motion ===== */

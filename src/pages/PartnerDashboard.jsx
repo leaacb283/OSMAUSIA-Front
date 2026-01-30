@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { createHebergement, updateHebergement, getAllHebergements, uploadFile, getProviderEtablissements, createEtablissement, getProviderActivities, createActivite, updateActivite, deleteHebergement, deleteActivite } from '../services/offerService';
+import ConfirmModal from '../components/ConfirmModal';
 import './PartnerDashboard.css';
 
 // Fonction utilitaire pour calculer le score régénératif
@@ -102,6 +103,10 @@ const PartnerDashboard = () => {
         etablissementId: '' // Selected establishment ID
     });
     const [createError, setCreateError] = useState('');
+
+    // Delete confirmation modal state
+    const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, offerId: null, offerTitle: '' });
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Charger les offres et établissements au montage
     useEffect(() => {
@@ -379,8 +384,17 @@ const PartnerDashboard = () => {
     };
 
     const handleDeleteOffer = async (offerId) => {
-        if (!confirm('Êtes-vous sûr de vouloir supprimer cette offre ?')) return;
+        // Find the offer to get its title for confirmation
+        const offerToDelete = offers.find(o => o.id === offerId);
+        const offerTitle = offerToDelete?.title?.fr || offerToDelete?.title || 'cette offre';
+        setDeleteConfirm({ isOpen: true, offerId, offerTitle });
+    };
 
+    const confirmDelete = async () => {
+        const offerId = deleteConfirm.offerId;
+        if (!offerId) return;
+
+        setIsDeleting(true);
         try {
             const [type, rawId] = offerId.split('_');
             console.log("Deleting:", type, rawId);
@@ -392,18 +406,21 @@ const PartnerDashboard = () => {
             }
 
             setOffers(prev => prev.filter(o => o.id !== offerId));
-            setCreateError(''); // Clear any generic error
+            setCreateError('');
+            setDeleteConfirm({ isOpen: false, offerId: null, offerTitle: '' });
         } catch (err) {
             console.error("Erreur suppression:", err);
-            alert("Erreur lors de la suppression de l'offre. Veuillez réessayer.");
+            setCreateError("Erreur lors de la suppression de l'offre. Veuillez réessayer.");
+        } finally {
+            setIsDeleting(false);
         }
     };
 
     const stats = {
         totalOffers: offers.length,
         activeOffers: offers.filter(o => o.available).length,
-        totalViews: 1247,
-        totalBookings: 23
+        totalViews: 0,  // TODO: Fetch from analytics API
+        totalBookings: 0 // TODO: Fetch from reservations API
     };
 
     return (
@@ -860,6 +877,19 @@ const PartnerDashboard = () => {
                     </div>
                 </div >
             )}
+
+            {/* Delete Confirmation Modal */}
+            <ConfirmModal
+                isOpen={deleteConfirm.isOpen}
+                title="Supprimer l'offre"
+                message={`Êtes-vous sûr de vouloir supprimer "${deleteConfirm.offerTitle}" ?`}
+                confirmText="Supprimer"
+                cancelText="Annuler"
+                confirmVariant="danger"
+                onConfirm={confirmDelete}
+                onCancel={() => setDeleteConfirm({ isOpen: false, offerId: null, offerTitle: '' })}
+                isLoading={isDeleting}
+            />
         </div >
     );
 };

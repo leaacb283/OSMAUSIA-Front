@@ -55,19 +55,51 @@ const MyReservations = () => {
         return true;
     });
 
-    // Format date
-    const formatDate = (dateStr) => {
-        return new Date(dateStr).toLocaleDateString('fr-FR', {
+    // Format date - handle both string "YYYY-MM-DD" and array [year, month, day] formats
+    const formatDate = (dateInput) => {
+        if (!dateInput) return '';
+
+        let year, month, day;
+
+        // Handle array format from Java LocalDate (Jackson default)
+        if (Array.isArray(dateInput)) {
+            [year, month, day] = dateInput;
+        }
+        // Handle string format "YYYY-MM-DD"
+        else if (typeof dateInput === 'string') {
+            [year, month, day] = dateInput.split('-').map(Number);
+        }
+        else {
+            return '';
+        }
+
+        const d = new Date(year, month - 1, day);
+        return d.toLocaleDateString('fr-FR', {
             day: 'numeric',
             month: 'long',
             year: 'numeric'
         });
     };
 
-    // Calculate nights
+    // Calculate nights - handle both string and array date formats
     const calculateNights = (checkIn, checkOut) => {
-        const start = new Date(checkIn);
-        const end = new Date(checkOut);
+        if (!checkIn || !checkOut) return 0;
+
+        const parseDate = (dateInput) => {
+            if (Array.isArray(dateInput)) {
+                const [year, month, day] = dateInput;
+                return new Date(year, month - 1, day);
+            } else if (typeof dateInput === 'string') {
+                const [year, month, day] = dateInput.split('-').map(Number);
+                return new Date(year, month - 1, day);
+            }
+            return null;
+        };
+
+        const start = parseDate(checkIn);
+        const end = parseDate(checkOut);
+        if (!start || !end) return 0;
+
         return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     };
 

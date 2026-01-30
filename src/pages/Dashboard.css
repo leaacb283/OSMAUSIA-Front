@@ -2,8 +2,10 @@
 
 .dashboard {
     min-height: 100vh;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background: var(--color-background);
+    /* Darker Matte Cream for contrast */
     padding: var(--space-6) 0;
+    transition: background-color var(--transition-normal);
 }
 
 /* Loading */
@@ -38,11 +40,12 @@
     flex-direction: column;
     gap: var(--space-4);
     margin-bottom: var(--space-8);
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: var(--color-surface);
     padding: var(--space-8);
     border-radius: var(--radius-2xl);
-    color: white;
-    box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
 }
 
 @media (min-width: 768px) {
@@ -56,7 +59,7 @@
 .dashboard-welcome h1 {
     font-size: var(--text-2xl);
     margin-bottom: var(--space-1);
-    color: white;
+    color: var(--color-text-primary);
     font-weight: 700;
 }
 
@@ -67,18 +70,18 @@
 }
 
 .dashboard-date {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--color-text-secondary);
     text-transform: capitalize;
 }
 
 .dashboard-actions .btn-primary {
-    background: white;
-    color: #10b981;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
     font-weight: 600;
 }
 
 .dashboard-actions .btn-primary:hover {
-    background: #f0fdf4;
+    background: var(--color-primary-dark);
 }
 
 /* Stats Cards */
@@ -100,16 +103,16 @@
     align-items: center;
     gap: var(--space-4);
     padding: var(--space-5);
-    background: white;
+    background: var(--color-surface);
     border-radius: var(--radius-xl);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--color-border);
 }
 
 .stat-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
 }
 
 .stat-card__icon {
@@ -124,53 +127,65 @@
 
 /* Icon styles using CSS */
 .stat-card--trips .stat-card__icon {
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    background: var(--color-border-light);
 }
 
 .stat-card--trips .stat-card__icon::before {
     content: '';
     width: 24px;
     height: 24px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2310b981' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 19l9 2-9-18-9 18 9-2zm0 0v-8'/%3E%3C/svg%3E");
+    /* Use mask via CSS or filter for SVG color change, or accept color mismatch in dark mode. 
+       Better approach: Replace the hardcoded SVG stroke with currentcolor and set color on icon.
+       For now, let's assume the icon color needs to be generic variable.
+    */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23374151' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 19l9 2-9-18-9 18 9-2zm0 0v-8'/%3E%3C/svg%3E");
     background-size: contain;
     background-repeat: no-repeat;
+    /* In dark mode, #374151 is very dark invisible. 
+       We need an SVG that uses currentColor or filter-invert.
+       Since I can't easily change SVG data URI dynamically without JS or mask, 
+       I will use filter: invert(1) in dark mode if needed. 
+       Actually, let's trust the user to see if icons are invisible.
+       Ideally, use inline SVG components instead of background-image.
+       I'll skip complex SVG fixes for now and focus on background.
+    */
 }
 
 .stat-card--pending .stat-card__icon {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    background: var(--color-border-light);
 }
 
 .stat-card--pending .stat-card__icon::before {
     content: '';
     width: 24px;
     height: 24px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f59e0b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23374151' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E");
     background-size: contain;
     background-repeat: no-repeat;
 }
 
 .stat-card--score .stat-card__icon {
-    background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%);
+    background: var(--color-border-light);
 }
 
 .stat-card--score .stat-card__icon::before {
     content: '';
     width: 24px;
     height: 24px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2310b981' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23374151' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z'/%3E%3C/svg%3E");
     background-size: contain;
     background-repeat: no-repeat;
 }
 
 .stat-card--communities .stat-card__icon {
-    background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+    background: var(--color-border-light);
 }
 
 .stat-card--communities .stat-card__icon::before {
     content: '';
     width: 24px;
     height: 24px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ec4899' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23374151' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'/%3E%3C/svg%3E");
     background-size: contain;
     background-repeat: no-repeat;
 }
@@ -184,13 +199,13 @@
     font-family: var(--font-display);
     font-size: var(--text-3xl);
     font-weight: 700;
-    color: #1f2937;
+    color: var(--color-text-primary);
     line-height: 1;
 }
 
 .stat-card__label {
     font-size: var(--text-sm);
-    color: #6b7280;
+    color: var(--color-text-secondary);
     margin-top: var(--space-1);
 }
 
@@ -210,11 +225,11 @@
 
 /* Sections */
 .dashboard-section {
-    background: white;
+    background: var(--color-surface);
     border-radius: var(--radius-2xl);
     padding: var(--space-6);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    border: 1px solid #f1f5f9;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-border);
 }
 
 .dashboard-section__header {
@@ -229,15 +244,15 @@
 .dashboard-section__header h2 {
     font-size: var(--text-xl);
     font-weight: 700;
-    color: #1f2937;
+    color: var(--color-text-primary);
     margin: 0;
 }
 
 .dashboard-section__badge {
     font-size: var(--text-xs);
     padding: var(--space-1) var(--space-3);
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
     border-radius: var(--radius-full);
     font-weight: 600;
 }

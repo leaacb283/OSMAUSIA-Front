@@ -134,10 +134,12 @@ const DateRangePicker = ({
         setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
     };
 
-    // Format display
+    // Format display - parse manually to avoid UTC issues
     const formatDate = (dateStr) => {
         if (!dateStr) return '';
-        const d = new Date(dateStr);
+        // Parse YYYY-MM-DD manually to avoid UTC offset
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const d = new Date(year, month - 1, day);
         return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
     };
 

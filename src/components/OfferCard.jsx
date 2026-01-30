@@ -85,14 +85,16 @@ const OfferCard = ({ offer, featured = false }) => {
                 <p className="offer-card__description">{description}</p>
 
                 {/* Tags */}
-                <div className="offer-card__tags">
-                    {offer.tags.slice(0, 3).map((tag, idx) => (
-                        <span key={tag.id || idx} className="offer-card__tag">
-                            {tag.iconUrl && <span className="material-icons tag-icon">{tag.iconUrl}</span>}
-                            #{tag.label || tag}
-                        </span>
-                    ))}
-                </div>
+                {offer.tags?.length > 0 && (
+                    <div className="offer-card__tags">
+                        {offer.tags.slice(0, 3).map((tag, idx) => (
+                            <span key={tag.id || idx} className="offer-card__tag">
+                                {tag.iconUrl && <span className="material-icons tag-icon">{tag.iconUrl}</span>}
+                                #{tag.label || tag}
+                            </span>
+                        ))}
+                    </div>
+                )}
 
                 {/* Footer */}
                 <div className="offer-card__footer">
