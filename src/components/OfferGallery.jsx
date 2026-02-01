@@ -2,144 +2,125 @@ import { useState } from 'react';
 import './OfferGallery.css';
 
 /**
- * OfferGallery - Image carousel with thumbnails for offer details
- * Features: Main image with navigation, thumbnail strip, lightbox modal
+ * OfferGallery - Adaptive Image Grid
+ * Reference: Airbnb / Modern Booking sites
  */
 const OfferGallery = ({ images, title = 'Offer' }) => {
-    const [currentIndex, setCurrentIndex] = useState(0);
     const [showLightbox, setShowLightbox] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
 
-    if (!images || images.length === 0) {
-        return (
-            <div className="offer-gallery offer-gallery--empty">
-                <div className="offer-gallery__placeholder">
-                    Aucune image disponible
-                </div>
-            </div>
-        );
-    }
+    const openLightbox = (index) => {
+        setCurrentIndex(index);
+        setShowLightbox(true);
+    };
 
-    const goToNext = () => {
+    const nextImage = (e) => {
+        e.stopPropagation();
         setCurrentIndex((prev) => (prev + 1) % images.length);
     };
 
-    const goToPrev = () => {
+    const prevImage = (e) => {
+        e.stopPropagation();
         setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
     };
 
-    const handleThumbnailClick = (index) => {
-        setCurrentIndex(index);
-    };
+    if (!images || images.length === 0) {
+        return <div className="offer-gallery--empty">Aucune image</div>;
+    }
 
-    const handleKeyDown = (e) => {
-        if (e.key === 'ArrowLeft') goToPrev();
-        if (e.key === 'ArrowRight') goToNext();
-        if (e.key === 'Escape') setShowLightbox(false);
-    };
+    const count = images.length;
+
+    // Helper to render image button
+    const renderImg = (index, className = "") => (
+        <img
+            src={images[index]}
+            alt={title}
+            className={`gallery-img ${className}`}
+            onClick={() => openLightbox(index)}
+        />
+    );
 
     return (
         <>
-            <div className="offer-gallery">
-                {/* Main Image */}
-                <div className="offer-gallery__main">
-                    <img
-                        src={images[currentIndex]}
-                        alt={`${title} - Image ${currentIndex + 1}`}
-                        onClick={() => setShowLightbox(true)}
-                    />
-
-                    {/* Navigation Arrows */}
-                    {images.length > 1 && (
-                        <>
-                            <button
-                                className="offer-gallery__nav offer-gallery__nav--prev"
-                                onClick={goToPrev}
-                                aria-label="Image précédente"
-                            >
-                                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M15 19l-7-7 7-7" />
-                                </svg>
-                            </button>
-                            <button
-                                className="offer-gallery__nav offer-gallery__nav--next"
-                                onClick={goToNext}
-                                aria-label="Image suivante"
-                            >
-                                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M9 5l7 7-7 7" />
-                                </svg>
-                            </button>
-                        </>
-                    )}
-
-                    {/* Image Counter */}
-                    <div className="offer-gallery__counter">
-                        {currentIndex + 1} / {images.length}
-                    </div>
-                </div>
-
-                {/* Thumbnails */}
-                {images.length > 1 && (
-                    <div className="offer-gallery__thumbnails">
-                        {images.map((img, idx) => (
-                            <button
-                                key={idx}
-                                className={`offer-gallery__thumb ${idx === currentIndex ? 'active' : ''}`}
-                                onClick={() => handleThumbnailClick(idx)}
-                            >
-                                <img src={img} alt={`Thumbnail ${idx + 1}`} />
-                            </button>
-                        ))}
+            <div className={`offer-gallery-container count-${count}`}>
+                {/* 5+ Images: Full Bento Grid */}
+                {count >= 5 && (
+                    <div className="gallery-grid gallery-grid-5">
+                        <div className="gallery-main-col">
+                            {renderImg(0, "gallery-img-main")}
+                        </div>
+                        <div className="gallery-sub-col">
+                            {renderImg(1)}
+                            {renderImg(2, "gallery-img-tr")}
+                            {renderImg(3)}
+                            {renderImg(4, "gallery-img-br")}
+                        </div>
                     </div>
                 )}
+
+                {/* 4 Images: 1 Main + 3 Stacked (Custom Grid) or just Show 4 in 2x2? 
+                    Let's do 1 Main (Left 60%) + 3 Right (Stacked).
+                */}
+                {count === 4 && (
+                    <div className="gallery-grid gallery-grid-4">
+                        <div className="gallery-main-col" style={{ width: '60%' }}>
+                            {renderImg(0, "gallery-img-main")}
+                        </div>
+                        <div className="gallery-sub-col-vertical" style={{ width: '40%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ flex: 1, position: 'relative' }}>{renderImg(1, "gallery-img-tr")}</div>
+                            <div style={{ flex: 1, position: 'relative' }}>{renderImg(2)}</div>
+                            <div style={{ flex: 1, position: 'relative' }}>{renderImg(3, "gallery-img-br")}</div>
+                        </div>
+                    </div>
+                )}
+
+                {/* 3 Images: 1 Main (Left) + 2 Stacked (Right) */}
+                {count === 3 && (
+                    <div className="gallery-grid gallery-grid-3">
+                        <div className="gallery-main-col" style={{ flex: 2 }}>
+                            {renderImg(0, "gallery-img-main")}
+                        </div>
+                        <div className="gallery-sub-col-vertical" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ flex: 1, position: 'relative' }}>{renderImg(1, "gallery-img-tr")}</div>
+                            <div style={{ flex: 1, position: 'relative' }}>{renderImg(2, "gallery-img-br")}</div>
+                        </div>
+                    </div>
+                )}
+
+                {/* 2 Images: 50/50 Split */}
+                {count === 2 && (
+                    <div className="gallery-grid gallery-grid-2" style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ flex: 1, position: 'relative' }}>{renderImg(0, "gallery-img-main gallery-img-l")}</div>
+                        <div style={{ flex: 1, position: 'relative' }}>{renderImg(1, "gallery-img-r")}</div>
+                    </div>
+                )}
+
+                {/* 1 Image: Full Width */}
+                {count === 1 && (
+                    <div className="gallery-single">
+                        {renderImg(0, "gallery-img-single")}
+                    </div>
+                )}
+
+                <button className="btn-show-all" onClick={() => openLightbox(0)}>
+                    <span className="material-icons" style={{ fontSize: '16px' }}>grid_view</span>
+                    Voir photos
+                </button>
             </div>
 
-            {/* Lightbox */}
+            {/* Lightbox Modal */}
             {showLightbox && (
-                <div
-                    className="offer-gallery__lightbox"
-                    onClick={() => setShowLightbox(false)}
-                    onKeyDown={handleKeyDown}
-                    tabIndex={0}
-                >
-                    <button
-                        className="offer-gallery__lightbox-close"
-                        onClick={() => setShowLightbox(false)}
-                    >
-                        <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M8 8l16 16M24 8l-16 16" />
-                        </svg>
-                    </button>
+                <div className="lightbox-overlay" onClick={() => setShowLightbox(false)}>
+                    <button className="lightbox-close" onClick={() => setShowLightbox(false)}>×</button>
 
-                    <img
-                        src={images[currentIndex]}
-                        alt={`${title} - Full size`}
-                        onClick={(e) => e.stopPropagation()}
-                    />
+                    <div className="lightbox-content" onClick={e => e.stopPropagation()}>
+                        <button className="lightbox-nav prev" onClick={prevImage}>‹</button>
+                        <img src={images[currentIndex]} alt={`View ${currentIndex + 1}`} />
+                        <button className="lightbox-nav next" onClick={nextImage}>›</button>
 
-                    {images.length > 1 && (
-                        <>
-                            <button
-                                className="offer-gallery__lightbox-nav offer-gallery__lightbox-nav--prev"
-                                onClick={(e) => { e.stopPropagation(); goToPrev(); }}
-                            >
-                                <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M20 28l-12-12 12-12" />
-                                </svg>
-                            </button>
-                            <button
-                                className="offer-gallery__lightbox-nav offer-gallery__lightbox-nav--next"
-                                onClick={(e) => { e.stopPropagation(); goToNext(); }}
-                            >
-                                <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M12 4l12 12-12 12" />
-                                </svg>
-                            </button>
-                        </>
-                    )}
-
-                    <div className="offer-gallery__lightbox-counter">
-                        {currentIndex + 1} / {images.length}
+                        <div className="lightbox-counter">
+                            {currentIndex + 1} / {images.length}
+                        </div>
                     </div>
                 </div>
             )}

@@ -9,6 +9,7 @@ import {
     getPasswordStrengthLabel,
     checkPasswordRequirements
 } from '../utils/validation';
+import LegalModal from '../components/LegalModal';
 import './Auth.css';
 
 const RegisterTraveler = () => {
@@ -28,6 +29,7 @@ const RegisterTraveler = () => {
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [legalModal, setLegalModal] = useState({ isOpen: false, type: null });
 
     const passwordStrength = calculatePasswordStrength(formData.password);
     const passwordLevel = getPasswordStrengthLabel(passwordStrength);
@@ -314,7 +316,22 @@ const RegisterTraveler = () => {
                                         checked={formData.terms}
                                         onChange={handleChange}
                                     />
-                                    {t('auth.termsAgree')} <Link to="/terms">{t('auth.termsLink')}</Link> et la <Link to="/privacy">{t('auth.privacyLink')}</Link>
+                                    {t('auth.termsAgree')}{' '}
+                                    <button
+                                        type="button"
+                                        className="auth-link-inline"
+                                        onClick={() => setLegalModal({ isOpen: true, type: 'terms' })}
+                                    >
+                                        {t('auth.termsLink')}
+                                    </button>{' '}
+                                    et la{' '}
+                                    <button
+                                        type="button"
+                                        className="auth-link-inline"
+                                        onClick={() => setLegalModal({ isOpen: true, type: 'privacy' })}
+                                    >
+                                        {t('auth.privacyLink')}
+                                    </button>
                                 </label>
                                 {errors.terms && <span className="form-error">{errors.terms}</span>}
                             </div>
@@ -372,6 +389,51 @@ const RegisterTraveler = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Legal Modal */}
+            <LegalModal
+                isOpen={legalModal.isOpen}
+                onClose={() => setLegalModal({ isOpen: false, type: null })}
+                title={legalModal.type === 'terms' ? 'Conditions Générales d\'Utilisation' : 'Politique de Confidentialité'}
+            >
+                {legalModal.type === 'terms' ? (
+                    <>
+                        <h2>1. Objet</h2>
+                        <p>Les présentes Conditions Générales d'Utilisation régissent l'accès et l'utilisation de la plateforme OSMAUSIA, dédiée au tourisme régénératif à l'île Maurice.</p>
+
+                        <h2>2. Définitions</h2>
+                        <p><strong>Voyageur</strong> : Utilisateur qui réserve des hébergements ou activités.</p>
+                        <p><strong>Partenaire</strong> : Prestataire proposant des offres sur la plateforme.</p>
+                        <p><strong>Regen Score</strong> : Indicateur mesurant l'impact régénératif d'une offre.</p>
+
+                        <h2>3. Inscription</h2>
+                        <p>L'inscription est gratuite et nécessite une adresse email valide. Chaque utilisateur s'engage à fournir des informations exactes.</p>
+
+                        <h2>4. Réservations</h2>
+                        <p>Les réservations sont confirmées après paiement sécurisé. Les conditions d'annulation sont spécifiques à chaque partenaire.</p>
+
+                        <h2>5. Responsabilités</h2>
+                        <p>OSMAUSIA agit en tant qu'intermédiaire. La responsabilité des prestations incombe aux partenaires.</p>
+                    </>
+                ) : (
+                    <>
+                        <h2>1. Données Collectées</h2>
+                        <p>Nous collectons : nom, prénom, email, téléphone (optionnel), et historique de réservations.</p>
+
+                        <h2>2. Utilisation</h2>
+                        <p>Vos données servent à gérer vos réservations, calculer votre impact régénératif, et améliorer nos services.</p>
+
+                        <h2>3. Partage</h2>
+                        <p>Vos informations sont partagées uniquement avec les partenaires concernés par vos réservations.</p>
+
+                        <h2>4. Sécurité</h2>
+                        <p>Les paiements sont sécurisés par Stripe. Vos données sont chiffrées et protégées.</p>
+
+                        <h2>5. Vos Droits</h2>
+                        <p>Vous pouvez accéder, modifier ou supprimer vos données depuis votre espace personnel.</p>
+                    </>
+                )}
+            </LegalModal>
         </div>
     );
 };

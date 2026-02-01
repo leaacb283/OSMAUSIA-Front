@@ -42,7 +42,7 @@ const ImpactMetrics = ({ impact, showDetails = false, available = true }) => {
         return (
             <div className="impact-metrics impact-metrics--unavailable">
                 <div className="impact-metrics__unavailable">
-                    <span className="impact-metrics__unavailable-icon">⏳</span>
+                    <span className="impact-metrics__unavailable-icon"></span>
                     <p className="impact-metrics__unavailable-text">
                         {t('dashboard.impactAvailable')}
                     </p>

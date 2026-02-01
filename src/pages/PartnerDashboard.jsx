@@ -458,53 +458,82 @@ const PartnerDashboard = () => {
                 <div className="container">
                     <div className="partner-header__content">
                         <div className="partner-header__info">
-                            <div className="partner-header__avatar"></div>
                             <div className="partner-header__text">
-                                <h1>{user?.profile?.companyName || 'Partenaire'}</h1>
-                                <div className="partner-header__status">
-                                    <span className="partner-status partner-status--pending">
-                                        En attente de validation
-                                    </span>
-                                </div>
+                                <h1>Espace partenaire</h1>
+                                <p style={{ fontSize: '1.1rem', color: '#ffffff', marginTop: '0.25rem', textTransform: 'capitalize' }}>
+                                    {new Date().toLocaleDateString(user?.profile?.language === 'en' ? 'en-GB' : 'fr-FR', {
+                                        weekday: 'long',
+                                        day: 'numeric',
+                                        month: 'long',
+                                        year: 'numeric'
+                                    })}
+                                </p>
+                            </div>
+                            <div className="partner-header__actions">
+                                <Link to="/messages" className="btn btn-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                    </svg>
+                                </Link>
                             </div>
                         </div>
-                        <button
-                            className="btn btn-primary"
-                            onClick={handleOpenCreate}
-                        >
-                            Créer une offre
-                        </button>
                     </div>
                 </div>
             </header>
 
+
+
             {/* Stats */}
-            <section className="partner-stats">
+            < section className="partner-stats" >
                 <div className="container">
                     <div className="partner-stats__grid">
                         <div className="partner-stat-card">
-                            <span className="partner-stat-card__icon"></span>
+                            <span className="partner-stat-card__icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="3" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="14" width="7" height="7"></rect>
+                                    <rect x="3" y="14" width="7" height="7"></rect>
+                                </svg>
+                            </span>
                             <div className="partner-stat-card__content">
                                 <span className="partner-stat-card__value">{stats.totalOffers}</span>
                                 <span className="partner-stat-card__label">Offres totales</span>
                             </div>
                         </div>
                         <div className="partner-stat-card">
-                            <span className="partner-stat-card__icon"></span>
+                            <span className="partner-stat-card__icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                            </span>
                             <div className="partner-stat-card__content">
                                 <span className="partner-stat-card__value">{stats.activeOffers}</span>
                                 <span className="partner-stat-card__label">Offres actives</span>
                             </div>
                         </div>
                         <div className="partner-stat-card">
-                            <span className="partner-stat-card__icon"></span>
+                            <span className="partner-stat-card__icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </span>
                             <div className="partner-stat-card__content">
                                 <span className="partner-stat-card__value">{stats.totalViews}</span>
                                 <span className="partner-stat-card__label">Vues ce mois</span>
                             </div>
                         </div>
                         <Link to="/partner/reservations" className="partner-stat-card clickable">
-                            <span className="partner-stat-card__icon">📅</span>
+                            <span className="partner-stat-card__icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                            </span>
                             <div className="partner-stat-card__content">
                                 <span className="partner-stat-card__value">{stats.totalBookings}</span>
                                 <span className="partner-stat-card__label">Réservations (Voir)</span>
@@ -512,12 +541,35 @@ const PartnerDashboard = () => {
                         </Link>
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* Offers List */}
-            <section className="partner-offers">
+            < section className="partner-offers" >
                 <div className="container">
-                    <h2 className="partner-offers__title">Mes offres</h2>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                        <h2 className="partner-offers__title" style={{ margin: 0 }}>Mes offres</h2>
+                        <button className="btn btn-primary" onClick={() => {
+                            setNewOffer({
+                                title: '',
+                                description: '',
+                                type: 'hebergement',
+                                category: 'nature',
+                                price: '',
+                                capacity: '',
+                                city: '',
+                                country: 'Île Maurice',
+                                medias: [],
+                                tags: [],
+                                environmental: 50,
+                                social: 50,
+                                experience: 50
+                            });
+                            setIsEditing(false);
+                            setShowCreateModal(true);
+                        }}>
+                            + Créer une offre
+                        </button>
+                    </div>
 
                     {offers.length === 0 ? (
                         <div className="partner-offers__empty">
@@ -535,13 +587,17 @@ const PartnerDashboard = () => {
                             {offers.map(offer => (
                                 <div key={offer.id} className="partner-offer-card">
                                     <div className="partner-offer-card__image">
-                                        <div className="partner-offer-card__placeholder">
-                                            {offer.type === 'activite' ? 'A' : 'H'}
-                                        </div>
+                                        {offer.medias && offer.medias.length > 0 ? (
+                                            <img src={offer.medias[0].url} alt={offer.title.fr} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        ) : (
+                                            <div className="partner-offer-card__placeholder">
+                                                {offer.type === 'activite' ? 'A' : 'H'}
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="partner-offer-card__content">
                                         <div className="partner-offer-card__header">
-                                            <h3>{offer.title.fr}</h3>
+                                            <h3><Link to={`/offer/${offer.type}/${offer.rawId}`} style={{ color: 'inherit', textDecoration: 'none' }}>{offer.title.fr}</Link></h3>
                                             <span className={`partner-offer-card__status ${offer.available ? 'active' : 'inactive'}`}>
                                                 {offer.available ? 'Active' : 'Inactive'}
                                             </span>
@@ -577,311 +633,313 @@ const PartnerDashboard = () => {
                         </div>
                     )}
                 </div>
-            </section>
+            </section >
 
             {/* Create Offer Modal */}
-            {showCreateModal && (
-                <div className="partner-modal-overlay">
-                    <div className="partner-modal" onClick={e => e.stopPropagation()}>
-                        <div className="partner-modal__header">
-                            <h2>{isEditing ? 'Modifier l\'offre' : 'Créer une nouvelle offre'}</h2>
-                            <button
-                                className="partner-modal__close"
-                                onClick={() => setShowCreateModal(false)}
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        {createError && (
-                            <div className="partner-modal__error">
-                                {createError}
-                            </div>
-                        )}
-
-                        <form className="partner-modal__form" onSubmit={handleCreateOffer}>
-                            <div className="form-group">
-                                <label htmlFor="title">Titre de l'offre *</label>
-                                <input
-                                    type="text"
-                                    id="title"
-                                    value={newOffer.title}
-                                    onChange={(e) => setNewOffer({ ...newOffer, title: e.target.value })}
-                                    placeholder="Ex: Éco-lodge Vue Océan"
-                                    required
-                                />
+            {
+                showCreateModal && (
+                    <div className="partner-modal-overlay">
+                        <div className="partner-modal" onClick={e => e.stopPropagation()}>
+                            <div className="partner-modal__header">
+                                <h2>{isEditing ? 'Modifier l\'offre' : 'Créer une nouvelle offre'}</h2>
+                                <button
+                                    className="partner-modal__close"
+                                    onClick={() => setShowCreateModal(false)}
+                                >
+                                    ✕
+                                </button>
                             </div>
 
-                            {/* Etablissement Selection */}
-                            <div className="form-group" style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '15px' }}>
-                                <label>Établissement (Lieu) *</label>
+                            {createError && (
+                                <div className="partner-modal__error">
+                                    {createError}
+                                </div>
+                            )}
 
-                                {!showEtabForm ? (
-                                    <div className="etablissement-select-row" style={{ display: 'flex', gap: '10px' }}>
-                                        <select
-                                            value={newOffer.etablissementId}
-                                            onChange={(e) => setNewOffer({ ...newOffer, etablissementId: e.target.value })}
-                                            required
-                                            style={{ flex: 1 }}
-                                        >
-                                            <option value="">-- Sélectionner un lieu --</option>
-                                            {etablissements.map(etab => (
-                                                <option key={etab.id} value={etab.id}>{etab.name} ({etab.city})</option>
-                                            ))}
-                                        </select>
-                                        <button
-                                            type="button"
-                                            className="btn btn-secondary btn-sm"
-                                            onClick={() => setShowEtabForm(true)}
-                                        >
-                                            + Nouveau
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="new-etablissement-form">
-                                        <h4>Nouvel Établissement</h4>
-                                        <div className="form-group">
-                                            <input
-                                                type="text"
-                                                placeholder="Nom de l'établissement (ex: Villa Sunset)"
-                                                value={newEtab.name}
-                                                onChange={e => setNewEtab({ ...newEtab, name: e.target.value })}
-                                                required={showEtabForm}
-                                            />
+                            <form className="partner-modal__form" onSubmit={handleCreateOffer}>
+                                <div className="form-group">
+                                    <label htmlFor="title">Titre de l'offre *</label>
+                                    <input
+                                        type="text"
+                                        id="title"
+                                        value={newOffer.title}
+                                        onChange={(e) => setNewOffer({ ...newOffer, title: e.target.value })}
+                                        placeholder="Ex: Éco-lodge Vue Océan"
+                                        required
+                                    />
+                                </div>
+
+                                {/* Etablissement Selection */}
+                                <div className="form-group etablissement-section">
+                                    <label>Établissement (Lieu) *</label>
+
+                                    {!showEtabForm ? (
+                                        <div className="etablissement-select-row" style={{ display: 'flex', gap: '10px' }}>
+                                            <select
+                                                value={newOffer.etablissementId}
+                                                onChange={(e) => setNewOffer({ ...newOffer, etablissementId: e.target.value })}
+                                                required
+                                                style={{ flex: 1 }}
+                                            >
+                                                <option value="">-- Sélectionner un lieu --</option>
+                                                {etablissements.map(etab => (
+                                                    <option key={etab.id} value={etab.id}>{etab.name} ({etab.city})</option>
+                                                ))}
+                                            </select>
+                                            <button
+                                                type="button"
+                                                className="btn btn-secondary btn-sm"
+                                                onClick={() => setShowEtabForm(true)}
+                                            >
+                                                + Nouveau
+                                            </button>
                                         </div>
-                                        <div className="form-row">
+                                    ) : (
+                                        <div className="new-etablissement-form">
+                                            <h4>Nouvel Établissement</h4>
                                             <div className="form-group">
                                                 <input
                                                     type="text"
-                                                    placeholder="Ville"
-                                                    value={newEtab.city}
-                                                    onChange={e => setNewEtab({ ...newEtab, city: e.target.value })}
+                                                    placeholder="Nom de l'établissement (ex: Villa Sunset)"
+                                                    value={newEtab.name}
+                                                    onChange={e => setNewEtab({ ...newEtab, name: e.target.value })}
                                                     required={showEtabForm}
                                                 />
                                             </div>
-                                            <div className="form-group">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Adresse"
-                                                    value={newEtab.address}
-                                                    onChange={e => setNewEtab({ ...newEtab, address: e.target.value })}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                                            <button
-                                                type="button"
-                                                className="btn btn-primary btn-sm"
-                                                onClick={handleCreateEtablissement}
-                                                disabled={loadingEtabs || !newEtab.name || !newEtab.city}
-                                            >
-                                                {loadingEtabs ? '...' : 'Enregistrer le lieu'}
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline btn-sm"
-                                                onClick={() => setShowEtabForm(false)}
-                                                disabled={etablissements.length === 0} // Can't cancel if no etabs exist
-                                            >
-                                                Annuler
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label htmlFor="type">Type {isEditing && <small>(Non modifiable)</small>}</label>
-                                    <select
-                                        id="type"
-                                        value={newOffer.type}
-                                        onChange={(e) => setNewOffer({ ...newOffer, type: e.target.value })}
-                                        disabled={isEditing}
-                                        style={isEditing ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : {}}
-                                    >
-                                        <option value="hebergement">Hébergement</option>
-                                        <option value="activite">Activité</option>
-                                    </select>
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="category">Catégorie</label>
-                                    <select
-                                        id="category"
-                                        value={newOffer.category}
-                                        onChange={(e) => setNewOffer({ ...newOffer, category: e.target.value })}
-                                    >
-                                        <option value="nature">Nature</option>
-                                        <option value="culture">Culture</option>
-                                        <option value="social">Social</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Tags Configuration */}
-                            <div className="form-group">
-                                <label>Tags (Spécialités, Équipements...)</label>
-                                <TagSelector
-                                    selectedTags={newOffer.tags}
-                                    onChange={(updatedTags) => setNewOffer(prev => ({ ...prev, tags: updatedTags }))}
-                                />
-                                <small style={{ display: 'block', marginTop: '5px', color: '#666' }}>
-                                    Sélectionnez des tags existants ou créez-en de nouveaux.
-                                </small>
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="description">Description *</label>
-                                <textarea
-                                    id="description"
-                                    value={newOffer.description}
-                                    onChange={(e) => setNewOffer({ ...newOffer, description: e.target.value })}
-                                    placeholder="Décrivez votre offre..."
-                                    rows={4}
-                                    required
-                                />
-                            </div>
-
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label htmlFor="city">Ville *</label>
-                                    <input
-                                        type="text"
-                                        id="city"
-                                        value={newOffer.city}
-                                        onChange={(e) => setNewOffer({ ...newOffer, city: e.target.value })}
-                                        placeholder="Ex: Grand Baie"
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="country">Pays</label>
-                                    <input
-                                        type="text"
-                                        id="country"
-                                        value={newOffer.country}
-                                        onChange={(e) => setNewOffer({ ...newOffer, country: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label htmlFor="price">Prix (€) *</label>
-                                    <input
-                                        type="number"
-                                        id="price"
-                                        value={newOffer.price}
-                                        onChange={(e) => setNewOffer({ ...newOffer, price: e.target.value })}
-                                        placeholder="120"
-                                        min="1"
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="capacity">Capacité max</label>
-                                    <input
-                                        type="number"
-                                        id="capacity"
-                                        value={newOffer.capacity}
-                                        onChange={(e) => setNewOffer({ ...newOffer, capacity: e.target.value })}
-                                        min="1"
-                                        max="50"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label>Score Régénératif</label>
-                                <div className="regen-score-inputs">
-                                    <div className="regen-score-input">
-                                        <label>Environnement</label>
-                                        <input
-                                            type="range"
-                                            min="0"
-                                            max="100"
-                                            value={newOffer.environmental}
-                                            onChange={(e) => setNewOffer({ ...newOffer, environmental: e.target.value })}
-                                            style={{ '--value': `${newOffer.environmental}%` }}
-                                        />
-                                        <span>{newOffer.environmental}%</span>
-                                    </div>
-                                    <div className="regen-score-input">
-                                        <label>Social</label>
-                                        <input
-                                            type="range"
-                                            min="0"
-                                            max="100"
-                                            value={newOffer.social}
-                                            onChange={(e) => setNewOffer({ ...newOffer, social: e.target.value })}
-                                            style={{ '--value': `${newOffer.social}%` }}
-                                        />
-                                        <span>{newOffer.social}%</span>
-                                    </div>
-                                    <div className="regen-score-input">
-                                        <label>Expérience</label>
-                                        <input
-                                            type="range"
-                                            min="0"
-                                            max="100"
-                                            value={newOffer.experience}
-                                            onChange={(e) => setNewOffer({ ...newOffer, experience: e.target.value })}
-                                            style={{ '--value': `${newOffer.experience}%` }}
-                                        />
-                                        <span>{newOffer.experience}%</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Image Upload Section */}
-                            <div className="form-group">
-                                <label>Photos</label>
-                                <div className="partner-media-upload">
-                                    <div className="partner-media-preview">
-                                        {newOffer.medias.map((media, idx) => (
-                                            <div key={idx} className="media-item">
-                                                <img src={media.url} alt={`Photo ${idx + 1}`} />
-                                                {media.isCover && <span className="cover-badge">Couverture</span>}
-                                                <div className="media-actions">
-                                                    {!media.isCover && (
-                                                        <button type="button" onClick={() => handleSetCover(idx)} title="Définir comme couverture">★</button>
-                                                    )}
-                                                    <button type="button" onClick={() => handleRemoveImage(idx)} title="Supprimer">✕</button>
+                                            <div className="form-row">
+                                                <div className="form-group">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Ville"
+                                                        value={newEtab.city}
+                                                        onChange={e => setNewEtab({ ...newEtab, city: e.target.value })}
+                                                        required={showEtabForm}
+                                                    />
+                                                </div>
+                                                <div className="form-group">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Adresse"
+                                                        value={newEtab.address}
+                                                        onChange={e => setNewEtab({ ...newEtab, address: e.target.value })}
+                                                    />
                                                 </div>
                                             </div>
-                                        ))}
-                                        <label className="media-upload-btn">
-                                            {imageUploading ? '...' : '+'}
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                multiple
-                                                onChange={handleImageUpload}
-                                                disabled={imageUploading}
-                                                style={{ display: 'none' }}
-                                            />
-                                        </label>
-                                    </div>
-                                    <small>Ajoutez des photos pour mettre en valeur votre offre. La première photo servira de couverture.</small>
+                                            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-primary btn-sm"
+                                                    onClick={handleCreateEtablissement}
+                                                    disabled={loadingEtabs || !newEtab.name || !newEtab.city}
+                                                >
+                                                    {loadingEtabs ? '...' : 'Enregistrer le lieu'}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-outline btn-sm"
+                                                    onClick={() => setShowEtabForm(false)}
+                                                    disabled={etablissements.length === 0} // Can't cancel if no etabs exist
+                                                >
+                                                    Annuler
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
 
-                            <div className="partner-modal__actions">
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    onClick={() => setShowCreateModal(false)}
-                                >
-                                    Annuler
-                                </button>
-                                <button type="submit" className="btn btn-primary" disabled={imageUploading}>
-                                    {isEditing ? 'Mettre à jour' : 'Créer l\'offre'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div >
-            )}
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label htmlFor="type">Type {isEditing && <small>(Non modifiable)</small>}</label>
+                                        <select
+                                            id="type"
+                                            value={newOffer.type}
+                                            onChange={(e) => setNewOffer({ ...newOffer, type: e.target.value })}
+                                            disabled={isEditing}
+                                            style={isEditing ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : {}}
+                                        >
+                                            <option value="hebergement">Hébergement</option>
+                                            <option value="activite">Activité</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="category">Catégorie</label>
+                                        <select
+                                            id="category"
+                                            value={newOffer.category}
+                                            onChange={(e) => setNewOffer({ ...newOffer, category: e.target.value })}
+                                        >
+                                            <option value="nature">Nature</option>
+                                            <option value="culture">Culture</option>
+                                            <option value="social">Social</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Tags Configuration */}
+                                <div className="form-group compact-form-group">
+                                    <label>Tags (Spécialités, Équipements...)</label>
+                                    <TagSelector
+                                        selectedTags={newOffer.tags}
+                                        onChange={(updatedTags) => setNewOffer(prev => ({ ...prev, tags: updatedTags }))}
+                                    />
+                                    <small style={{ display: 'block', marginTop: '5px', color: '#666' }}>
+                                        Sélectionnez des tags existants ou créez-en de nouveaux.
+                                    </small>
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="description">Description *</label>
+                                    <textarea
+                                        id="description"
+                                        value={newOffer.description}
+                                        onChange={(e) => setNewOffer({ ...newOffer, description: e.target.value })}
+                                        placeholder="Décrivez votre offre..."
+                                        rows={4}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label htmlFor="city">Ville *</label>
+                                        <input
+                                            type="text"
+                                            id="city"
+                                            value={newOffer.city}
+                                            onChange={(e) => setNewOffer({ ...newOffer, city: e.target.value })}
+                                            placeholder="Ex: Grand Baie"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="country">Pays</label>
+                                        <input
+                                            type="text"
+                                            id="country"
+                                            value={newOffer.country}
+                                            onChange={(e) => setNewOffer({ ...newOffer, country: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label htmlFor="price">Prix (€) *</label>
+                                        <input
+                                            type="number"
+                                            id="price"
+                                            value={newOffer.price}
+                                            onChange={(e) => setNewOffer({ ...newOffer, price: e.target.value })}
+                                            placeholder="120"
+                                            min="1"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="capacity">Capacité max</label>
+                                        <input
+                                            type="number"
+                                            id="capacity"
+                                            value={newOffer.capacity}
+                                            onChange={(e) => setNewOffer({ ...newOffer, capacity: e.target.value })}
+                                            min="1"
+                                            max="50"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Score Régénératif</label>
+                                    <div className="regen-score-inputs">
+                                        <div className="regen-score-input">
+                                            <label>Environnement</label>
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="100"
+                                                value={newOffer.environmental}
+                                                onChange={(e) => setNewOffer({ ...newOffer, environmental: e.target.value })}
+                                                style={{ '--value': `${newOffer.environmental}%` }}
+                                            />
+                                            <span>{newOffer.environmental}%</span>
+                                        </div>
+                                        <div className="regen-score-input">
+                                            <label>Social</label>
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="100"
+                                                value={newOffer.social}
+                                                onChange={(e) => setNewOffer({ ...newOffer, social: e.target.value })}
+                                                style={{ '--value': `${newOffer.social}%` }}
+                                            />
+                                            <span>{newOffer.social}%</span>
+                                        </div>
+                                        <div className="regen-score-input">
+                                            <label>Expérience</label>
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="100"
+                                                value={newOffer.experience}
+                                                onChange={(e) => setNewOffer({ ...newOffer, experience: e.target.value })}
+                                                style={{ '--value': `${newOffer.experience}%` }}
+                                            />
+                                            <span>{newOffer.experience}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Image Upload Section */}
+                                <div className="form-group">
+                                    <label>Photos</label>
+                                    <div className="partner-media-upload">
+                                        <div className="partner-media-preview">
+                                            {newOffer.medias.map((media, idx) => (
+                                                <div key={idx} className="media-item">
+                                                    <img src={media.url} alt={`Photo ${idx + 1}`} />
+                                                    {media.isCover && <span className="cover-badge">Couverture</span>}
+                                                    <div className="media-actions">
+                                                        {!media.isCover && (
+                                                            <button type="button" onClick={() => handleSetCover(idx)} title="Définir comme couverture">★</button>
+                                                        )}
+                                                        <button type="button" onClick={() => handleRemoveImage(idx)} title="Supprimer">✕</button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            <label className="media-upload-btn">
+                                                {imageUploading ? '...' : '+'}
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    multiple
+                                                    onChange={handleImageUpload}
+                                                    disabled={imageUploading}
+                                                    style={{ display: 'none' }}
+                                                />
+                                            </label>
+                                        </div>
+                                        <small>Ajoutez des photos pour mettre en valeur votre offre. La première photo servira de couverture.</small>
+                                    </div>
+                                </div>
+
+                                <div className="partner-modal__actions">
+                                    <button
+                                        type="button"
+                                        className="btn btn-secondary"
+                                        onClick={() => setShowCreateModal(false)}
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button type="submit" className="btn btn-primary" disabled={imageUploading}>
+                                        {isEditing ? 'Mettre à jour' : 'Créer l\'offre'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div >
+                )
+            }
 
             {/* Delete Confirmation Modal */}
             <ConfirmModal

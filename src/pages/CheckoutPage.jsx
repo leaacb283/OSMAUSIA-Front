@@ -95,7 +95,7 @@ const PaymentForm = ({ reservation, onSuccess, onError }) => {
             </button>
 
             <p className="checkout__security-hint">
-                🔒 Paiement 100% sécurisé par Stripe
+                Paiement 100% sécurisé par Stripe
             </p>
         </form>
     );
@@ -130,6 +130,7 @@ const CheckoutPage = () => {
             if (!isAuthenticated) return;
 
             setLoading(true);
+            setError(null);
             try {
                 // Get reservation details
                 const reservationData = await getReservationById(reservationId);
@@ -142,8 +143,14 @@ const CheckoutPage = () => {
                 }
 
                 // Create payment intent
-                const { clientSecret: secret } = await createPaymentIntent(reservationId);
-                setClientSecret(secret);
+                const result = await createPaymentIntent(reservationId);
+
+                // Check if backend returned an error
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                setClientSecret(result.clientSecret);
 
                 // Check if Stripe is available
                 if (stripePromise) {
@@ -154,7 +161,8 @@ const CheckoutPage = () => {
                 }
             } catch (err) {
                 console.error('Checkout init error:', err);
-                setError(err.message || 'Erreur lors du chargement du paiement');
+                // Show the actual error message from backend
+                setError(err.response?.data?.error || err.message || 'Erreur lors du chargement du paiement');
             } finally {
                 setLoading(false);
             }
@@ -264,7 +272,7 @@ const CheckoutPage = () => {
         return (
             <div className="checkout checkout--error">
                 <div className="container">
-                    <h1>❌ Erreur</h1>
+                    <h1>Erreur</h1>
                     <p>{error}</p>
                     <button className="btn btn-primary" onClick={() => navigate('/dashboard')}>
                         Voir mes réservations
@@ -280,7 +288,7 @@ const CheckoutPage = () => {
                 <header className="checkout__header">
                     <h1>
                         {reservation?.status === 'CONFIRMED'
-                            ? 'Réservation confirmée ✅'
+                            ? 'Réservation confirmée'
                             : 'Finaliser votre réservation'}
                     </h1>
                     <p>
@@ -293,7 +301,7 @@ const CheckoutPage = () => {
                 <div className="checkout__content">
                     {/* Reservation Summary */}
                     <div className="checkout__summary">
-                        <h2>📋 Récapitulatif</h2>
+                        <h2>Récapitulatif</h2>
 
                         <div className="checkout__details">
                             <div className="checkout__detail-row">
@@ -328,14 +336,14 @@ const CheckoutPage = () => {
                             /* Already Paid */
                             <div className="checkout__confirmation-status">
                                 <div className="status-badge success">
-                                    ✅ Paiement confirmé
+                                    Paiement confirmé
                                 </div>
                                 <p className="confirmation-text">
                                     Votre réservation est validée. Un email de confirmation vous a été envoyé.
                                 </p>
                                 <div className="checkout__actions">
                                     <button className="btn btn-primary" onClick={() => window.print()}>
-                                        🖨️ Imprimer
+                                        Imprimer
                                     </button>
                                     <button className="btn btn-secondary" onClick={() => navigate('/dashboard')}>
                                         Mes réservations
@@ -345,7 +353,7 @@ const CheckoutPage = () => {
                         ) : stripeReady && clientSecret ? (
                             /* Real Stripe Elements */
                             <div className="checkout__stripe-elements">
-                                <h2>💳 Paiement sécurisé</h2>
+                                <h2>Paiement sécurisé</h2>
                                 <Elements stripe={stripePromise} options={elementsOptions}>
                                     <PaymentForm
                                         reservation={reservation}
@@ -357,9 +365,9 @@ const CheckoutPage = () => {
                         ) : simulationMode || !stripePublicKey ? (
                             /* Simulation Mode Fallback */
                             <div className="checkout__simulation">
-                                <h2>💳 Mode Test</h2>
+                                <h2>Mode Test</h2>
                                 <div className="checkout__stripe-warning">
-                                    <p>⚠️ Stripe non configuré. Mode simulation activé.</p>
+                                    <p>Stripe non configuré. Mode simulation activé.</p>
                                     <p className="text-muted">
                                         Ajoutez <code>VITE_STRIPE_PUBLIC_KEY=pk_test_...</code> dans votre fichier <code>.env</code>
                                     </p>

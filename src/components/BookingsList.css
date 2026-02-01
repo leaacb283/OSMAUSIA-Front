@@ -33,10 +33,53 @@
     box-shadow: var(--shadow-sm);
     overflow: hidden;
     transition: box-shadow var(--transition-fast);
+    display: flex;
+    /* New: Flex layout */
+    flex-direction: column;
+    /* Default mobile */
+}
+
+@media (min-width: 768px) {
+    .booking-card {
+        flex-direction: row;
+    }
+
+    .booking-card__image-container {
+        width: 240px;
+        min-width: 240px;
+    }
+
+    .booking-card__status-bar {
+        width: 4px;
+        height: auto;
+    }
 }
 
 .booking-card:hover {
     box-shadow: var(--shadow-md);
+}
+
+/* Image container */
+.booking-card__image-container {
+    background: var(--color-surface-variant);
+    position: relative;
+    min-height: 160px;
+}
+
+.booking-card__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-surface-variant) 100%);
+    color: var(--color-primary);
+}
+
+.booking-card__placeholder.activity {
+    background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+    color: #0ea5e9;
 }
 
 /* Status Bar */
@@ -45,24 +88,45 @@
 }
 
 .booking-card__status-bar.status-pending {
-    background: linear-gradient(90deg, var(--color-warning), #fcd34d);
+    background: linear-gradient(to right, var(--color-warning), #fcd34d);
 }
 
 .booking-card__status-bar.status-confirmed {
-    background: linear-gradient(90deg, var(--color-success), #34d399);
+    background: linear-gradient(to right, var(--color-success), #34d399);
 }
 
 .booking-card__status-bar.status-completed {
-    background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
+    background: linear-gradient(to right, var(--color-primary), var(--color-primary-light));
 }
 
 .booking-card__status-bar.status-cancelled {
-    background: linear-gradient(90deg, var(--color-error), #f87171);
+    background: linear-gradient(to right, var(--color-error), #f87171);
+}
+
+@media (min-width: 768px) {
+    .booking-card__status-bar.status-pending {
+        background: linear-gradient(to bottom, var(--color-warning), #fcd34d);
+    }
+
+    .booking-card__status-bar.status-confirmed {
+        background: linear-gradient(to bottom, var(--color-success), #34d399);
+    }
+
+    .booking-card__status-bar.status-completed {
+        background: linear-gradient(to bottom, var(--color-primary), var(--color-primary-light));
+    }
+
+    .booking-card__status-bar.status-cancelled {
+        background: linear-gradient(to bottom, var(--color-error), #f87171);
+    }
 }
 
 /* Content */
 .booking-card__content {
     padding: var(--space-4);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Header */
@@ -168,6 +232,8 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
+    margin-top: auto;
+    /* Push actions to bottom */
 }
 
 /* Payment Alert */

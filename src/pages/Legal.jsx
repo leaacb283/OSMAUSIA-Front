@@ -24,7 +24,7 @@ const Legal = () => {
 
                     <section className="cgu-section">
                         <h2>2. Directeur de la Publication</h2>
-                        <p>Le directeur de la publication est M. Mirac.</p>
+                        <p>Le directeur de la publication est le représentant légal de OSMAUSIA Ltée.</p>
                     </section>
 
                     <section className="cgu-section">

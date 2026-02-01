@@ -107,14 +107,60 @@ const BookingsList = ({ bookings, showActions = true, onRefresh }) => {
 
                     return (
                         <article key={booking.id} className="booking-card">
-                            {/* Status indicator */}
+                            {/* Status indicator (Mobile/Desktop handled by CSS media queries) */}
                             <div className={`booking-card__status-bar status-${booking.status?.toLowerCase()}`} />
+
+                            <div className="booking-card__image-container">
+                                {(() => {
+                                    // Try to resolve image from various potential paths
+                                    const imageUrl = booking.offerImage ||
+                                        booking.hebergement?.medias?.[0]?.url ||
+                                        booking.activite?.medias?.[0]?.url ||
+                                        booking.offer?.medias?.[0]?.url;
+
+                                    if (imageUrl) {
+                                        return <img src={imageUrl} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />;
+                                    }
+
+                                    // Placeholder logic
+                                    const isActivity = booking.activiteName || booking.type === 'ACTIVITY';
+
+                                    return (
+                                        <div className={`booking-card__placeholder ${isActivity ? 'activity' : 'accommodation'}`}>
+                                            {isActivity ? (
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <polygon points="10 8 16 12 10 16 10 8"></polygon>
+                                                </svg>
+                                            ) : (
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                                </svg>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
+                            </div>
 
                             <div className="booking-card__content">
                                 {/* Header */}
                                 <div className="booking-card__header">
                                     <div className="booking-card__title-group">
-                                        <h4 className="booking-card__title">{title}</h4>
+                                        <h4 className="booking-card__title">
+                                            {(() => {
+                                                const isActivity = booking.activiteName || booking.type === 'ACTIVITY' || !!booking.activityId;
+                                                const linkId = booking.hebergement?.id || booking.activite?.id || booking.offerId || booking.hebergementId || booking.activityId;
+                                                const linkType = isActivity ? 'activite' : 'hebergement';
+                                                const linkTarget = linkId ? `/offer/${linkType}/${linkId}` : null;
+
+                                                return linkTarget ? (
+                                                    <Link to={linkTarget} style={{ color: 'inherit', textDecoration: 'none' }}>
+                                                        {title}
+                                                    </Link>
+                                                ) : title;
+                                            })()}
+                                        </h4>
                                         <span className={`badge ${status.class}`}>
                                             {status.icon} {status.label}
                                         </span>

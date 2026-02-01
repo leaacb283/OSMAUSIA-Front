@@ -74,10 +74,10 @@ export const cancelReservation = async (id) => {
  * Reservation status labels with colors
  */
 export const RESERVATION_STATUS = {
-    CREATED: { label: 'Créée', color: '#3498db', icon: '📝' },
-    PENDING_PAYMENT: { label: 'En attente de paiement', color: '#f39c12', icon: '⏳' },
-    CONFIRMED: { label: 'Confirmée', color: '#27ae60', icon: '✅' },
-    CANCELLED: { label: 'Annulée', color: '#e74c3c', icon: '❌' },
+    CREATED: { label: 'Créée', color: '#3498db', icon: '' },
+    PENDING_PAYMENT: { label: 'En attente de paiement', color: '#f39c12', icon: '' },
+    CONFIRMED: { label: 'Confirmée', color: '#27ae60', icon: '' },
+    CANCELLED: { label: 'Annulée', color: '#e74c3c', icon: '' },
 };
 
 /**

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ScrollToTop from './components/ScrollToTop';
@@ -15,7 +15,7 @@ import RegisterPartner from './pages/RegisterPartner';
 import Dashboard from './pages/Dashboard';
 import PartnerDashboard from './pages/PartnerDashboard';
 import ProviderReservations from './pages/ProviderReservations';
-import Preferences from './pages/Preferences';
+// Preferences removed
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import OfferDetails from './pages/OfferDetails';
@@ -30,10 +30,8 @@ import FAQ from './pages/FAQ';
 import Contact from './pages/Contact';
 import Legal from './pages/Legal';
 import About from './pages/About';
-
-
-
-
+import Profile from './pages/Profile';
+import MyReservations from './pages/MyReservations';
 
 function App() {
     return (
@@ -53,7 +51,9 @@ function App() {
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/partner/dashboard" element={<PartnerDashboard />} />
                             <Route path="/partner/reservations" element={<ProviderReservations />} />
-                            <Route path="/preferences" element={<Preferences />} />
+                            <Route path="/preferences" element={<Navigate to="/profile" replace />} />
+                            <Route path="/profile" element={<Profile />} />
+                            <Route path="/my-reservations" element={<MyReservations />} />
                             <Route path="/messages" element={<Messages />} />
                             <Route path="/messages/:partnerId" element={<Messages />} />
 
@@ -82,4 +82,3 @@ function App() {
 }
 
 export default App;
-

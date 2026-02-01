@@ -56,15 +56,15 @@ const CookieConsent = () => {
         <div className="cookie-consent">
             <div className="cookie-consent__content">
                 <div className="cookie-consent__text">
-                    <h3>🍪 Nous respectons votre vie privée</h3>
+                    <h3>Nous respectons votre vie privée</h3>
                     <p>
                         Nous utilisons des cookies pour améliorer votre expérience et analyser notre trafic.
                         <br />
                         Vous pouvez choisir de tout accepter ou de n'utiliser que les cookies essentiels.
                     </p>
-                    <Link to="/cookies" className="cookie-consent__link">
+                    <a href="/privacy#cookies" target="_blank" rel="noopener noreferrer" className="cookie-consent__link">
                         En savoir plus
-                    </Link>
+                    </a>
                 </div>
                 <div className="cookie-consent__actions">
                     <button

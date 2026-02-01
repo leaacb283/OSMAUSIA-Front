@@ -150,6 +150,44 @@
     background: var(--primary-dark, #00a085);
 }
 
+/* Segmented Buttons for Regen Score */
+.search-filters__segments {
+    display: flex;
+    background: var(--color-border-light, #f0f0f0);
+    border-radius: 8px;
+    padding: 4px;
+    gap: 2px;
+}
+
+.search-filters__segment {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.search-filters__segment:hover {
+    color: var(--color-text-primary);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.search-filters__segment--active {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.search-filters__segment--active:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
 .search-filters__clear {
     padding: 0.6rem 1rem;
     background: transparent;

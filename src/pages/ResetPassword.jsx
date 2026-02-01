@@ -87,7 +87,7 @@ const ResetPassword = () => {
                             </div>
 
                             <div className="auth-error" style={{ marginBottom: 'var(--space-6)' }}>
-                                <span>⚠️</span> Le lien de réinitialisation est invalide ou a expiré.
+                                <span></span> Le lien de réinitialisation est invalide ou a expiré.
                             </div>
 
                             <Link to="/forgot-password" className="btn btn-primary btn-lg" style={{ width: '100%' }}>
@@ -119,7 +119,7 @@ const ResetPassword = () => {
 
                         {success ? (
                             <div className="auth-success">
-                                <span className="auth-success-icon">✅</span>
+                                <span className="auth-success-icon"></span>
                                 <h2>Mot de passe modifié !</h2>
                                 <p>
                                     Votre mot de passe a été réinitialisé avec succès.
@@ -130,7 +130,7 @@ const ResetPassword = () => {
                             <>
                                 {error && (
                                     <div className="auth-error">
-                                        <span>⚠️</span> {error}
+                                        <span></span> {error}
                                     </div>
                                 )}
 
@@ -203,7 +203,7 @@ const ResetPassword = () => {
                 {/* Visual Section */}
                 <div className="auth-visual-section">
                     <div className="auth-visual-content">
-                        <div className="auth-visual-icon">🔒</div>
+                        <div className="auth-visual-icon"></div>
                         <h2>Mot de passe sécurisé</h2>
                         <p>
                             Choisissez un mot de passe unique que vous n'utilisez pas sur d'autres sites.

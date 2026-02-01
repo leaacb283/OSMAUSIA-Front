@@ -156,8 +156,34 @@ const MyReservations = () => {
                                 <article key={reservation.id} className="reservation-card">
                                     <div className="reservation-card__main">
                                         <div className="reservation-card__image">
-                                            {/* Placeholder or actual image */}
-                                            <div className="reservation-card__image-placeholder"></div>
+                                            {(() => {
+                                                const imageUrl = reservation.offerImage ||
+                                                    reservation.hebergement?.medias?.[0]?.url ||
+                                                    reservation.activite?.medias?.[0]?.url ||
+                                                    reservation.offer?.medias?.[0]?.url;
+
+                                                const isActivity = reservation.activiteName || reservation.type === 'ACTIVITY';
+
+                                                if (imageUrl) {
+                                                    return <img src={imageUrl} alt={reservation.hebergementTitle || "Offre"} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />;
+                                                }
+
+                                                return (
+                                                    <div className={`reservation-card__image-placeholder ${isActivity ? 'activity' : 'accommodation'}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: isActivity ? '#e0f2fe' : '#f0fdf4', height: '100%', color: isActivity ? '#0ea5e9' : '#16a34a' }}>
+                                                        {isActivity ? (
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                                                <circle cx="12" cy="12" r="10"></circle>
+                                                                <polygon points="10 8 16 12 10 16 10 8"></polygon>
+                                                            </svg>
+                                                        ) : (
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                                            </svg>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })()}
                                         </div>
 
                                         <div className="reservation-card__content">
@@ -192,13 +218,13 @@ const MyReservations = () => {
 
                                         {(reservation.status === 'PENDING_PAYMENT' || reservation.status === 'CREATED') && (
                                             <div className="reservation-card__payment-alert">
-                                                <span className="payment-alert__icon">⚠️</span>
+                                                <span className="payment-alert__icon"></span>
                                                 <span className="payment-alert__text">Paiement en attente</span>
                                                 <Link
                                                     to={`/checkout/${reservation.id}`}
                                                     className="btn btn-primary"
                                                 >
-                                                    💳 Finaliser le paiement
+                                                    Finaliser le paiement
                                                 </Link>
                                             </div>
                                         )}

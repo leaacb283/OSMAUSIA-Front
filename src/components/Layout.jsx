@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { setLanguage } from '../i18n';
+import { getUnreadCount } from '../services/messagingService';
 import CookieConsent from './CookieConsent';
 import './Layout.css';
 
@@ -14,6 +15,21 @@ const Layout = () => {
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    // Fetch unread messages count
+    useEffect(() => {
+        if (isAuthenticated) {
+            const fetchUnread = async () => {
+                const count = await getUnreadCount();
+                setUnreadCount(count);
+            };
+            fetchUnread();
+            // Refresh every 30 seconds
+            const interval = setInterval(fetchUnread, 30000);
+            return () => clearInterval(interval);
+        }
+    }, [isAuthenticated]);
 
     const handleLogout = () => {
         logout();
@@ -60,7 +76,12 @@ const Layout = () => {
                             aria-label="Change language"
                             title={i18n.language === 'fr' ? 'Switch to English' : 'Passer en Français'}
                         >
-                            {i18n.language === 'fr' ? '🇬🇧' : '🇫🇷'}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                            </svg>
+                            <span style={{ marginLeft: '5px', fontSize: '0.8rem' }}>{i18n.language.toUpperCase()}</span>
                         </button>
 
                         {/* Theme Toggle */}
@@ -70,7 +91,23 @@ const Layout = () => {
                             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
                             title={isDark ? 'Mode clair' : 'Mode sombre'}
                         >
-                            {isDark ? '☀️' : '🌙'}
+                            {isDark ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="5"></circle>
+                                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                </svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                </svg>
+                            )}
                         </button>
 
                         {/* Auth Buttons or User Menu */}
@@ -95,11 +132,14 @@ const Layout = () => {
                                         <Link to={user?.role === 'partner' ? '/partner/dashboard' : '/dashboard'} className="user-menu-item" onClick={() => setUserMenuOpen(false)}>
                                             {t('nav.dashboard')}
                                         </Link>
-                                        <Link to="/preferences" className="user-menu-item" onClick={() => setUserMenuOpen(false)}>
-                                            {t('nav.preferences')}
+                                        <Link to="/profile" className="user-menu-item" onClick={() => setUserMenuOpen(false)}>
+                                            Profil
                                         </Link>
                                         <Link to="/messages" className="user-menu-item" onClick={() => setUserMenuOpen(false)}>
                                             Messages
+                                            {unreadCount > 0 && (
+                                                <span className="unread-badge">{unreadCount}</span>
+                                            )}
                                         </Link>
                                         <hr className="user-menu-divider" />
                                         <button className="user-menu-item logout" onClick={handleLogout}>
@@ -155,8 +195,8 @@ const Layout = () => {
                             <NavLink to="/messages" className="nav-mobile-link" onClick={closeMobileMenu}>
                                 Messages
                             </NavLink>
-                            <NavLink to="/preferences" className="nav-mobile-link" onClick={closeMobileMenu}>
-                                {t('nav.preferences')}
+                            <NavLink to="/profile" className="nav-mobile-link" onClick={closeMobileMenu}>
+                                Profil
                             </NavLink>
                             <button className="nav-mobile-link logout" onClick={handleLogout}>
                                 {t('nav.logout')}

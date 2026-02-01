@@ -152,6 +152,21 @@ export const markAsRead = async (partnerId) => {
 };
 
 /**
+ * Get total unread message count
+ * @returns {Promise<number>} Total unread messages across all conversations
+ */
+export const getUnreadCount = async () => {
+    try {
+        const conversations = await getConversations();
+        // Sum up unreadCount from all conversations
+        return conversations.reduce((total, conv) => total + (conv.unreadCount || 0), 0);
+    } catch (err) {
+        console.error('Error fetching unread count:', err);
+        return 0;
+    }
+};
+
+/**
  * Message sender type constants
  */
 export const SENDER_TYPE = {
@@ -167,5 +182,6 @@ export default {
     getConversations,
     getMessageHistory,
     markAsRead,
+    getUnreadCount,
     SENDER_TYPE,
 };

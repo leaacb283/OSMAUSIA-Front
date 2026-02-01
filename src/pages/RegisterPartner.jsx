@@ -9,6 +9,7 @@ import {
     getPasswordStrengthLabel,
     checkPasswordRequirements
 } from '../utils/validation';
+import LegalModal from '../components/LegalModal';
 import './Auth.css';
 
 const RegisterPartner = () => {
@@ -30,6 +31,7 @@ const RegisterPartner = () => {
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [legalModal, setLegalModal] = useState({ isOpen: false, type: null });
 
     const passwordStrength = calculatePasswordStrength(formData.password);
     const passwordLevel = getPasswordStrengthLabel(passwordStrength);
@@ -132,7 +134,7 @@ const RegisterPartner = () => {
                                     <br /><br />
                                     Veuillez cliquer sur le lien dans l'email pour activer votre compte.
                                     <br /><br />
-                                    <small>⏳ Après validation de votre email, votre compte partenaire sera examiné par notre équipe.</small>
+                                    <small>Après validation de votre email, votre compte partenaire sera examiné par notre équipe.</small>
                                 </p>
                             </div>
 
@@ -351,7 +353,22 @@ const RegisterPartner = () => {
                                         checked={formData.terms}
                                         onChange={handleChange}
                                     />
-                                    {t('auth.termsAgree')} <Link to="/terms">{t('auth.termsLink')}</Link> et la <Link to="/privacy">{t('auth.privacyLink')}</Link>
+                                    {t('auth.termsAgree')}{' '}
+                                    <button
+                                        type="button"
+                                        className="auth-link-inline"
+                                        onClick={() => setLegalModal({ isOpen: true, type: 'terms' })}
+                                    >
+                                        {t('auth.termsLink')}
+                                    </button>{' '}
+                                    et la{' '}
+                                    <button
+                                        type="button"
+                                        className="auth-link-inline"
+                                        onClick={() => setLegalModal({ isOpen: true, type: 'privacy' })}
+                                    >
+                                        {t('auth.privacyLink')}
+                                    </button>
                                 </label>
                                 {errors.terms && <span className="form-error">{errors.terms}</span>}
                             </div>
@@ -409,6 +426,46 @@ const RegisterPartner = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Legal Modal */}
+            <LegalModal
+                isOpen={legalModal.isOpen}
+                onClose={() => setLegalModal({ isOpen: false, type: null })}
+                title={legalModal.type === 'terms' ? "Conditions Générales d'Utilisation" : 'Politique de Confidentialité'}
+            >
+                {legalModal.type === 'terms' ? (
+                    <>
+                        <h2>1. Objet</h2>
+                        <p>Les présentes CGU régissent l'utilisation de la plateforme OSMAUSIA par les partenaires hébergeurs et guides d'activités.</p>
+
+                        <h2>2. Partenariat</h2>
+                        <p>En vous inscrivant, vous acceptez de proposer des offres conformes aux valeurs du tourisme régénératif.</p>
+
+                        <h2>3. Regen Score</h2>
+                        <p>Chaque offre est évaluée selon notre méthodologie Regen Score. Vous vous engagez à fournir des informations exactes.</p>
+
+                        <h2>4. Réservations</h2>
+                        <p>Vous êtes responsable de l'accueil des voyageurs et du respect des prestations annoncées.</p>
+
+                        <h2>5. Commission</h2>
+                        <p>OSMAUSIA prélève une commission sur chaque réservation confirmée. Les tarifs sont communiqués avant validation.</p>
+                    </>
+                ) : (
+                    <>
+                        <h2>1. Données Collectées</h2>
+                        <p>Nous collectons : raison sociale, coordonnées du contact, informations bancaires pour les paiements.</p>
+
+                        <h2>2. Utilisation</h2>
+                        <p>Vos données servent à gérer votre compte partenaire, traiter les réservations et vous verser les paiements.</p>
+
+                        <h2>3. Partage</h2>
+                        <p>Vos informations publiques sont visibles par les voyageurs. Les données bancaires sont sécurisées par Stripe.</p>
+
+                        <h2>4. Vos Droits</h2>
+                        <p>Vous pouvez modifier vos informations depuis votre tableau de bord partenaire.</p>
+                    </>
+                )}
+            </LegalModal>
         </div>
     );
 };

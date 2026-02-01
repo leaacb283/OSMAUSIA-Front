@@ -60,7 +60,7 @@ const ForgotPassword = () => {
                             <>
                                 {error && (
                                     <div className="auth-error">
-                                        <span>⚠️</span> {error}
+                                        <span></span> {error}
                                     </div>
                                 )}
 

@@ -187,16 +187,13 @@ const OfferDetails = () => {
                 };
                 endpoint = '/reservations/accommodation';
             } else {
-                // Activity reservation endpoint (if it exists)
-                // For now, simple console log or different logic
-                setNotice({
-                    isOpen: true,
-                    title: "Bientôt disponible",
-                    message: "La réservation d'activité arrive très bientôt sur OSMAUSIA !",
-                    type: 'primary'
-                });
-                setSubmitting(false);
-                return;
+                // Activity reservation
+                payload = {
+                    activityId: parseInt(id),
+                    activityDate: bookingData.checkInDate, // Activity date = check-in date
+                    participantCount: bookingData.guestCount,
+                };
+                endpoint = '/reservations/activity';
             }
 
             const { data } = await api.post(endpoint, payload);
@@ -276,23 +273,27 @@ const OfferDetails = () => {
 
     return (
         <div className="offer-details">
-            {/* Image Gallery with Carousel & Thumbnails */}
-            <section className="offer-details__gallery-section">
-                <div className="container">
-                    <OfferGallery images={images} title={title} />
-                </div>
-            </section>
-
             <div className="container">
+                {/* Header: Title & Location (Moved above gallery) */}
+                <div className="offer-details__header" style={{ paddingTop: '2rem', borderBottom: 'none', paddingBottom: '1rem' }}>
+                    <h1 className="offer-details__title">{title}</h1>
+                    <div className="offer-details__location-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <p className="offer-details__location">
+                            <span className="material-icons" style={{ verticalAlign: 'middle', marginRight: '4px', fontSize: '1.2rem' }}>location_on</span>
+                            {locationName ? `${locationName} — ` : ''}{locationCity}
+                        </p>
+                    </div>
+                </div>
+
+                {/* Gallery Section - Now inside container */}
+                <section className="offer-details__gallery-section">
+                    <OfferGallery images={images} title={title} />
+                </section>
+
                 <div className="offer-details__content">
                     {/* Main Info */}
                     <div className="offer-details__main">
-                        <div className="offer-details__header">
-                            <h1 className="offer-details__title">{title}</h1>
-                            <p className="offer-details__location">
-                                {locationName ? `${locationName} — ` : ''}{locationCity}
-                            </p>
-                        </div>
+                        {/* Tags (moved here) */}
 
                         {/* Tags */}
                         {offer.tags?.length > 0 && (
@@ -310,34 +311,36 @@ const OfferDetails = () => {
                         {(offer.regenScore || offer.regenScore === 0) && (
                             <div className="offer-details__score">
                                 <span className="offer-details__score-icon"></span>
-                                <span className="offer-details__score-value">{offer.regenScore}</span>
-                                <span className="offer-details__score-label">Score régénératif</span>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <span className="offer-details__score-value">{offer.regenScore} / 100</span>
+                                    <span className="offer-details__score-label">Score d'impact régénératif</span>
+                                </div>
                             </div>
                         )}
 
                         {/* Description */}
                         <div className="offer-details__description">
-                            <h2>À propos</h2>
+                            <h2>À propos de cette expérience</h2>
                             <p style={{ whiteSpace: 'pre-line' }}>{description}</p>
                         </div>
 
-                        {/* Capacity */}
+                        {/* Capacity / Info Grid */}
                         <div className="offer-details__info-grid">
                             <div className="offer-details__info-item">
-                                <span className="offer-details__info-icon"></span>
+                                <span className="material-icons offer-details__info-icon">group</span>
                                 <span>Jusqu'à {maxGuests} personnes</span>
                             </div>
                             {/* Hebergement specific */}
                             {offer.isShared !== undefined && (
                                 <div className="offer-details__info-item">
-                                    <span className="offer-details__info-icon"></span>
+                                    <span className="material-icons offer-details__info-icon">home</span>
                                     <span>{offer.isShared ? 'Hébergement partagé' : 'Logement entier'}</span>
                                 </div>
                             )}
                             {/* Activity specific */}
                             {offer.durationMin && (
                                 <div className="offer-details__info-item">
-                                    <span className="offer-details__info-icon"></span>
+                                    <span className="material-icons offer-details__info-icon">schedule</span>
                                     <span>Durée : {offer.durationMin} min</span>
                                 </div>
                             )}
@@ -354,7 +357,8 @@ const OfferDetails = () => {
 
                             <form className="offer-details__form" onSubmit={handleBooking}>
                                 {type === 'hebergement' ? (
-                                    <>
+                                    <div className="offer-details__form-group">
+                                        <label>Dates du séjour</label>
                                         <DateRangePicker
                                             checkIn={bookingData.checkInDate}
                                             checkOut={bookingData.checkOutDate}
@@ -368,9 +372,9 @@ const OfferDetails = () => {
                                             blockedDates={blockedDates}
                                             disabled={isPartner}
                                         />
-                                    </>
+                                    </div>
                                 ) : (
-                                    /* Activity Date Picker (Simplified) */
+                                    /* Activity Date Picker */
                                     <div className="offer-details__form-group">
                                         <label>Date de l'activité</label>
                                         <input
@@ -421,23 +425,16 @@ const OfferDetails = () => {
 
                                 {!isAuthenticated ? (
                                     <div className="offer-details__login-hint">
-                                        <p>Connectez-vous pour réserver</p>
                                         <button
                                             type="button"
-                                            className="btn btn-outline btn-sm"
+                                            className="btn btn-primary offer-details__submit"
                                             onClick={() => navigate('/login', { state: { from: `/offer/${type}/${id}` } })}
-                                            style={{ marginTop: '10px', width: '100%' }}
                                         >
-                                            Se connecter
+                                            Se connecter pour réserver
                                         </button>
-                                        <button
-                                            type="button"
-                                            className="btn btn-ghost btn-sm"
-                                            onClick={() => navigate('/login', { state: { from: `/offer/${type}/${id}` } })}
-                                            style={{ marginTop: '5px', width: '100%', color: '#6b7280', fontSize: '0.8rem' }}
-                                        >
-                                            ✉️ Contacter l'hôte
-                                        </button>
+                                        <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                                            <small style={{ color: 'var(--color-text-secondary)' }}>Vous n'avez pas encore de compte ?</small>
+                                        </div>
                                     </div>
                                 ) : user?.role === 'partner' ? (
                                     <div className="offer-details__partner-hint">
@@ -454,38 +451,26 @@ const OfferDetails = () => {
                                             {submitting ? 'Traitement...' : dateConflict ? 'Dates indisponibles' : 'Réserver'}
                                         </button>
 
-                                        {/* Contact Host Button */}
+                                        {/* Contact Host Button - Secondary Action */}
                                         <button
                                             type="button"
-                                            className="btn btn-outline btn-lg"
-                                            style={{ marginTop: '0.75rem', width: '100%', borderColor: '#e6a048', color: '#e6a048' }}
+                                            className="btn btn-text"
+                                            style={{ marginTop: '1rem', width: '100%', color: 'var(--color-primary)' }}
                                             onClick={() => {
                                                 const providerId = offer.etablissement ?
                                                     offer.etablissement.provider?.id :
                                                     offer.provider?.id;
 
                                                 if (providerId) {
-                                                    const providerName = offer.etablissement ?
-                                                        offer.etablissement.provider?.companyName :
-                                                        offer.provider?.companyName;
-
                                                     navigate(`/messages/${providerId}`, {
                                                         state: {
-                                                            partnerName: providerName || 'Hôte'
+                                                            partnerName: (offer.etablissement ? offer.etablissement.provider?.companyName : offer.provider?.companyName) || 'Hôte'
                                                         }
-                                                    });
-                                                } else {
-                                                    console.error('Provider ID not found', offer);
-                                                    setNotice({
-                                                        isOpen: true,
-                                                        title: "Contact impossible",
-                                                        message: "Impossible de contacter le propriétaire pour le moment. Veuillez réessayer plus tard.",
-                                                        type: 'warning'
                                                     });
                                                 }
                                             }}
                                         >
-                                            ✉️ Contacter l'hôte
+                                            Contacter l'hôte
                                         </button>
                                     </>
                                 )}

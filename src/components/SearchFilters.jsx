@@ -72,28 +72,29 @@ const SearchFilters = ({ onFiltersChange, initialFilters = {} }) => {
                     </div>
                 </div>
 
-                {/* Regen Score */}
+                {/* Regen Score - Segmented Buttons */}
                 <div className="search-filters__group">
-                    <label className="search-filters__label">
-                        Score régénératif minimum: {filters.regenScoreMin || 0}
-                    </label>
-                    <input
-                        type="range"
-                        className="search-filters__range"
-                        min="0"
-                        max="100"
-                        step="10"
-                        value={filters.regenScoreMin}
-                        onChange={(e) => setFilters(prev => ({ ...prev, regenScoreMin: Number(e.target.value) }))}
-                    />
+                    <label className="search-filters__label">Score régénératif</label>
+                    <div className="search-filters__segments">
+                        {[
+                            { value: 0, label: 'Tous' },
+                            { value: 20, label: '20+' },
+                            { value: 40, label: '40+' },
+                            { value: 60, label: '60+' },
+                            { value: 80, label: '80+' },
+                        ].map((option) => (
+                            <button
+                                key={option.value}
+                                type="button"
+                                className={`search-filters__segment ${filters.regenScoreMin === option.value ? 'search-filters__segment--active' : ''
+                                    }`}
+                                onClick={() => setFilters(prev => ({ ...prev, regenScoreMin: option.value }))}
+                            >
+                                {option.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
-
-                {/* Clear Filters */}
-                {activeCount > 0 && (
-                    <button className="search-filters__clear" onClick={clearFilters}>
-                        Effacer les filtres
-                    </button>
-                )}
             </div>
         </div>
     );

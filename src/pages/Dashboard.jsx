@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
+import authService from '../services/authService';
 import BookingsList from '../components/BookingsList';
 import ImpactMetrics from '../components/ImpactMetrics';
 import { getMyReservations } from '../services/reservationService';
@@ -28,6 +29,22 @@ const Dashboard = () => {
             setLoading(false);
         }
     };
+
+    const [profileData, setProfileData] = useState(null);
+
+    // Fetch profile data to get first name
+    useEffect(() => {
+        const fetchProfile = async () => {
+            if (!isAuthenticated) return;
+            try {
+                const data = await authService.getCurrentUserAPI();
+                setProfileData(data);
+            } catch (error) {
+                console.error('Error fetching profile for dashboard:', error);
+            }
+        };
+        fetchProfile();
+    }, [isAuthenticated]);
 
     useEffect(() => {
         if (!authLoading) {
@@ -101,7 +118,7 @@ const Dashboard = () => {
                 <header className="dashboard-header">
                     <div className="dashboard-welcome">
                         <h1>
-                            {t('dashboard.welcomeBack')} {user.profile?.firstName || user.profile?.companyName}!
+                            {t('dashboard.welcomeBack')} {profileData?.firstName || user.profile?.firstName || user.profile?.companyName || ''}!
                         </h1>
                         <p className="dashboard-date">
                             {new Date().toLocaleDateString(user.profile?.language === 'en' ? 'en-GB' : 'fr-FR', {
@@ -177,54 +194,42 @@ const Dashboard = () => {
                     </section>
 
                     {/* Impact Section */}
-                    <section className="dashboard-section dashboard-section--impact">
-                        <div className="dashboard-section__header">
-                            <h2>{t('dashboard.impactTitle')}</h2>
-                            <span className="dashboard-section__badge">
-                                {t('dashboard.impactMetrics')}
-                            </span>
-                        </div>
+                    {/* Sidebar: Impact & Profile */}
+                    <div className="dashboard-sidebar">
+                        <section className="dashboard-section dashboard-section--impact">
+                            <div className="dashboard-section__header">
+                                <h2>{t('dashboard.impactTitle')}</h2>
+                                <span className="dashboard-section__badge">
+                                    {t('dashboard.impactMetrics')}
+                                </span>
+                            </div>
 
-                        <ImpactMetrics
-                            impact={impact}
-                            showDetails={true}
-                            available={user.impact?.totalTrips > 0}
-                        />
+                            <ImpactMetrics
+                                impact={impact}
+                                showDetails={true}
+                                available={user.impact?.totalTrips > 0}
+                            />
+                        </section>
 
-                        {/* Impact Tips */}
-                        <div className="dashboard-tips">
-                            <h4>Conseils pour augmenter votre impact</h4>
-                            <ul>
-                                <li>Privilégiez les transports bas carbone</li>
-                                <li>Choisissez des hébergements certifiés</li>
-                                <li>Participez à des activités communautaires</li>
-                            </ul>
-                        </div>
-                    </section>
-                </div>
-
-                {/* Quick Actions */}
-                <section className="dashboard-quick-actions">
-                    <h3>Actions rapides</h3>
-                    <div className="quick-actions-grid">
-                        <Link to="/preferences" className="quick-action">
-                            <span className="quick-action__icon"></span>
-                            <span className="quick-action__label">Préférences</span>
-                        </Link>
-                        <Link to="/profile" className="quick-action">
-                            <span className="quick-action__icon"></span>
-                            <span className="quick-action__label">Profil</span>
-                        </Link>
-                        <Link to="/support" className="quick-action">
-                            <span className="quick-action__icon"></span>
-                            <span className="quick-action__label">Support</span>
-                        </Link>
-                        <Link to="/refer" className="quick-action">
-                            <span className="quick-action__icon"></span>
-                            <span className="quick-action__label">Parrainage</span>
-                        </Link>
+                        <section className="dashboard-section dashboard-section--profile-quick">
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                <h3 style={{ fontSize: '1.1rem', margin: 0 }}>Mon Profil</h3>
+                                <Link to="/profile" style={{ fontSize: '0.9rem', color: 'var(--color-primary)', fontWeight: 600 }}>
+                                    Voir
+                                </Link>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', fontWeight: 'bold' }}>
+                                    {profileData?.firstName?.[0] || user.profile?.firstName?.[0] || 'U'}
+                                </div>
+                                <div>
+                                    <p style={{ margin: 0, fontWeight: 500 }}>{profileData?.firstName || user.profile?.firstName || 'Voyageur'}</p>
+                                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>{user.email}</p>
+                                </div>
+                            </div>
+                        </section>
                     </div>
-                </section>
+                </div>
             </div>
         </div>
     );
