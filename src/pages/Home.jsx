@@ -163,11 +163,11 @@ const Home = () => {
 
     const handleSearch = (searchData) => {
         const params = new URLSearchParams();
-        if (searchData.destination) params.set('destination', searchData.destination);
+        if (searchData.destination) params.set('q', searchData.destination); // Changed to 'q' for consistency
         if (searchData.checkIn) params.set('checkIn', searchData.checkIn);
         if (searchData.checkOut) params.set('checkOut', searchData.checkOut);
         if (searchData.guests) params.set('guests', searchData.guests);
-        navigate(`/search?${params.toString()}`);
+        navigate(`/explore?${params.toString()}`);
     };
 
     return (

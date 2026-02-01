@@ -129,6 +129,15 @@ export const mapApiResponseToUser = (apiResponse) => {
     };
 };
 
+/**
+ * Récupérer l'utilisateur courant via API
+ * @returns {Promise<UserProfileDTO>}
+ */
+export const getCurrentUserAPI = async () => {
+    const { data } = await api.get('/users/me');
+    return data;
+};
+
 export default {
     loginAPI,
     registerTravelerAPI,
@@ -137,5 +146,9 @@ export default {
     forgotPasswordAPI,
     resetPasswordAPI,
     verifyEmailAPI,
+    deleteAccountAPI: async (id) => {
+        await api.delete(`/providers/${id}`);
+    },
+    getCurrentUserAPI,
     mapApiResponseToUser,
 };

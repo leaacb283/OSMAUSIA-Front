@@ -236,3 +236,11 @@ export const updateActivite = async (id, offerData, user) => {
 export const deleteActivite = async (id) => {
     await api.delete(`/offer/activites/${id}`);
 };
+/**
+ * Récupérer tous les tags disponibles
+ * @returns {Promise<Array>}
+ */
+export const getTags = async () => {
+    const { data } = await api.get('/offer/tags');
+    return data;
+};

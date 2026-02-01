@@ -1,7 +1,7 @@
 /**
  * Messages Page - Real-time messaging between travelers and providers
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ConversationList from '../components/messaging/ConversationList';
@@ -40,17 +40,51 @@ const Messages = () => {
 
     const currentUserId = user?.id;
 
-    // Handle incoming WebSocket message
+    // Refs for stable WebSocket callback
+    const selectedPartnerRef = useRef(selectedPartner);
+    const currentUserTypeRef = useRef(currentUserType);
+    const messagesRef = useRef(messages);
+
+    // Keep refs updated
+    useEffect(() => {
+        selectedPartnerRef.current = selectedPartner;
+        currentUserTypeRef.current = currentUserType;
+        messagesRef.current = messages;
+    }, [selectedPartner, currentUserType, messages]);
+
+    // Handle incoming WebSocket message (stable callback using refs)
     const handleIncomingMessage = useCallback((message) => {
         console.log('[Messages] Incoming message:', message);
 
+        const currentPartner = selectedPartnerRef.current;
+        const userType = currentUserTypeRef.current;
+
+        // Handle Read Receipt
+        if (message.type === 'READ_RECEIPT') {
+            const readerId = message.partnerId; // The one who read
+
+            // Update messages in current view - mark OUR sent messages as read
+            if (currentPartner && currentPartner.partnerId === readerId) {
+                setMessages(prev => prev.map(m =>
+                    m.senderType === userType ? { ...m, isRead: true } : m
+                ));
+            }
+            return;
+        }
+
+        // Handle Text Message
         // Update messages if this conversation is active
-        const messagePartnerId = currentUserType === SENDER_TYPE.TRAVELER
+        const messagePartnerId = userType === SENDER_TYPE.TRAVELER
             ? message.providerId
             : message.travelerId;
 
-        if (selectedPartner && messagePartnerId === selectedPartner.partnerId) {
+        if (currentPartner && messagePartnerId === currentPartner.partnerId) {
             setMessages(prev => [...prev, message]);
+            // Auto-mark as read since user is viewing this conversation
+            // This triggers read receipt to sender
+            markAsRead(currentPartner.partnerId).catch(err =>
+                console.error('[Messages] Failed to mark as read:', err)
+            );
         }
 
         // Update conversation list (add unread badge, move to top)
@@ -61,7 +95,7 @@ const Messages = () => {
                         ...conv,
                         lastMessage: message.content,
                         lastMessageAt: message.sentAt,
-                        unreadCount: (selectedPartner && selectedPartner.partnerId === messagePartnerId)
+                        unreadCount: (currentPartner && currentPartner.partnerId === messagePartnerId)
                             ? 0
                             : (conv.unreadCount || 0) + 1,
                     };
@@ -76,7 +110,7 @@ const Messages = () => {
                 return timeB - timeA;
             });
         });
-    }, [selectedPartner, currentUserType]);
+    }, []); // Empty deps - uses refs for current values
 
     // Connect to WebSocket on mount
     useEffect(() => {

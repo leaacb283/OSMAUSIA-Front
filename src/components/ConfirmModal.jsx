@@ -70,22 +70,26 @@ const ConfirmModal = ({
                 <p className="confirm-modal__message">{message}</p>
 
                 <div className="confirm-modal__actions">
-                    <button
-                        className="confirm-modal__btn confirm-modal__btn--cancel"
-                        onClick={onCancel}
-                        disabled={isLoading}
-                    >
-                        {cancelText}
-                    </button>
-                    <button
-                        className={`confirm-modal__btn confirm-modal__btn--${confirmVariant}`}
-                        onClick={onConfirm}
-                        disabled={isLoading}
-                    >
-                        {isLoading ? (
-                            <span className="confirm-modal__spinner"></span>
-                        ) : confirmText}
-                    </button>
+                    {cancelText && (
+                        <button
+                            className="confirm-modal__btn confirm-modal__btn--cancel"
+                            onClick={onCancel}
+                            disabled={isLoading}
+                        >
+                            {cancelText}
+                        </button>
+                    )}
+                    {confirmText && (
+                        <button
+                            className={`confirm-modal__btn confirm-modal__btn--${confirmVariant}`}
+                            onClick={onConfirm}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <span className="confirm-modal__spinner"></span>
+                            ) : confirmText}
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

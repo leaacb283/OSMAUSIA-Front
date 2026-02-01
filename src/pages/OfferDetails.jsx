@@ -11,6 +11,7 @@ import { useAuth } from '../contexts/AuthContext';
 import OfferGallery from '../components/OfferGallery';
 import DateRangePicker from '../components/DateRangePicker';
 import api from '../services/api';
+import ConfirmModal from '../components/ConfirmModal';
 import './OfferDetails.css';
 
 
@@ -37,6 +38,7 @@ const OfferDetails = () => {
     const [submitting, setSubmitting] = useState(false);
     const [bookingError, setBookingError] = useState(null);
     const [dateConflict, setDateConflict] = useState(false);
+    const [notice, setNotice] = useState({ isOpen: false, title: '', message: '', type: 'primary' });
 
     const lang = i18n.language === 'en' ? 'en' : 'fr';
 
@@ -187,7 +189,12 @@ const OfferDetails = () => {
             } else {
                 // Activity reservation endpoint (if it exists)
                 // For now, simple console log or different logic
-                alert("La réservation d'activité arrive bientôt !");
+                setNotice({
+                    isOpen: true,
+                    title: "Bientôt disponible",
+                    message: "La réservation d'activité arrive très bientôt sur OSMAUSIA !",
+                    type: 'primary'
+                });
                 setSubmitting(false);
                 return;
             }
@@ -469,7 +476,12 @@ const OfferDetails = () => {
                                                     });
                                                 } else {
                                                     console.error('Provider ID not found', offer);
-                                                    alert('Impossible de contacter le propriétaire pour le moment.');
+                                                    setNotice({
+                                                        isOpen: true,
+                                                        title: "Contact impossible",
+                                                        message: "Impossible de contacter le propriétaire pour le moment. Veuillez réessayer plus tard.",
+                                                        type: 'warning'
+                                                    });
                                                 }
                                             }}
                                         >
@@ -481,6 +493,16 @@ const OfferDetails = () => {
                         </div>
                     </aside>
                 </div>
+                <ConfirmModal
+                    isOpen={notice.isOpen}
+                    title={notice.title}
+                    message={notice.message}
+                    confirmText="D'accord"
+                    cancelText=""
+                    confirmVariant={notice.type}
+                    onConfirm={() => setNotice(prev => ({ ...prev, isOpen: false }))}
+                    onCancel={() => setNotice(prev => ({ ...prev, isOpen: false }))}
+                />
             </div>
         </div>
     );

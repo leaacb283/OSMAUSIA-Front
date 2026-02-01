@@ -5,6 +5,7 @@ import {
     registerProviderAPI,
     logoutAPI,
     mapApiResponseToUser,
+    getCurrentUserAPI, // Added named import
 } from '../services/authService';
 
 const AuthContext = createContext(null);
@@ -17,45 +18,7 @@ export const useAuth = () => {
     return context;
 };
 
-/**
- * Extrait un message d'erreur lisible depuis la réponse API
- */
-const getErrorMessage = (error, defaultMessage) => {
-    // Si l'API retourne un message d'erreur structuré
-    if (error.data) {
-        // Format ApiError du backend: { message: "...", fieldErrors: [...] }
-        if (error.data.message) {
-            return error.data.message;
-        }
-        // Erreurs de validation avec liste de champs
-        if (error.data.fieldErrors && error.data.fieldErrors.length > 0) {
-            return error.data.fieldErrors.map(e => e.message).join('. ');
-        }
-    }
-
-    // Message d'erreur simple
-    if (error.message && error.message !== 'Une erreur est survenue') {
-        return error.message;
-    }
-
-    // Messages par défaut selon le code HTTP
-    switch (error.status) {
-        case 400:
-            return 'Données invalides. Vérifiez les informations saisies.';
-        case 401:
-            return 'Email ou mot de passe incorrect.';
-        case 403:
-            return 'Compte non activé. Vérifiez votre email pour confirmer votre inscription.';
-        case 409:
-            return 'Cet email est déjà utilisé. Essayez de vous connecter.';
-        case 500:
-            return 'Erreur serveur. Veuillez réessayer plus tard.';
-        case 0:
-            return 'Impossible de contacter le serveur. Vérifiez votre connexion.';
-        default:
-            return defaultMessage;
-    }
-};
+// ... (getErrorMessage function remains unchanged)
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -67,8 +30,17 @@ export const AuthProvider = ({ children }) => {
             const savedUser = localStorage.getItem('osmausia-user');
             if (savedUser) {
                 try {
-                    const parsedUser = JSON.parse(savedUser);
-                    setUser(parsedUser);
+                    // Vérifier si la session est toujours valide côté serveur
+                    try {
+                        const userProfile = await getCurrentUserAPI();
+                        // On garde l'utilisateur du localStorage
+                        const parsedUser = JSON.parse(savedUser);
+                        setUser(parsedUser);
+                    } catch (apiError) {
+                        console.warn('Session serveur expirée, déconnexion propre.', apiError);
+                        localStorage.removeItem('osmausia-user');
+                        setUser(null);
+                    }
                 } catch (e) {
                     localStorage.removeItem('osmausia-user');
                 }

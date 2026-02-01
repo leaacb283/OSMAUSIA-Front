@@ -43,6 +43,20 @@ async function apiRequest(endpoint, options = {}) {
 
     // Handle errors
     if (!response.ok) {
+      // GESTION EXPIRATION SESSION (Phase 2)
+      if (response.status === 401 || response.status === 403) {
+        // Si l'utilisateur n'est pas autorisé, on suppose que le token a expiré ou est invalide
+        // Sauf si on est déjà sur la page de login pour éviter une boucle
+        if (!window.location.pathname.includes('/login')) {
+          console.warn('Session expiré ou accès refusé. Redirection vers Login.');
+          // Nettoyer les données locales
+          localStorage.removeItem('user');
+          // Rediriger
+          window.location.href = '/login?expired=true';
+          return; // Stop execution
+        }
+      }
+
       const error = new Error(data.message || data || 'Une erreur est survenue');
       error.status = response.status;
       error.data = data;

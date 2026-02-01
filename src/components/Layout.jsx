@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { setLanguage } from '../i18n';
+import CookieConsent from './CookieConsent';
 import './Layout.css';
 
 const Layout = () => {
@@ -206,9 +207,9 @@ const Layout = () => {
                         <div className="footer-section">
                             <h4>{t('footer.legal')}</h4>
                             <ul>
-                                <li><Link to="/privacy">{t('footer.privacy')}</Link></li>
                                 <li><Link to="/terms">{t('footer.terms')}</Link></li>
-                                <li><Link to="/cookies">{t('footer.cookies')}</Link></li>
+                                <li><Link to="/privacy">{t('footer.privacy')}</Link></li>
+                                <li><Link to="/legal">{t('footer.legal')}</Link></li>
                             </ul>
                         </div>
 
@@ -216,9 +217,8 @@ const Layout = () => {
                         <div className="footer-section">
                             <h4>{t('footer.contact')}</h4>
                             <ul>
-                                <li><a href="mailto:contact@osmausia.com">contact@osmausia.com</a></li>
-                                <li><Link to="/support">{t('footer.support')}</Link></li>
-                                <li><Link to="/press">{t('footer.press')}</Link></li>
+                                <li><a href="mailto:hello@osmausia.mu">hello@osmausia.mu</a></li>
+                                <li><Link to="/contact">Formulaire de contact</Link></li>
                             </ul>
                         </div>
                     </div>
@@ -228,6 +228,7 @@ const Layout = () => {
                     </div>
                 </div>
             </footer>
+            <CookieConsent />
         </div>
     );
 };

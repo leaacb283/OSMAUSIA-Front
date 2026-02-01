@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { setLanguage } from '../i18n';
+import ConfirmModal from '../components/ConfirmModal';
 import './Preferences.css';
 
 const Preferences = () => {
@@ -16,6 +17,8 @@ const Preferences = () => {
     });
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [notice, setNotice] = useState({ isOpen: false, title: '', message: '', variant: 'primary' });
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     // Redirect if not authenticated
@@ -64,9 +67,29 @@ const Preferences = () => {
         URL.revokeObjectURL(url);
     };
 
-    const handleDeleteAccount = () => {
-        // In real app, this would call an API
-        logout();
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true);
+        try {
+            const { deleteAccountAPI } = await import('../services/authService');
+            await deleteAccountAPI(user.id);
+            logout();
+        } catch (error) {
+            console.error("Erreur suppression:", error);
+            setShowDeleteModal(false);
+
+            const errorMsg = (error.status === 400 || (error.message && error.message.includes('réservation')))
+                ? (error.message || "Impossible de supprimer le compte car vous avez des réservations actives.")
+                : "Une erreur est survenue lors de la suppression.";
+
+            setNotice({
+                isOpen: true,
+                title: "Attention",
+                message: errorMsg,
+                variant: 'warning'
+            });
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     return (
@@ -252,32 +275,29 @@ const Preferences = () => {
                     </button>
                 </div>
 
-                {/* Delete Modal */}
-                {showDeleteModal && (
-                    <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
-                        <div className="modal" onClick={e => e.stopPropagation()}>
-                            <h3>Supprimer votre compte ?</h3>
-                            <p>
-                                Cette action est irréversible. Toutes vos données, réservations
-                                et historique seront définitivement supprimés.
-                            </p>
-                            <div className="modal-actions">
-                                <button
-                                    className="btn btn-secondary"
-                                    onClick={() => setShowDeleteModal(false)}
-                                >
-                                    Annuler
-                                </button>
-                                <button
-                                    className="btn btn-danger"
-                                    onClick={handleDeleteAccount}
-                                >
-                                    Supprimer définitivement
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                {/* Delete Account Confirmation */}
+                <ConfirmModal
+                    isOpen={showDeleteModal}
+                    title="Supprimer votre compte ?"
+                    message="Cette action est irréversible. Toutes vos données, réservations et historique seront définitivement supprimés."
+                    confirmText="Supprimer définitivement"
+                    cancelText="Annuler"
+                    confirmVariant="danger"
+                    isLoading={isDeleting}
+                    onConfirm={handleDeleteAccount}
+                    onCancel={() => setShowDeleteModal(false)}
+                />
+
+                <ConfirmModal
+                    isOpen={notice.isOpen}
+                    title={notice.title}
+                    message={notice.message}
+                    confirmText="Fermer"
+                    cancelText=""
+                    confirmVariant={notice.variant}
+                    onConfirm={() => setNotice(prev => ({ ...prev, isOpen: false }))}
+                    onCancel={() => setNotice(prev => ({ ...prev, isOpen: false }))}
+                />
             </div>
         </div>
     );

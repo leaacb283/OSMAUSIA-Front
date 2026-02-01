@@ -14,17 +14,22 @@ import RegisterTraveler from './pages/RegisterTraveler';
 import RegisterPartner from './pages/RegisterPartner';
 import Dashboard from './pages/Dashboard';
 import PartnerDashboard from './pages/PartnerDashboard';
+import ProviderReservations from './pages/ProviderReservations';
 import Preferences from './pages/Preferences';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
-import SearchResults from './pages/SearchResults';
 import OfferDetails from './pages/OfferDetails';
-import MyReservations from './pages/MyReservations';
 import CheckoutPage from './pages/CheckoutPage';
 import PaymentSuccess from './pages/PaymentSuccess';
 import Explore from './pages/Explore';
 import ComingSoon from './pages/ComingSoon';
 import Messages from './pages/Messages';
+import CGU from './pages/CGU';
+import Privacy from './pages/Privacy';
+import FAQ from './pages/FAQ';
+import Contact from './pages/Contact';
+import Legal from './pages/Legal';
+import About from './pages/About';
 
 
 
@@ -41,23 +46,23 @@ function App() {
                         <Route element={<Layout />}>
                             <Route path="/" element={<Home />} />
                             <Route path="/explore" element={<Explore />} />
-                            <Route path="/about" element={<ComingSoon title="À propos d'OSMAUSIA" />} />
-                            <Route path="/search" element={<SearchResults />} />
+                            <Route path="/about" element={<About />} />
                             <Route path="/offer/:type/:id" element={<OfferDetails />} />
-                            <Route path="/my-reservations" element={<MyReservations />} />
                             <Route path="/checkout/:reservationId" element={<CheckoutPage />} />
                             <Route path="/payment/success" element={<PaymentSuccess />} />
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/partner/dashboard" element={<PartnerDashboard />} />
+                            <Route path="/partner/reservations" element={<ProviderReservations />} />
                             <Route path="/preferences" element={<Preferences />} />
                             <Route path="/messages" element={<Messages />} />
                             <Route path="/messages/:partnerId" element={<Messages />} />
 
-                            {/* Pages en construction */}
-                            <Route path="/cgu" element={<ComingSoon title="Conditions Générales" />} />
-                            <Route path="/privacy" element={<ComingSoon title="Politique de Confidentialité" />} />
-                            <Route path="/legal" element={<ComingSoon title="Mentions Légales" />} />
-                            <Route path="/contact" element={<ComingSoon title="Contactez-nous" message="Notre formulaire de contact arrive très bientôt." />} />
+                            {/* Pages légales */}
+                            <Route path="/terms" element={<CGU />} />
+                            <Route path="/privacy" element={<Privacy />} />
+                            <Route path="/faq" element={<FAQ />} />
+                            <Route path="/legal" element={<Legal />} />
+                            <Route path="/contact" element={<Contact />} />
 
                             {/* 404 Fallback - Joli */}
                             <Route path="*" element={<ComingSoon title="Page introuvable" message="Oups ! Cette page n'existe pas ou est en cours de création." />} />

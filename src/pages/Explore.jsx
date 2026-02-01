@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import OfferCard from '../components/OfferCard';
 import SearchBar from '../components/SearchBar';
@@ -17,14 +17,22 @@ import './Explore.css';
 const Explore = () => {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const lang = i18n.language === 'en' ? 'en' : 'fr';
 
+    // Initialize state from URL params
     const [offers, setOffers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filter, setFilter] = useState('all'); // 'all', 'hebergement', 'activite'
-    const [searchQuery, setSearchQuery] = useState('');
-    const [dateFilter, setDateFilter] = useState({ checkIn: '', checkOut: '' });
+    const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+    const [dateFilter, setDateFilter] = useState({
+        checkIn: searchParams.get('checkIn') || '',
+        checkOut: searchParams.get('checkOut') || ''
+    });
+    const [guestsFilter, setGuestsFilter] = useState(
+        searchParams.get('guests') ? parseInt(searchParams.get('guests')) : null
+    );
     const [advancedFilters, setAdvancedFilters] = useState({});
 
     // Import search service
@@ -39,6 +47,7 @@ const Explore = () => {
             const searchRes = await searchAll(searchQuery, {
                 checkInDate: dateFilter.checkIn,
                 checkOutDate: dateFilter.checkOut,
+                guests: guestsFilter, // Filter by capacity
                 priceMin: advancedFilters.priceMin,
                 priceMax: advancedFilters.priceMax,
                 minRegenScore: advancedFilters.regenScoreMin,
@@ -58,7 +67,7 @@ const Explore = () => {
         } finally {
             setLoading(false);
         }
-    }, [searchQuery, dateFilter, advancedFilters]);
+    }, [searchQuery, dateFilter, guestsFilter, advancedFilters]);
 
     // Fetch on change
     useEffect(() => {
@@ -72,12 +81,15 @@ const Explore = () => {
             checkIn: searchParams.checkIn || '',
             checkOut: searchParams.checkOut || ''
         });
+        // Capture guests for capacity filtering (only if > 1, otherwise no filtering needed)
+        setGuestsFilter(searchParams.guests > 1 ? searchParams.guests : null);
     };
 
     // Reset all filters
     const handleResetFilters = () => {
         setSearchQuery('');
         setDateFilter({ checkIn: '', checkOut: '' });
+        setGuestsFilter(null);
         setAdvancedFilters({});
         setFilter('all');
     };
@@ -96,14 +108,8 @@ const Explore = () => {
         // Type filter
         if (filter !== 'all' && offer.type !== filter) return false;
 
-        // Search query filter
-        if (searchQuery) {
-            const title = offer.title?.fr?.toLowerCase() || '';
-            const city = offer.location?.city?.toLowerCase() || '';
-            if (!title.includes(searchQuery) && !city.includes(searchQuery)) {
-                return false;
-            }
-        }
+        // NOTE: Search query filtering is now handled by Meilisearch with typo tolerance
+        // Do NOT add client-side searchQuery filtering here - it breaks typo tolerance
 
         // Price filters
         const price = offer.price?.amount || 0;

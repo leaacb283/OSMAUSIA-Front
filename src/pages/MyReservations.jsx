@@ -7,7 +7,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
-import { getMyReservations, RESERVATION_STATUS } from '../services/reservationService';
+import { getMyReservations, RESERVATION_STATUS, cancelReservation } from '../services/reservationService';
+import ConfirmModal from '../components/ConfirmModal';
 import './MyReservations.css';
 
 const MyReservations = () => {
@@ -19,6 +20,9 @@ const MyReservations = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filter, setFilter] = useState('all');
+    const [cancelModal, setCancelModal] = useState({ isOpen: false, reservationId: null });
+    const [isCancelling, setIsCancelling] = useState(false);
+    const [notice, setNotice] = useState({ isOpen: false, title: '', message: '', variant: 'primary' });
 
     // Redirect if not authenticated
     useEffect(() => {
@@ -55,25 +59,24 @@ const MyReservations = () => {
         return true;
     });
 
+    // Helper to parse dates from various formats (string or array)
+    const parseDateHelper = (dateInput) => {
+        if (!dateInput) return null;
+        if (Array.isArray(dateInput)) {
+            const [year, month, day] = dateInput;
+            return new Date(year, month - 1, day);
+        }
+        if (typeof dateInput === 'string') {
+            const [year, month, day] = dateInput.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        }
+        return null;
+    };
+
     // Format date - handle both string "YYYY-MM-DD" and array [year, month, day] formats
     const formatDate = (dateInput) => {
-        if (!dateInput) return '';
-
-        let year, month, day;
-
-        // Handle array format from Java LocalDate (Jackson default)
-        if (Array.isArray(dateInput)) {
-            [year, month, day] = dateInput;
-        }
-        // Handle string format "YYYY-MM-DD"
-        else if (typeof dateInput === 'string') {
-            [year, month, day] = dateInput.split('-').map(Number);
-        }
-        else {
-            return '';
-        }
-
-        const d = new Date(year, month - 1, day);
+        const d = parseDateHelper(dateInput);
+        if (!d || isNaN(d)) return '';
         return d.toLocaleDateString('fr-FR', {
             day: 'numeric',
             month: 'long',
@@ -83,25 +86,15 @@ const MyReservations = () => {
 
     // Calculate nights - handle both string and array date formats
     const calculateNights = (checkIn, checkOut) => {
-        if (!checkIn || !checkOut) return 0;
-
-        const parseDate = (dateInput) => {
-            if (Array.isArray(dateInput)) {
-                const [year, month, day] = dateInput;
-                return new Date(year, month - 1, day);
-            } else if (typeof dateInput === 'string') {
-                const [year, month, day] = dateInput.split('-').map(Number);
-                return new Date(year, month - 1, day);
-            }
-            return null;
-        };
-
-        const start = parseDate(checkIn);
-        const end = parseDate(checkOut);
-        if (!start || !end) return 0;
+        const start = parseDateHelper(checkIn);
+        const end = parseDateHelper(checkOut);
+        if (!start || !end || isNaN(start) || isNaN(end)) return 0;
 
         return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     };
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
 
     if (loading) {
         return (
@@ -197,16 +190,32 @@ const MyReservations = () => {
                                             <span className="reservation-card__price-amount">{reservation.totalPrice} €</span>
                                         </div>
 
-                                        {reservation.status === 'PENDING_PAYMENT' && (
-                                            <Link
-                                                to={`/checkout/${reservation.id}`}
-                                                className="btn btn-primary btn-sm"
-                                            >
-                                                Payer maintenant
-                                            </Link>
+                                        {(reservation.status === 'PENDING_PAYMENT' || reservation.status === 'CREATED') && (
+                                            <div className="reservation-card__payment-alert">
+                                                <span className="payment-alert__icon">⚠️</span>
+                                                <span className="payment-alert__text">Paiement en attente</span>
+                                                <Link
+                                                    to={`/checkout/${reservation.id}`}
+                                                    className="btn btn-primary"
+                                                >
+                                                    💳 Finaliser le paiement
+                                                </Link>
+                                            </div>
                                         )}
 
-
+                                        {/* Bouton Annuler (Visible si pas Confirmée/Annulée/Passée ?) 
+                                            Règle : On peut annuler si status != CANCELLED et Date > Now
+                                        */}
+                                        {reservation.status !== 'CANCELLED' &&
+                                            parseDateHelper(reservation.checkInDate) >= todayStart && (
+                                                <button
+                                                    className="btn btn-danger btn-sm"
+                                                    style={{ marginTop: '0.5rem' }}
+                                                    onClick={() => setCancelModal({ isOpen: true, reservationId: reservation.id })}
+                                                >
+                                                    Annuler
+                                                </button>
+                                            )}
                                     </div>
                                 </article>
                             );
@@ -217,12 +226,60 @@ const MyReservations = () => {
                         <span className="my-reservations__empty-icon"></span>
                         <h2>Aucune réservation</h2>
                         <p>Vous n'avez pas encore de réservation.</p>
-                        <Link to="/search" className="btn btn-primary">
+                        <Link to="/explore" className="btn btn-primary">
                             Découvrir nos offres
                         </Link>
                     </div>
                 )}
             </div>
+
+            <ConfirmModal
+                isOpen={cancelModal.isOpen}
+                title="Annuler la réservation"
+                message="Êtes-vous sûr de vouloir annuler cette réservation ? Cette action est irréversible."
+                confirmText="Oui, annuler"
+                cancelText="Garder ma réservation"
+                confirmVariant="danger"
+                isLoading={isCancelling}
+                onConfirm={async () => {
+                    setIsCancelling(true);
+                    try {
+                        await cancelReservation(cancelModal.reservationId);
+                        const data = await getMyReservations();
+                        setReservations(data);
+                        setCancelModal({ isOpen: false, reservationId: null });
+
+                        setNotice({
+                            isOpen: true,
+                            title: "Succès",
+                            message: "Réservation annulée avec succès.",
+                            variant: 'success'
+                        });
+                    } catch (e) {
+                        console.error(e);
+                        setNotice({
+                            isOpen: true,
+                            title: "Erreur",
+                            message: e.message || "Erreur lors de l'annulation",
+                            variant: 'danger'
+                        });
+                    } finally {
+                        setIsCancelling(false);
+                    }
+                }}
+                onCancel={() => setCancelModal({ isOpen: false, reservationId: null })}
+            />
+
+            <ConfirmModal
+                isOpen={notice.isOpen}
+                title={notice.title}
+                message={notice.message}
+                confirmText="Fermer"
+                cancelText=""
+                confirmVariant={notice.variant}
+                onConfirm={() => setNotice(prev => ({ ...prev, isOpen: false }))}
+                onCancel={() => setNotice(prev => ({ ...prev, isOpen: false }))}
+            />
         </div>
     );
 };

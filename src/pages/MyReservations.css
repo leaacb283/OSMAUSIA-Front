@@ -235,3 +235,56 @@
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.1);
 }
+
+/* Payment Alert Banner */
+.reservation-card__payment-alert {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(249, 115, 22, 0.1));
+    border: 2px solid #f59e0b;
+    border-radius: 12px;
+    animation: pulse-border 2s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+
+    0%,
+    100% {
+        border-color: #f59e0b;
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+    }
+
+    50% {
+        border-color: #f97316;
+        box-shadow: 0 0 15px 3px rgba(245, 158, 11, 0.2);
+    }
+}
+
+.payment-alert__icon {
+    font-size: 1.5rem;
+}
+
+.payment-alert__text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #d97706;
+}
+
+.reservation-card__payment-alert .btn {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+[data-theme="dark"] .reservation-card__payment-alert {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(249, 115, 22, 0.15));
+}
+
+[data-theme="dark"] .payment-alert__text {
+    color: #fbbf24;
+}

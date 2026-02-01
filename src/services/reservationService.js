@@ -33,11 +33,20 @@ export const createActivityReservation = async (data) => {
 };
 
 /**
- * Get current user's reservations
+ * Get current user's reservations (Traveler)
  * @returns {Promise<Reservation[]>}
  */
 export const getMyReservations = async () => {
     const response = await api.get('/reservations/my');
+    return response.data;
+};
+
+/**
+ * Get reservations received by the provider
+ * @returns {Promise<Reservation[]>}
+ */
+export const getReceivedReservations = async () => {
+    const response = await api.get('/reservations/received');
     return response.data;
 };
 
@@ -57,7 +66,7 @@ export const getReservationById = async (id) => {
  * @returns {Promise<void>}
  */
 export const cancelReservation = async (id) => {
-    const response = await api.delete(`/reservations/${id}`);
+    const response = await api.post(`/reservations/${id}/cancel`);
     return response.data;
 };
 
@@ -71,11 +80,24 @@ export const RESERVATION_STATUS = {
     CANCELLED: { label: 'Annulée', color: '#e74c3c', icon: '❌' },
 };
 
+/**
+ * Update reservation status (Provider only)
+ * @param {number} id - Reservation ID
+ * @param {string} status - New status (CONFIRMED, REFUNDED, etc.)
+ * @returns {Promise<Reservation>}
+ */
+export const updateReservationStatus = async (id, status) => {
+    const response = await api.patch(`/reservations/${id}/status`, { status });
+    return response.data;
+};
+
 export default {
     createAccommodationReservation,
     createActivityReservation,
     getMyReservations,
+    getReceivedReservations,
     getReservationById,
     cancelReservation,
+    updateReservationStatus,
     RESERVATION_STATUS,
 };

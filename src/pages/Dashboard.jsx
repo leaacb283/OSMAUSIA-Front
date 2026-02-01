@@ -16,20 +16,20 @@ const Dashboard = () => {
     const [error, setError] = useState(null);
 
     // Fetch bookings from API
-    useEffect(() => {
-        const fetchBookings = async () => {
-            if (!isAuthenticated) return;
-            try {
-                const data = await getMyReservations();
-                setBookings(data);
-            } catch (err) {
-                console.error('Failed to fetch dashboard bookings:', err);
-                setError('Failed to load bookings');
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchBookings = async () => {
+        if (!isAuthenticated) return;
+        try {
+            const data = await getMyReservations();
+            setBookings(data);
+        } catch (err) {
+            console.error('Failed to fetch dashboard bookings:', err);
+            setError('Failed to load bookings');
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         if (!authLoading) {
             fetchBookings();
         }
@@ -49,13 +49,40 @@ const Dashboard = () => {
         );
     }
 
-    // Filter bookings by tab (Handle API Uppercase Status)
-    const upcomingBookings = bookings.filter(b =>
-        ['CREATED', 'PENDING_PAYMENT', 'CONFIRMED'].includes(b.status)
-    );
-    const pastBookings = bookings.filter(b =>
-        ['CANCELLED', 'COMPLETED'].includes(b.status)
-    );
+    // Helper to parse dates (handles both string and array formats from backend)
+    const parseDate = (dateInput) => {
+        if (!dateInput) return null;
+        if (Array.isArray(dateInput)) {
+            const [year, month, day] = dateInput;
+            return new Date(year, month - 1, day);
+        }
+        if (typeof dateInput === 'string') {
+            const [year, month, day] = dateInput.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        }
+        return null;
+    };
+
+    // Get today's date (without time for fair comparison)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Filter bookings by tab using both STATUS and DATES
+    // Upcoming: Active status AND checkout date is in the future (or check-in is in the future)
+    const upcomingBookings = bookings.filter(b => {
+        const checkOut = parseDate(b.checkOutDate) || parseDate(b.checkInDate);
+        const isActiveStatus = ['CREATED', 'PENDING_PAYMENT', 'CONFIRMED'].includes(b.status);
+        const isFuture = checkOut && checkOut >= today;
+        return isActiveStatus && isFuture;
+    });
+
+    // Past: Cancelled/Completed status OR checkout date has passed
+    const pastBookings = bookings.filter(b => {
+        const checkOut = parseDate(b.checkOutDate) || parseDate(b.checkInDate);
+        const isPastStatus = ['CANCELLED', 'COMPLETED'].includes(b.status);
+        const isPastDate = checkOut && checkOut < today;
+        return isPastStatus || (isPastDate && !['CREATED', 'PENDING_PAYMENT'].includes(b.status));
+    });
 
     const displayedBookings = activeTab === 'upcoming' ? upcomingBookings : pastBookings;
 
@@ -146,7 +173,7 @@ const Dashboard = () => {
                             </div>
                         </div>
 
-                        <BookingsList bookings={displayedBookings} />
+                        <BookingsList bookings={displayedBookings} onRefresh={fetchBookings} />
                     </section>
 
                     {/* Impact Section */}

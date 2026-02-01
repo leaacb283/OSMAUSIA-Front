@@ -8,7 +8,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { createHebergement, updateHebergement, getAllHebergements, uploadFile, getProviderEtablissements, createEtablissement, getProviderActivities, createActivite, updateActivite, deleteHebergement, deleteActivite } from '../services/offerService';
+import { getReceivedReservations } from '../services/reservationService';
 import ConfirmModal from '../components/ConfirmModal';
+import TagSelector from '../components/TagSelector';
 import './PartnerDashboard.css';
 
 // Fonction utilitaire pour calculer le score régénératif
@@ -107,6 +109,8 @@ const PartnerDashboard = () => {
     // Delete confirmation modal state
     const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, offerId: null, offerTitle: '' });
     const [isDeleting, setIsDeleting] = useState(false);
+    const [notice, setNotice] = useState({ isOpen: false, title: '', message: '', variant: 'primary' });
+    const [bookingsCount, setBookingsCount] = useState(0);
 
     // Charger les offres et établissements au montage
     useEffect(() => {
@@ -145,6 +149,22 @@ const PartnerDashboard = () => {
             }
         };
         fetchData();
+    }, [user]);
+
+    // Fetch bookings count for provider
+    useEffect(() => {
+        const fetchBookingsCount = async () => {
+            try {
+                const reservations = await getReceivedReservations();
+                setBookingsCount(reservations?.length || 0);
+            } catch (err) {
+                console.error('Failed to fetch reservations count:', err);
+                setBookingsCount(0);
+            }
+        };
+        if (user?.id) {
+            fetchBookingsCount();
+        }
     }, [user]);
 
     // Redirect if not authenticated or not a partner
@@ -410,7 +430,15 @@ const PartnerDashboard = () => {
             setDeleteConfirm({ isOpen: false, offerId: null, offerTitle: '' });
         } catch (err) {
             console.error("Erreur suppression:", err);
-            setCreateError("Erreur lors de la suppression de l'offre. Veuillez réessayer.");
+            // Extract the actual error message from backend response
+            const errorMessage = err.response?.data?.message || err.message || "Erreur lors de la suppression de l'offre.";
+            setNotice({
+                isOpen: true,
+                title: "Oups !",
+                message: errorMessage,
+                variant: "danger"
+            });
+            setDeleteConfirm({ isOpen: false, offerId: null, offerTitle: '' });
         } finally {
             setIsDeleting(false);
         }
@@ -420,7 +448,7 @@ const PartnerDashboard = () => {
         totalOffers: offers.length,
         activeOffers: offers.filter(o => o.available).length,
         totalViews: 0,  // TODO: Fetch from analytics API
-        totalBookings: 0 // TODO: Fetch from reservations API
+        totalBookings: bookingsCount // Now from API
     };
 
     return (
@@ -475,13 +503,13 @@ const PartnerDashboard = () => {
                                 <span className="partner-stat-card__label">Vues ce mois</span>
                             </div>
                         </div>
-                        <div className="partner-stat-card">
-                            <span className="partner-stat-card__icon"></span>
+                        <Link to="/partner/reservations" className="partner-stat-card clickable">
+                            <span className="partner-stat-card__icon">📅</span>
                             <div className="partner-stat-card__content">
                                 <span className="partner-stat-card__value">{stats.totalBookings}</span>
-                                <span className="partner-stat-card__label">Réservations</span>
+                                <span className="partner-stat-card__label">Réservations (Voir)</span>
                             </div>
-                        </div>
+                        </Link>
                     </div>
                 </div>
             </section>
@@ -693,36 +721,13 @@ const PartnerDashboard = () => {
                             {/* Tags Configuration */}
                             <div className="form-group">
                                 <label>Tags (Spécialités, Équipements...)</label>
-                                <div className="tags-input-container">
-                                    <div className="tags-list">
-                                        {newOffer.tags.map((tag, index) => (
-                                            <span key={index} className="tag-chip">
-                                                {tag.iconUrl && <span className="material-icons tag-chip__icon">{tag.iconUrl}</span>}
-                                                #{tag.label || tag}
-                                                <button type="button" onClick={() => {
-                                                    setNewOffer(prev => ({ ...prev, tags: prev.tags.filter((_, i) => i !== index) }));
-                                                }}>×</button>
-                                            </span>
-                                        ))}
-                                    </div>
-                                    <input
-                                        type="text"
-                                        placeholder="Ajouter un tag + Entrée (ex: Wifi, Piscine, Randonnée...)"
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                e.preventDefault();
-                                                const val = e.target.value.trim();
-                                                if (val && !newOffer.tags.some(t => t.label === val)) {
-                                                    setNewOffer(prev => ({ ...prev, tags: [...prev.tags, { label: val }] }));
-                                                    e.target.value = '';
-                                                }
-                                            }
-                                        }}
-                                    />
-                                    <small style={{ display: 'block', marginTop: '5px', color: '#666' }}>
-                                        Appuyez sur Entrée pour valider un tag.
-                                    </small>
-                                </div>
+                                <TagSelector
+                                    selectedTags={newOffer.tags}
+                                    onChange={(updatedTags) => setNewOffer(prev => ({ ...prev, tags: updatedTags }))}
+                                />
+                                <small style={{ display: 'block', marginTop: '5px', color: '#666' }}>
+                                    Sélectionnez des tags existants ou créez-en de nouveaux.
+                                </small>
                             </div>
 
                             <div className="form-group">
@@ -889,6 +894,17 @@ const PartnerDashboard = () => {
                 onConfirm={confirmDelete}
                 onCancel={() => setDeleteConfirm({ isOpen: false, offerId: null, offerTitle: '' })}
                 isLoading={isDeleting}
+            />
+
+            <ConfirmModal
+                isOpen={notice.isOpen}
+                title={notice.title}
+                message={notice.message}
+                confirmText="Fermer"
+                cancelText=""
+                confirmVariant={notice.variant}
+                onConfirm={() => setNotice(prev => ({ ...prev, isOpen: false }))}
+                onCancel={() => setNotice(prev => ({ ...prev, isOpen: false }))}
             />
         </div >
     );
