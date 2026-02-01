@@ -10,7 +10,8 @@ const DateRangePicker = ({
     checkOut,
     onDateChange,
     blockedDates = [],
-    disabled = false
+    disabled = false,
+    singleDate = false
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -108,6 +109,12 @@ const DateRangePicker = ({
         const day = String(date.getDate()).padStart(2, '0');
         const dateStr = `${year}-${month}-${day}`;
 
+        if (singleDate) {
+            onDateChange({ checkIn: dateStr, checkOut: '' });
+            setIsOpen(false);
+            return;
+        }
+
         if (!selectingCheckOut || !checkIn) {
             // Selecting check-in
             onDateChange({ checkIn: dateStr, checkOut: '' });
@@ -153,18 +160,22 @@ const DateRangePicker = ({
                 onClick={() => !disabled && setIsOpen(!isOpen)}
             >
                 <div className="date-range-picker__field">
-                    <span className="date-range-picker__label">Arrivée</span>
+                    <span className="date-range-picker__label">{singleDate ? 'Date' : 'Arrivée'}</span>
                     <span className="date-range-picker__value">
                         {checkIn ? formatDate(checkIn) : '-- / --'}
                     </span>
                 </div>
-                <span className="date-range-picker__arrow">→</span>
-                <div className="date-range-picker__field">
-                    <span className="date-range-picker__label">Départ</span>
-                    <span className="date-range-picker__value">
-                        {checkOut ? formatDate(checkOut) : '-- / --'}
-                    </span>
-                </div>
+                {!singleDate && (
+                    <>
+                        <span className="date-range-picker__arrow">→</span>
+                        <div className="date-range-picker__field">
+                            <span className="date-range-picker__label">Départ</span>
+                            <span className="date-range-picker__value">
+                                {checkOut ? formatDate(checkOut) : '-- / --'}
+                            </span>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Calendar Dropdown */}

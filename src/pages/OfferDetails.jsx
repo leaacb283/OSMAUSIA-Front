@@ -59,14 +59,16 @@ const OfferDetails = () => {
     // Fetch calendar availability
     useEffect(() => {
         const fetchCalendar = async () => {
-            if (type !== 'hebergement' || !id) return;
+            if (!id) return;
             try {
                 const today = new Date();
                 const sixMonthsLater = new Date();
                 sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
                 const from = today.toISOString().split('T')[0];
                 const to = sixMonthsLater.toISOString().split('T')[0];
-                const { data } = await api.get(`/offer/hebergements/${id}/calendar?from=${from}&to=${to}`);
+
+                const endpointType = type === 'hebergement' ? 'hebergements' : 'activites';
+                const { data } = await api.get(`/offer/${endpointType}/${id}/calendar?from=${from}&to=${to}`);
                 setBlockedDates(data || []);
             } catch (err) {
                 console.log('Calendar fetch failed:', err);
@@ -159,7 +161,7 @@ const OfferDetails = () => {
             return offer.medias.sort((a, b) => (b.isCover ? 1 : 0) - (a.isCover ? 1 : 0)).map(m => m.url);
         }
         if (offer?.images?.length > 0) return offer.images;
-        return ['/images/placeholder-offer.jpg'];
+        return [];
     };
 
     // Loading state
@@ -343,15 +345,17 @@ const OfferDetails = () => {
                                 ) : (
                                     <div className="offer-details__form-group">
                                         <label>Date</label>
-                                        <input
-                                            type="date"
-                                            required
-                                            min={new Date().toISOString().split('T')[0]}
-                                            value={bookingData.checkInDate}
-                                            onChange={(e) => setBookingData(prev => ({
-                                                ...prev,
-                                                checkInDate: e.target.value
-                                            }))}
+                                        <DateRangePicker
+                                            checkIn={bookingData.checkInDate}
+                                            checkOut={''}
+                                            singleDate={true}
+                                            onDateChange={({ checkIn }) => {
+                                                setBookingData(prev => ({
+                                                    ...prev,
+                                                    checkInDate: checkIn
+                                                }));
+                                            }}
+                                            blockedDates={blockedDates}
                                             disabled={isPartner}
                                         />
                                     </div>

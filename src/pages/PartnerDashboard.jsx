@@ -513,18 +513,7 @@ const PartnerDashboard = () => {
                                 <span className="partner-stat-card__label">Offres actives</span>
                             </div>
                         </div>
-                        <div className="partner-stat-card">
-                            <span className="partner-stat-card__icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
-                            </span>
-                            <div className="partner-stat-card__content">
-                                <span className="partner-stat-card__value">{stats.totalViews}</span>
-                                <span className="partner-stat-card__label">Vues ce mois</span>
-                            </div>
-                        </div>
+
                         <Link to="/partner/reservations" className="partner-stat-card clickable">
                             <span className="partner-stat-card__icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -590,8 +579,8 @@ const PartnerDashboard = () => {
                                         {offer.medias && offer.medias.length > 0 ? (
                                             <img src={offer.medias[0].url} alt={offer.title.fr} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                         ) : (
-                                            <div className="partner-offer-card__placeholder">
-                                                {offer.type === 'activite' ? 'A' : 'H'}
+                                            <div className="partner-offer-card__placeholder" style={{ width: '100%', height: '100%', backgroundColor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
+                                                <span className="material-icons">image_not_supported</span>
                                             </div>
                                         )}
                                     </div>

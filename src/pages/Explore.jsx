@@ -35,6 +35,8 @@ const Explore = () => {
     );
     const [advancedFilters, setAdvancedFilters] = useState({});
 
+    const [resetKey, setResetKey] = useState(0);
+
     // Import search service
     // Ensure you have: import { searchAll, mapAccommodationToOffer, mapActivityToOffer } from '../services/searchService';
 
@@ -92,6 +94,7 @@ const Explore = () => {
         setGuestsFilter(null);
         setAdvancedFilters({});
         setFilter('all');
+        setResetKey(prev => prev + 1); // Force reset of SearchFilters component
     };
 
     // Check if any filter is active
@@ -138,11 +141,11 @@ const Explore = () => {
 
                 {/* Search Bar */}
                 <div className="explore__search">
-                    <SearchBar onSearch={handleSearch} variant="compact" showDates={true} />
+                    <SearchBar key={resetKey} onSearch={handleSearch} variant="compact" showDates={true} />
                 </div>
 
                 {/* Advanced Filters */}
-                <SearchFilters onFiltersChange={handleFiltersChange} />
+                <SearchFilters key={resetKey} onFiltersChange={handleFiltersChange} />
 
                 {/* Filters */}
                 <div className="explore__filters">
