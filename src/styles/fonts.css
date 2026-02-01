@@ -1,0 +1,121 @@
+/* ===========================================
+   OSMAUSIA Typography - Local Fonts
+   Brand Identity: Roca One + Montserrat
+   =========================================== */
+
+/* ===== Roca One - Display Font (Titres) ===== */
+@font-face {
+    font-family: 'Roca One';
+    src: url('/fonts/RocaOne/RocaOne-Lt.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roca One';
+    src: url('/fonts/RocaOne/RocaOne-Rg.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roca One';
+    src: url('/fonts/RocaOne/RocaOne-It.woff2') format('woff2');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roca One';
+    src: url('/fonts/RocaOne/RocaOne-Hv.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roca One';
+    src: url('/fonts/RocaOne/RocaOne-HvIt.woff2') format('woff2');
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* ===== Roca Two - Alternative Display ===== */
+@font-face {
+    font-family: 'Roca Two';
+    src: url('/fonts/RocaOne/RocaTwo-Rg.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roca Two';
+    src: url('/fonts/RocaOne/RocaTwo-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roca Two';
+    src: url('/fonts/RocaOne/RocaTwo-Bl.woff2') format('woff2');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ===== Montserrat - Body Font (Sous-titres + Textes) ===== */
+/* Using Variable Font for flexibility */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/MontSerrat/Montserrat-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/MontSerrat/Montserrat-Italic-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* ===== Fallback Static Fonts (for older browsers) ===== */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/MontSerrat/Montserrat-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/MontSerrat/Montserrat-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/MontSerrat/Montserrat-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/MontSerrat/Montserrat-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}

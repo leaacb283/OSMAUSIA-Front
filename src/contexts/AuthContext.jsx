@@ -18,7 +18,30 @@ export const useAuth = () => {
     return context;
 };
 
-// ... (getErrorMessage function remains unchanged)
+/**
+ * Extract user-friendly error message from API errors
+ */
+const getErrorMessage = (error, defaultMessage) => {
+    // Backend returns structured error
+    if (error?.response?.data) {
+        const data = error.response.data;
+        // ApiError structure from Spring
+        if (data.message) return data.message;
+        if (data.error) return data.error;
+        // Validation errors
+        if (data.errors && Array.isArray(data.errors)) {
+            return data.errors.join(', ');
+        }
+    }
+    // Axios network error
+    if (error?.message) {
+        if (error.message.includes('Network Error')) {
+            return 'Impossible de contacter le serveur. Vérifiez votre connexion.';
+        }
+        return error.message;
+    }
+    return defaultMessage;
+};
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);

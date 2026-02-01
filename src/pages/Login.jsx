@@ -31,23 +31,28 @@ const Login = () => {
         setLoading(true);
         setError('');
 
-        const result = await login(formData.email, formData.password);
+        try {
+            const result = await login(formData.email, formData.password);
 
-        if (result.success) {
-            // Redirect based on role
-            if (result.user.role === 'admin') {
-                navigate('/admin');
-            } else if (result.user.role === 'partner') {
-                navigate('/partner/dashboard');
+            if (result.success) {
+                // Redirect based on role
+                if (result.user.role === 'admin') {
+                    navigate('/admin');
+                } else if (result.user.role === 'partner') {
+                    navigate('/partner/dashboard');
+                } else {
+                    navigate('/dashboard');
+                }
             } else {
-                navigate('/dashboard');
+                // Afficher directement le message d'erreur (déjà en français depuis l'API)
+                setError(result.error || 'Identifiants incorrects');
             }
-        } else {
-            // Afficher directement le message d'erreur (déjà en français depuis l'API)
-            setError(result.error);
+        } catch (err) {
+            console.error('Login unexpected error:', err);
+            setError('Une erreur inattendue est survenue. Veuillez réessayer.');
+        } finally {
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     return (
