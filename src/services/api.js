@@ -3,8 +3,10 @@
  * Configuration Axios avec gestion des cookies HttpOnly
  */
 
-// Utiliser fetch natif pour éviter dépendances supplémentaires
-const API_BASE_URL = '/api';
+// En production: utiliser VITE_API_URL, en dev: chemin relatif (proxy Vite)
+const API_BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
 
 /**
  * Effectue une requête API avec credentials (cookies)

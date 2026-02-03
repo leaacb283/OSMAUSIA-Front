@@ -7,7 +7,8 @@ import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import api from './api';
 
-const WS_URL = '/ws-chat';
+// En production: utiliser VITE_WS_URL, en dev: chemin relatif (proxy Vite)
+const WS_URL = import.meta.env.VITE_WS_URL || '/ws-chat';
 
 let stompClient = null;
 let messageCallback = null;
