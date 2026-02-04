@@ -12,6 +12,7 @@ import SearchBar from '../components/SearchBar';
 import SearchFilters from '../components/SearchFilters';
 import api from '../services/api';
 import { searchAll, mapAccommodationToOffer, mapActivityToOffer } from '../services/searchService';
+import { calculateRegenScore } from '../utils/scoreUtils';
 import './Explore.css';
 
 const Explore = () => {
@@ -121,9 +122,7 @@ const Explore = () => {
 
         // Regen score filter
         if (advancedFilters.regenScoreMin) {
-            const avgScore = Math.round(
-                (offer.regenScore.environmental + offer.regenScore.social + offer.regenScore.experience) / 3
-            );
+            const avgScore = calculateRegenScore(offer.regenScore);
             if (avgScore < advancedFilters.regenScoreMin) return false;
         }
 

@@ -6,6 +6,7 @@ import ThematicFilters from '../components/ThematicFilters';
 import OfferCard from '../components/OfferCard';
 import ImageCarousel from '../components/ImageCarousel';
 import api from '../services/api'; // Use direct API instead of searchService
+import { calculateRegenScore } from '../utils/scoreUtils';
 import './Home.css';
 
 // Hero carousel images - landscapes and destinations
@@ -130,7 +131,7 @@ const Home = () => {
 
                 // Featured logic: Score > 90
                 const processedOffers = allOffers.map(o => {
-                    const avgScore = (o.regenScore.environmental + o.regenScore.social + o.regenScore.experience) / 3;
+                    const avgScore = calculateRegenScore(o.regenScore);
                     return {
                         ...o,
                         featured: avgScore > 90
@@ -139,8 +140,8 @@ const Home = () => {
 
                 // Sort by score descending to push best offers to top
                 processedOffers.sort((a, b) => {
-                    const scoreA = (a.regenScore.environmental + a.regenScore.social + a.regenScore.experience) / 3;
-                    const scoreB = (b.regenScore.environmental + b.regenScore.social + b.regenScore.experience) / 3;
+                    const scoreA = calculateRegenScore(a.regenScore);
+                    const scoreB = calculateRegenScore(b.regenScore);
                     return scoreB - scoreA;
                 });
 
@@ -268,7 +269,7 @@ const Home = () => {
                                 Vous êtes un partenaire régénératif ?
                             </h2>
                             <p className="cta-card__text">
-                                Rejoignez notre communauté de prestataires engagés et proposez vos expériences éthiques à des voyageurs en quête de sens.
+                                Rejoignez notre communauté de partenaires engagés et proposez vos expériences éthiques à des voyageurs en quête de sens.
                             </p>
                             <Link to="/register/partner" className="btn btn-secondary btn-lg">
                                 Devenir partenaire

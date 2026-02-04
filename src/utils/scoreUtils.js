@@ -6,5 +6,6 @@
 export const calculateRegenScore = (scores) => {
     if (!scores) return 0;
     const { environmental = 0, social = 0, experience = 0 } = scores;
-    return Math.round((environmental + social + experience) / 3);
+    // Formule pondérée : 40% Environnement, 30% Social, 30% Expérience
+    return Math.round((environmental * 0.4) + (social * 0.3) + (experience * 0.3));
 };

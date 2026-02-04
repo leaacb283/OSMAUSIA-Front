@@ -9,20 +9,12 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { createHebergement, updateHebergement, getAllHebergements, uploadFile, getProviderEtablissements, createEtablissement, getProviderActivities, createActivite, updateActivite, deleteHebergement, deleteActivite } from '../services/offerService';
 import { getReceivedReservations } from '../services/reservationService';
+import { calculateRegenScore } from '../utils/scoreUtils';
 import ConfirmModal from '../components/ConfirmModal';
 import TagSelector from '../components/TagSelector';
 import './PartnerDashboard.css';
 
-// Fonction utilitaire pour calculer le score régénératif
-const calculateRegenScore = (scores) => {
-    if (!scores) return 0;
-    // Si c'est un objet
-    if (typeof scores === 'object') {
-        return Math.round((scores.environmental + scores.social + scores.experience) / 3);
-    }
-    // Si c'est déjà un nombre
-    return scores;
-};
+
 
 // Mapper DTO backend vers format frontend
 const mapDTOToOffer = (dto) => {
@@ -337,7 +329,12 @@ const PartnerDashboard = () => {
         try {
             setLoadingEtabs(true);
             // Calcul de la moyenne régénérative pour l'établissement
-            const avgScore = Math.round((parseInt(newOffer.environmental) + parseInt(newOffer.social) + parseInt(newOffer.experience)) / 3);
+            // Calcul de la moyenne régénérative pour l'établissement
+            const avgScore = calculateRegenScore({
+                environmental: parseInt(newOffer.environmental),
+                social: parseInt(newOffer.social),
+                experience: parseInt(newOffer.experience)
+            });
             const created = await createEtablissement({ ...newEtab, regenScore: avgScore }, user);
             setEtablissements([...etablissements, created]);
             setNewOffer(prev => ({ ...prev, etablissementId: created.id, city: created.city }));
@@ -880,7 +877,11 @@ const PartnerDashboard = () => {
                                         </div>
                                     </div>
                                     <div className="regen-score-average-info" style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '4px', textAlign: 'center', fontWeight: 'bold', color: '#2e7d32', border: '1px solid #c8e6c9' }}>
-                                        Moyenne régénérative : {Math.round((parseInt(newOffer.environmental) + parseInt(newOffer.social) + parseInt(newOffer.experience)) / 3)}%
+                                        Moyenne régénérative : {calculateRegenScore({
+                                            environmental: parseInt(newOffer.environmental),
+                                            social: parseInt(newOffer.social),
+                                            experience: parseInt(newOffer.experience)
+                                        })}%
                                     </div>
                                 </div>
 

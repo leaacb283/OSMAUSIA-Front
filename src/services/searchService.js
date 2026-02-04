@@ -184,9 +184,9 @@ export const mapActivityToOffer = (hit) => ({
         max: hit.nbrMaxPlaces || hit.maxPlaces || 10
     },
     regenScore: {
-        environmental: 95,
-        social: 95,
-        experience: 95
+        environmental: hit.regenScore || 80,
+        social: hit.regenScore || 80,
+        experience: hit.regenScore || 80
     },
     // Use API images if available, otherwise use fallback
     images: hit.medias?.length > 0

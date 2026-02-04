@@ -4,6 +4,7 @@
  */
 
 import api from './api';
+import { calculateRegenScore } from '../utils/scoreUtils';
 
 /**
  * Créer un nouvel hébergement
@@ -35,7 +36,11 @@ export const createHebergement = async (offerData, user) => {
         description: offerData.description,
         basePrice: parseFloat(offerData.price),
         maxGuests: parseInt(offerData.capacity),
-        regenScore: Math.round((parseInt(offerData.environmental) + parseInt(offerData.social) + parseInt(offerData.experience)) / 3),
+        regenScore: calculateRegenScore({
+            environmental: parseInt(offerData.environmental),
+            social: parseInt(offerData.social),
+            experience: parseInt(offerData.experience)
+        }),
         isShared: false,
         providerDTO: providerDTO,
         locationDTO: locationDTO,
@@ -91,7 +96,11 @@ export const updateHebergement = async (id, offerData, user) => {
         description: offerData.description,
         basePrice: parseFloat(offerData.price),
         maxGuests: parseInt(offerData.capacity),
-        regenScore: Math.round((parseInt(offerData.environmental) + parseInt(offerData.social) + parseInt(offerData.experience)) / 3),
+        regenScore: calculateRegenScore({
+            environmental: parseInt(offerData.environmental),
+            social: parseInt(offerData.social),
+            experience: parseInt(offerData.experience)
+        }),
         isShared: false,
         providerDTO: providerDTO,
         locationDTO: locationDTO,
@@ -187,7 +196,11 @@ export const createActivite = async (offerData, user) => {
         storyContent: offerData.description,
         pricePerson: parseFloat(offerData.price),
         durationMin: 60,
-        regenScore: Math.round((parseInt(offerData.environmental) + parseInt(offerData.social) + parseInt(offerData.experience)) / 3),
+        regenScore: calculateRegenScore({
+            environmental: parseInt(offerData.environmental),
+            social: parseInt(offerData.social),
+            experience: parseInt(offerData.experience)
+        }),
         nbrMaxPlaces: parseInt(offerData.capacity),
         addressLine: offerData.city,
         city: offerData.city,
@@ -218,7 +231,11 @@ export const updateActivite = async (id, offerData, user) => {
         storyContent: offerData.description,
         pricePerson: parseFloat(offerData.price),
         durationMin: 60,
-        regenScore: Math.round((parseInt(offerData.environmental) + parseInt(offerData.social) + parseInt(offerData.experience)) / 3),
+        regenScore: calculateRegenScore({
+            environmental: parseInt(offerData.environmental),
+            social: parseInt(offerData.social),
+            experience: parseInt(offerData.experience)
+        }),
         nbrMaxPlaces: parseInt(offerData.capacity),
         addressLine: offerData.city,
         city: offerData.city,

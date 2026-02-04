@@ -405,7 +405,7 @@ const RegisterTraveler = () => {
 
                         <h2>2. Définitions</h2>
                         <p><strong>Voyageur</strong> : Utilisateur qui réserve des hébergements ou activités.</p>
-                        <p><strong>Partenaire</strong> : Prestataire proposant des offres sur la plateforme.</p>
+                        <p><strong>Partenaire</strong> : Partenaire proposant des offres sur la plateforme.</p>
                         <p><strong>Regen Score</strong> : Indicateur mesurant l'impact régénératif d'une offre.</p>
 
                         <h2>3. Inscription</h2>

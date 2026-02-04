@@ -34,7 +34,7 @@ const CGU = () => {
                     <section className="cgu-section">
                         <h2>3. Services OSMAUSIA</h2>
                         <p>
-                            OSMAUSIA est une plateforme de mise en relation entre des voyageurs conscients et des prestataires mauriciens proposant des expériences de tourisme régénératif.
+                            OSMAUSIA est une plateforme de mise en relation entre des voyageurs conscients et des partenaires mauriciens proposant des expériences de tourisme régénératif.
                         </p>
                         <p>
                             Nos services incluent :

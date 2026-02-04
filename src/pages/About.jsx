@@ -68,7 +68,7 @@ const About = () => {
                         <div>
                             <p className="about-description">
                                 Notre nom fusionne "OSMA" (l'équilibre) et "AUSIA" (l'écoute). Nous sommes le trait d'union entre
-                                des voyageurs en quête de sens et des prestataires mauriciens qui œuvrent dans l'ombre pour leur île.
+                                des voyageurs en quête de sens et des partenaires mauriciens qui œuvrent dans l'ombre pour leur île.
                                 <br /><br />
                                 Contrairement aux plateformes classiques, nous ne sommes pas seulement un site de réservation.
                                 Nous sommes une communauté d'impact, un outil de mesure et un catalyseur pour un avenir plus vert.
