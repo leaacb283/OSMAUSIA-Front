@@ -14,7 +14,7 @@ const Legal = () => {
                     <section className="cgu-section">
                         <h2>1. Éditeur du Site</h2>
                         <p>
-                            Le site osmausia.com est édité par la société OSMAUSIA, enregistrée en France.
+                            Le site osmausia.com est édité par l'entreprise OSMAUSIA, enregistrée en France.
                         </p>
                         <p>
                             <strong>Siège social :</strong> Rouen, France.

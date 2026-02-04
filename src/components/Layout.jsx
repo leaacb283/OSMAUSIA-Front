@@ -257,7 +257,7 @@ const Layout = () => {
                         <div className="footer-section">
                             <h4>{t('footer.contact')}</h4>
                             <ul>
-                                <li><a href="mailto:hello@osmausia.mu">hello@osmausia.mu</a></li>
+                                <li><a href="mailto:contact@osmausia.com">contact@osmausia.com</a></li>
                                 <li><Link to="/contact">Formulaire de contact</Link></li>
                             </ul>
                         </div>
