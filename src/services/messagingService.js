@@ -186,4 +186,5 @@ export default {
     markAsRead,
     getUnreadCount,
     SENDER_TYPE,
+    MESSAGES_UPDATED_EVENT: 'osmausia:messages-updated',
 };

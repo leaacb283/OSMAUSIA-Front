@@ -200,6 +200,9 @@ const Messages = () => {
                         ? { ...conv, unreadCount: 0 }
                         : conv
                 ));
+
+                // Dispatch event to update Layout badge
+                window.dispatchEvent(new Event('osmausia:messages-updated'));
             } catch (err) {
                 console.error('[Messages] Failed to fetch messages:', err);
                 // Non-blocking - just show empty

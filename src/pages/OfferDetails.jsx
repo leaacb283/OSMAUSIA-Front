@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import OfferGallery from '../components/OfferGallery';
@@ -19,17 +19,70 @@ const OfferDetails = () => {
     const navigate = useNavigate();
     const { user, isAuthenticated } = useAuth();
 
+    const [searchParams, setSearchParams] = useSearchParams(); // Add setSearchParams
+
     const [offer, setOffer] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [blockedDates, setBlockedDates] = useState([]);
 
-    // Booking form state
+    // Booking form state - initialized from URL params if available
     const [bookingData, setBookingData] = useState({
-        checkInDate: '',
-        checkOutDate: '',
-        guestCount: 1,
+        checkInDate: searchParams.get('checkIn') || '',
+        checkOutDate: searchParams.get('checkOut') || '',
+        guestCount: searchParams.get('guests') ? parseInt(searchParams.get('guests')) : 1,
     });
+
+    // DEBUG: Trace booking data init
+    useEffect(() => {
+        console.log('[OfferDetails] Valid URL Params:', {
+            checkIn: searchParams.get('checkIn'),
+            checkOut: searchParams.get('checkOut'),
+            guests: searchParams.get('guests')
+        });
+        console.log('[OfferDetails] Initialized bookingData:', bookingData);
+    }, []);
+
+    // Sync booking data to URL parameters
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams);
+
+        // Handle Dates based on offer type
+        if (type === 'hebergement') {
+            // For accommodations:
+            // 1. If BOTH dates selected -> Upate URL
+            // 2. If NO dates selected (explicit clear) -> Clear URL
+            // 3. If PARTIAL (only checkIn) -> Do nothing (Preserve user's old URL in case they refresh/cancel)
+
+            if (bookingData.checkInDate && bookingData.checkOutDate) {
+                params.set('checkIn', bookingData.checkInDate);
+                params.set('checkOut', bookingData.checkOutDate);
+            } else if (!bookingData.checkInDate && !bookingData.checkOutDate) {
+                // Fully cleared (deselect)
+                params.delete('checkIn');
+                params.delete('checkOut');
+            }
+            // Else: Partial selection, keep existing params
+        } else {
+            // For activities (single date)
+            if (bookingData.checkInDate) {
+                params.set('checkIn', bookingData.checkInDate);
+            } else {
+                params.delete('checkIn');
+            }
+            // Activities generally don't use checkOut in URL
+            params.delete('checkOut');
+        }
+
+        // Handle Guests
+        if (bookingData.guestCount > 1) {
+            params.set('guests', bookingData.guestCount);
+        } else {
+            params.delete('guests'); // Default is 1, keep URL clean
+        }
+
+        setSearchParams(params, { replace: true });
+    }, [bookingData, type, setSearchParams]);
 
     const [submitting, setSubmitting] = useState(false);
     const [bookingError, setBookingError] = useState(null);

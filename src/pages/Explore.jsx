@@ -215,6 +215,11 @@ const Explore = () => {
                                 key={`${offer.type}-${offer.id}`}
                                 offer={offer}
                                 featured={false}
+                                searchContext={{
+                                    checkIn: dateFilter.checkIn,
+                                    checkOut: dateFilter.checkOut,
+                                    guests: guestsFilter
+                                }}
                             />
                         ))}
                     </div>

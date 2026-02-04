@@ -1,16 +1,24 @@
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import RegenScore from './RegenScore';
 import { calculateRegenScore } from '../utils/scoreUtils';
 import './OfferCard.css';
 
-const OfferCard = ({ offer, featured = false }) => {
+const OfferCard = ({ offer, featured = false, searchContext = null }) => {
     const { t, i18n } = useTranslation();
     const lang = i18n.language;
 
     const title = offer.title[lang] || offer.title.fr;
     const description = offer.description[lang] || offer.description.fr;
     const totalScore = calculateRegenScore(offer.regenScore);
+
+    // DEBUG: Trace search context
+    useEffect(() => {
+        if (searchContext) {
+            console.log('[OfferCard] Received search context:', searchContext);
+        }
+    }, [searchContext]);
 
     // Badge based on category
     const categoryBadges = {
@@ -106,7 +114,17 @@ const OfferCard = ({ offer, featured = false }) => {
                         <span className="offer-card__price-unit">{priceUnit}</span>
                     </div>
 
-                    <Link to={`/offer/${offer.type}/${offer.id}`} className="btn btn-primary btn-sm">
+                    <Link
+                        to={`/offer/${offer.type}/${offer.id}${searchContext ?
+                            `?${new URLSearchParams({
+                                ...(searchContext.checkIn && { checkIn: searchContext.checkIn }),
+                                ...(searchContext.checkOut && { checkOut: searchContext.checkOut }),
+                                ...(searchContext.guests && { guests: searchContext.guests })
+                            }).toString()}`
+                            : ''
+                            }`}
+                        className="btn btn-primary btn-sm"
+                    >
                         {t('common.viewMore')}
                     </Link>
                 </div>

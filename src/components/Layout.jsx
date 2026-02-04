@@ -31,6 +31,18 @@ const Layout = () => {
         }
     }, [isAuthenticated]);
 
+    // Listen for message updates (read status changes)
+    useEffect(() => {
+        if (!isAuthenticated) return;
+
+        const handleMessageUpdate = () => {
+            getUnreadCount().then(count => setUnreadCount(count));
+        };
+
+        window.addEventListener('osmausia:messages-updated', handleMessageUpdate);
+        return () => window.removeEventListener('osmausia:messages-updated', handleMessageUpdate);
+    }, [isAuthenticated]);
+
     const handleLogout = () => {
         logout();
         navigate('/');

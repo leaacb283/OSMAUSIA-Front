@@ -14,9 +14,28 @@ const DateRangePicker = ({
     singleDate = false
 }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [currentMonth, setCurrentMonth] = useState(new Date());
+
+    // Initialize current month to checkIn date if available, otherwise today
+    const getInitialMonth = () => {
+        if (checkIn && !isNaN(new Date(checkIn).getTime())) {
+            return new Date(checkIn);
+        }
+        return new Date();
+    };
+
+    const [currentMonth, setCurrentMonth] = useState(getInitialMonth());
     const [selectingCheckOut, setSelectingCheckOut] = useState(false);
     const containerRef = useRef(null);
+
+    // Update calendar view when checkIn changes externally
+    useEffect(() => {
+        if (checkIn && !isNaN(new Date(checkIn).getTime())) {
+            const date = new Date(checkIn);
+            // Only switch if year/month is different to avoid jitter
+            // But allows opening straight to the correct month
+            setCurrentMonth(date);
+        }
+    }, [checkIn]);
 
     const DAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
     const MONTHS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
@@ -59,16 +78,54 @@ const DateRangePicker = ({
         return days;
     };
 
+    // Find the first blocked date AFTER the selected checkIn
+    // This acts as a barrier: you cannot book past this date
+    const getBarrierDate = () => {
+        if (!checkIn) return null;
+
+        const checkInDate = new Date(checkIn);
+        checkInDate.setHours(0, 0, 0, 0);
+
+        // Find all start dates of blocked periods that are strictly after checkIn
+        const futureBlocks = blockedDates
+            .map(p => new Date(p.start))
+            .filter(d => d > checkInDate)
+            .sort((a, b) => a - b);
+
+        return futureBlocks.length > 0 ? futureBlocks[0] : null;
+    };
+
+    const barrierDate = getBarrierDate();
+
     // Check if date is blocked
     const isBlocked = (date) => {
         if (!date) return false;
-        return blockedDates.some(period => {
+
+        // standard block check (is inside a blocked range)
+        const isInsideBlock = blockedDates.some(period => {
             const start = new Date(period.start);
             const end = new Date(period.end);
             start.setHours(0, 0, 0, 0);
             end.setHours(23, 59, 59, 999);
             return date >= start && date <= end;
         });
+
+        if (isInsideBlock) return true;
+
+        // Barrier check: if we have a checkIn and this date is beyond the next reservation
+        if (checkIn && barrierDate) {
+            // If date is same or after the barrier, it's unreachable
+            // (We compare timestamps to be safe, ignoring time part for date itself if needed,
+            // but here date comes from calendar loop usually set to specific times or we standardize)
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            const barrier = new Date(barrierDate);
+            barrier.setHours(0, 0, 0, 0);
+
+            if (d >= barrier) return true;
+        }
+
+        return false;
     };
 
     // Check if date is in the past
@@ -96,11 +153,15 @@ const DateRangePicker = ({
         const d = date.getTime();
         const start = new Date(checkIn).getTime();
         const end = new Date(checkOut).getTime();
+
+        // Only show range if it's valid (start < end) and doesn't cross barrier
+        // (Though isBlocked prevents selecting past barrier, so range shouldn't exist ideally)
         return d > start && d < end;
     };
 
     // Handle date click
     const handleDateClick = (date) => {
+        // isBlocked now includes the barrier logic, so we can't click past the barrier
         if (!date || isPast(date) || isBlocked(date)) return;
 
         // Format date as YYYY-MM-DD using local timezone (not UTC)
@@ -112,6 +173,13 @@ const DateRangePicker = ({
         if (singleDate) {
             onDateChange({ checkIn: dateStr, checkOut: '' });
             setIsOpen(false);
+            return;
+        }
+
+        // DESELECT Logic: If clicking the start date again, reset everything
+        if (checkIn === dateStr && !checkOut) {
+            onDateChange({ checkIn: '', checkOut: '' });
+            setSelectingCheckOut(false);
             return;
         }
 
@@ -128,6 +196,8 @@ const DateRangePicker = ({
             } else {
                 // If selected date is before check-in, use it as new check-in
                 onDateChange({ checkIn: dateStr, checkOut: '' });
+                // Keep selectingCheckOut true to let them pick the end date immediately
+                setSelectingCheckOut(true);
             }
         }
     };
