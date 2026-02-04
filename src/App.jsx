@@ -16,8 +16,9 @@ import Dashboard from './pages/Dashboard';
 import PartnerDashboard from './pages/PartnerDashboard';
 import ProviderReservations from './pages/ProviderReservations';
 // Preferences removed
-import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import ForgotPassword from './pages/ForgotPassword';
+import VerifyEmail from './pages/VerifyEmail';
 import OfferDetails from './pages/OfferDetails';
 import CheckoutPage from './pages/CheckoutPage';
 import PaymentSuccess from './pages/PaymentSuccess';
@@ -74,6 +75,7 @@ function App() {
                         <Route path="/register/partner" element={<RegisterPartner />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/reset-password" element={<ResetPassword />} />
+                        <Route path="/verify-email" element={<VerifyEmail />} />
                     </Routes>
                 </AuthProvider>
             </ThemeProvider>

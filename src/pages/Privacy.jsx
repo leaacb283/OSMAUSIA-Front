@@ -7,7 +7,7 @@ const Privacy = () => {
             <div className="container">
                 <header className="cgu-header">
                     <h1>Politique de Confidentialité</h1>
-                    <p>Dernière mise à jour : 1er février 2026</p>
+                    <p>Dernière mise à jour : 4 février 2026</p>
                 </header>
 
                 <div className="cgu-content">
@@ -77,8 +77,8 @@ const Privacy = () => {
                     </section>
 
                     <footer className="cgu-footer">
-                        <p>© 2026 OSMAUSIA Ltée. Tous droits réservés.</p>
-                        <p>Contact : hello@osmausia.mu</p>
+                        <p>© 2026 OSMAUSIA. Tous droits réservés.</p>
+                        <p>Contact : contact@osmausia.com</p>
                     </footer>
                 </div>
             </div>

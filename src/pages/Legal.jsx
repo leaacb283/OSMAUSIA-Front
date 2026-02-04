@@ -14,23 +14,22 @@ const Legal = () => {
                     <section className="cgu-section">
                         <h2>1. Éditeur du Site</h2>
                         <p>
-                            Le site osmausia.mu est édité par la société OSMAUSIA Ltée, société à responsabilité limitée
-                            enregistrée à l'île Maurice sous le numéro BRN C12345678.
+                            Le site osmausia.com est édité par la société OSMAUSIA, enregistrée en France.
                         </p>
                         <p>
-                            <strong>Siège social :</strong> Cybercity, Ebene, Maurice.
+                            <strong>Siège social :</strong> Rouen, France.
                         </p>
                     </section>
 
                     <section className="cgu-section">
                         <h2>2. Directeur de la Publication</h2>
-                        <p>Le directeur de la publication est le représentant légal de OSMAUSIA Ltée.</p>
+                        <p>Le directeur de la publication est le représentant légal de OSMAUSIA.</p>
                     </section>
 
                     <section className="cgu-section">
                         <h2>3. Hébergement</h2>
                         <p>
-                            Le site est hébergé par DigitalOcean, dont le siège social est situé à New York, USA.
+                            Le site est hébergé par Infomaniak, dont le siège social est situé à Genève, Suisse.
                         </p>
                     </section>
 
@@ -44,8 +43,8 @@ const Legal = () => {
                     </section>
 
                     <footer className="cgu-footer">
-                        <p>© 2026 OSMAUSIA Ltée. Tous droits réservés.</p>
-                        <p>Contact : hello@osmausia.mu | Port-Louis, Maurice</p>
+                        <p>© 2026 OSMAUSIA. Tous droits réservés.</p>
+                        <p>Contact : contact@osmausia.com | Rouen, France</p>
                     </footer>
                 </div>
             </div>

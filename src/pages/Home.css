@@ -1,7 +1,7 @@
 /* Home Page Styles */
 
 .home {
-    min-height: 100vh;
+    background: var(--color-background);
 }
 
 /* ===== Hero Section ===== */

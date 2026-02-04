@@ -54,7 +54,7 @@ async function apiRequest(endpoint, options = {}) {
           // Nettoyer les données locales
           localStorage.removeItem('user');
           // Rediriger
-          window.location.href = '/login?expired=true';
+          window.location.href = '/app/login?expired=true';
           return; // Stop execution
         }
       }

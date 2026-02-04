@@ -316,22 +316,24 @@ const RegisterTraveler = () => {
                                         checked={formData.terms}
                                         onChange={handleChange}
                                     />
-                                    {t('auth.termsAgree')}{' '}
-                                    <button
-                                        type="button"
-                                        className="auth-link-inline"
-                                        onClick={() => setLegalModal({ isOpen: true, type: 'terms' })}
-                                    >
-                                        {t('auth.termsLink')}
-                                    </button>{' '}
-                                    et la{' '}
-                                    <button
-                                        type="button"
-                                        className="auth-link-inline"
-                                        onClick={() => setLegalModal({ isOpen: true, type: 'privacy' })}
-                                    >
-                                        {t('auth.privacyLink')}
-                                    </button>
+                                    <span>
+                                        {t('auth.termsAgree')}{' '}
+                                        <button
+                                            type="button"
+                                            className="auth-link-inline"
+                                            onClick={() => setLegalModal({ isOpen: true, type: 'terms' })}
+                                        >
+                                            {t('auth.termsLink')}
+                                        </button>{' '}
+                                        {t('auth.termsAnd')}{' '}
+                                        <button
+                                            type="button"
+                                            className="auth-link-inline"
+                                            onClick={() => setLegalModal({ isOpen: true, type: 'privacy' })}
+                                        >
+                                            {t('auth.privacyLink')}
+                                        </button>
+                                    </span>
                                 </label>
                                 {errors.terms && <span className="form-error">{errors.terms}</span>}
                             </div>

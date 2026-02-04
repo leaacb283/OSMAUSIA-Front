@@ -2,8 +2,12 @@
  * Explore Page Styles
  */
 
+.explore-page {
+    padding-top: var(--space-8);
+    background: var(--color-background);
+}
+
 .explore {
-    min-height: 100vh;
     padding: 2rem 0 4rem;
     background: var(--color-background);
 }

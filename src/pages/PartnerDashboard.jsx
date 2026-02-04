@@ -336,7 +336,9 @@ const PartnerDashboard = () => {
         e.preventDefault();
         try {
             setLoadingEtabs(true);
-            const created = await createEtablissement(newEtab, user);
+            // Calcul de la moyenne régénérative pour l'établissement
+            const avgScore = Math.round((parseInt(newOffer.environmental) + parseInt(newOffer.social) + parseInt(newOffer.experience)) / 3);
+            const created = await createEtablissement({ ...newEtab, regenScore: avgScore }, user);
             setEtablissements([...etablissements, created]);
             setNewOffer(prev => ({ ...prev, etablissementId: created.id, city: created.city }));
             setShowEtabForm(false);
@@ -876,6 +878,9 @@ const PartnerDashboard = () => {
                                             />
                                             <span>{newOffer.experience}%</span>
                                         </div>
+                                    </div>
+                                    <div className="regen-score-average-info" style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '4px', textAlign: 'center', fontWeight: 'bold', color: '#2e7d32', border: '1px solid #c8e6c9' }}>
+                                        Moyenne régénérative : {Math.round((parseInt(newOffer.environmental) + parseInt(newOffer.social) + parseInt(newOffer.experience)) / 3)}%
                                     </div>
                                 </div>
 

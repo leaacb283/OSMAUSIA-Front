@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SearchBar from '../components/SearchBar';
 import ThematicFilters from '../components/ThematicFilters';
@@ -270,9 +270,9 @@ const Home = () => {
                             <p className="cta-card__text">
                                 Rejoignez notre communauté de prestataires engagés et proposez vos expériences éthiques à des voyageurs en quête de sens.
                             </p>
-                            <a href="/register/partner" className="btn btn-secondary btn-lg">
+                            <Link to="/register/partner" className="btn btn-secondary btn-lg">
                                 Devenir partenaire
-                            </a>
+                            </Link>
                         </div>
                         <div className="cta-card__decoration">
                         </div>

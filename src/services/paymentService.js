@@ -33,19 +33,8 @@ export const getStripePublicKey = () => {
     return import.meta.env.VITE_STRIPE_PUBLIC_KEY || '';
 };
 
-/**
- * Simulate payment success (Local dev only)
- * @param {number} reservationId 
- */
-export const simulatePaymentSuccess = async (reservationId) => {
-    const response = await api.post(`/payment/simulate-success/${reservationId}`);
-    return response.data;
-};
-
-
 export default {
     createPaymentIntent,
     verifyPayment,
     getStripePublicKey,
-    simulatePaymentSuccess,
 };

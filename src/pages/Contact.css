@@ -3,7 +3,6 @@
 .contact-page {
     padding: 4rem 0 5rem;
     background: var(--color-background);
-    min-height: 100vh;
 }
 
 /* Grid Layout */

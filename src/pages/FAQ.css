@@ -1,9 +1,8 @@
 /* FAQ Page Styles - Modern Design */
 
-.faq {
-    padding: 4rem 0 5rem;
+.faq-page {
+    padding: 6rem 0 6rem;
     background: var(--color-background);
-    min-height: 100vh;
 }
 
 .faq-header {

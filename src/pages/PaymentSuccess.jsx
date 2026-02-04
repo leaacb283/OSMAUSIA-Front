@@ -5,7 +5,6 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { simulatePaymentSuccess } from '../services/paymentService';
 import './PaymentSuccess.css';
 
 const PaymentSuccess = () => {
@@ -13,26 +12,13 @@ const PaymentSuccess = () => {
     const reservationId = searchParams.get('reservation');
     const [confirmed, setConfirmed] = useState(false);
 
-    // Confirm reservation on page load (handles Klarna/PayPal redirects)
+    // Confirm reservation is done via backend webhooks.
+    // We can show the success message immediately as Stripe redirect happens only after success.
     useEffect(() => {
-        const confirmReservation = async () => {
-            if (!reservationId) return;
-
+        if (reservationId) {
             console.log('Payment successful for reservation:', reservationId);
-
-            // Confirm the reservation in backend (workaround for localhost webhook issue)
-            try {
-                await simulatePaymentSuccess(reservationId);
-                console.log('Reservation confirmed via API');
-                setConfirmed(true);
-            } catch (err) {
-                // May already be confirmed by webhook, that's ok
-                console.warn('Could not confirm via API (may already be confirmed):', err);
-                setConfirmed(true); // Show success anyway
-            }
-        };
-
-        confirmReservation();
+            setConfirmed(true);
+        }
     }, [reservationId]);
 
     return (

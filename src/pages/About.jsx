@@ -14,7 +14,7 @@ const About = () => {
             <div className="container about-mission">
                 <section className="about-section">
                     <h2>Notre Vision</h2>
-                    <p style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto 4rem', fontSize: '1.2rem', color: 'var(--text-muted)' }}>
+                    <p className="about-vision-text">
                         OSMAUSIA est né d'un constat simple : l'île Maurice est un paradis qui mérite plus que du tourisme durable.
                         Elle a besoin d'un tourisme régénératif qui redonne à la terre et à ses habitants.
                     </p>
@@ -61,12 +61,12 @@ const About = () => {
 
                 <section className="about-section">
                     <h2>Pourquoi OSMAUSIA ?</h2>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center', marginTop: '4rem' }}>
+                    <div className="about-two-col">
                         <div>
-                            <img src={`${import.meta.env.BASE_URL}/images/hero/le-morne-aerial.png`} alt="Vue aérienne du Morne Maurice" style={{ width: '100%', borderRadius: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }} />
+                            <img src={`${import.meta.env.BASE_URL}/images/hero/le-morne-aerial.png`} alt="Vue aérienne du Morne Maurice" className="about-image" />
                         </div>
                         <div>
-                            <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-color)' }}>
+                            <p className="about-description">
                                 Notre nom fusionne "OSMA" (l'équilibre) et "AUSIA" (l'écoute). Nous sommes le trait d'union entre
                                 des voyageurs en quête de sens et des prestataires mauriciens qui œuvrent dans l'ombre pour leur île.
                                 <br /><br />

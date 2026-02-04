@@ -35,12 +35,13 @@ export const createHebergement = async (offerData, user) => {
         description: offerData.description,
         basePrice: parseFloat(offerData.price),
         maxGuests: parseInt(offerData.capacity),
-        regenScore: parseInt(offerData.environmental), // Simplification: on prend l'environnemental comme score global pour l'instant
-        isShared: false, // Champ requis par le backend, false par défaut
+        regenScore: Math.round((parseInt(offerData.environmental) + parseInt(offerData.social) + parseInt(offerData.experience)) / 3),
+        isShared: false,
         providerDTO: providerDTO,
         locationDTO: locationDTO,
         medias: offerData.medias || [],
         tags: offerData.tags || [],
+        category: offerData.category,
         ...(offerData.etablissementId ? { etablissement: { id: offerData.etablissementId } } : {})
     };
 
@@ -90,12 +91,13 @@ export const updateHebergement = async (id, offerData, user) => {
         description: offerData.description,
         basePrice: parseFloat(offerData.price),
         maxGuests: parseInt(offerData.capacity),
-        regenScore: parseInt(offerData.environmental),
+        regenScore: Math.round((parseInt(offerData.environmental) + parseInt(offerData.social) + parseInt(offerData.experience)) / 3),
         isShared: false,
         providerDTO: providerDTO,
         locationDTO: locationDTO,
         medias: offerData.medias || [],
         tags: offerData.tags || [],
+        category: offerData.category,
         ...(offerData.etablissementId ? { etablissement: { id: offerData.etablissementId } } : {})
     };
 
@@ -145,11 +147,11 @@ export const getProviderEtablissements = async (providerId) => {
 export const createEtablissement = async (data, user) => {
     const payload = {
         name: data.name,
-        addressLine: data.address, // Corrected mapping
+        addressLine: data.address,
         city: data.city,
         latitude: -20.0,
         longitude: 57.5,
-        regenScore: 80, // Default score
+        regenScore: data.regenScore || 80,
         provider: {
             id: user.id || user.userId,
             email: user.email
@@ -184,7 +186,8 @@ export const createActivite = async (offerData, user) => {
         name: offerData.title,
         storyContent: offerData.description,
         pricePerson: parseFloat(offerData.price),
-        durationMin: parseInt(offerData.duration) || 60,
+        durationMin: 60,
+        regenScore: Math.round((parseInt(offerData.environmental) + parseInt(offerData.social) + parseInt(offerData.experience)) / 3),
         nbrMaxPlaces: parseInt(offerData.capacity),
         addressLine: offerData.city,
         city: offerData.city,
@@ -193,6 +196,7 @@ export const createActivite = async (offerData, user) => {
         provider: { id: user.id, email: user.email },
         medias: offerData.medias || [],
         tags: offerData.tags || [],
+        category: offerData.category,
         ...(offerData.etablissementId ? { etablissement: { id: offerData.etablissementId } } : {})
     };
 
@@ -213,7 +217,8 @@ export const updateActivite = async (id, offerData, user) => {
         name: offerData.title,
         storyContent: offerData.description,
         pricePerson: parseFloat(offerData.price),
-        durationMin: parseInt(offerData.duration) || 60,
+        durationMin: 60,
+        regenScore: Math.round((parseInt(offerData.environmental) + parseInt(offerData.social) + parseInt(offerData.experience)) / 3),
         nbrMaxPlaces: parseInt(offerData.capacity),
         addressLine: offerData.city,
         city: offerData.city,
@@ -222,6 +227,7 @@ export const updateActivite = async (id, offerData, user) => {
         provider: { id: user.id, email: user.email },
         medias: offerData.medias || [],
         tags: offerData.tags || [],
+        category: offerData.category,
         ...(offerData.etablissementId ? { etablissement: { id: offerData.etablissementId } } : {})
     };
 

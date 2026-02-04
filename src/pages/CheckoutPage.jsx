@@ -9,7 +9,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useAuth } from '../contexts/AuthContext';
 import { getReservationById } from '../services/reservationService';
-import { createPaymentIntent, getStripePublicKey, simulatePaymentSuccess } from '../services/paymentService';
+import { createPaymentIntent, getStripePublicKey } from '../services/paymentService';
 import './CheckoutPage.css';
 
 // Initialize Stripe with public key
@@ -39,7 +39,7 @@ const PaymentForm = ({ reservation, onSuccess, onError }) => {
             const { error, paymentIntent } = await stripe.confirmPayment({
                 elements,
                 confirmParams: {
-                    return_url: `${window.location.origin}/payment/success?reservation=${reservation.id}`,
+                    return_url: `https://osmausia.com/app/payment/success?reservation=${reservation.id}`,
                 },
                 redirect: 'if_required', // Stay on page if no redirect needed (card payments)
             });
@@ -175,14 +175,8 @@ const CheckoutPage = () => {
     const handlePaymentSuccess = async (paymentIntent) => {
         console.log('Payment succeeded:', paymentIntent.id);
 
-        // In dev/localhost, webhooks don't work, so we manually confirm the reservation
-        // This is safe because Stripe already confirmed the payment
-        try {
-            await simulatePaymentSuccess(reservationId);
-            console.log('Reservation confirmed via API');
-        } catch (err) {
-            console.warn('Could not confirm via API (webhook may handle it):', err);
-        }
+        // In production, webhooks handle this.
+        // We just navigate to the success page which will show the status.
 
         navigate(`/payment/success?reservation=${reservationId}`);
     };
@@ -192,19 +186,6 @@ const CheckoutPage = () => {
         console.error('Payment failed:', errorMessage);
     };
 
-    // Handle simulation payment (fallback)
-    const handleSimulationPayment = async () => {
-        setPaymentLoading(true);
-        try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            await simulatePaymentSuccess(reservationId);
-            navigate(`/payment/success?reservation=${reservationId}`);
-        } catch (err) {
-            setError('Erreur de paiement simulation');
-        } finally {
-            setPaymentLoading(false);
-        }
-    };
 
     // Format date helper
     const formatDate = (dateStr) => {
@@ -361,24 +342,6 @@ const CheckoutPage = () => {
                                         onError={handlePaymentError}
                                     />
                                 </Elements>
-                            </div>
-                        ) : simulationMode || !stripePublicKey ? (
-                            /* Simulation Mode Fallback */
-                            <div className="checkout__simulation">
-                                <h2>Mode Test</h2>
-                                <div className="checkout__stripe-warning">
-                                    <p>Stripe non configuré. Mode simulation activé.</p>
-                                    <p className="text-muted">
-                                        Ajoutez <code>VITE_STRIPE_PUBLIC_KEY=pk_test_...</code> dans votre fichier <code>.env</code>
-                                    </p>
-                                </div>
-                                <button
-                                    className="btn btn-primary btn-lg btn-block"
-                                    onClick={handleSimulationPayment}
-                                    disabled={paymentLoading}
-                                >
-                                    {paymentLoading ? 'Traitement...' : `Simuler le paiement de ${reservation?.totalPrice || 0} €`}
-                                </button>
                             </div>
                         ) : (
                             /* Loading payment form */

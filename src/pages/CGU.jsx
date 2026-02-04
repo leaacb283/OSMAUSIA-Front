@@ -7,7 +7,7 @@ const CGU = () => {
             <div className="container">
                 <header className="cgu-header">
                     <h1>Conditions Générales d'Utilisation</h1>
-                    <p>Dernière mise à jour : 1er février 2026</p>
+                    <p>Dernière mise à jour : 4 février 2026</p>
                 </header>
 
                 <div className="cgu-content">
@@ -78,13 +78,13 @@ const CGU = () => {
                     <section className="cgu-section">
                         <h2>8. Droit Applicable</h2>
                         <p>
-                            Les présentes CGU sont régies par le droit mauricien. En cas de litige, les tribunaux de Port-Louis seront seuls compétents.
+                            Les présentes CGU sont régies par le droit français. En cas de litige, les tribunaux de Rouen seront seuls compétents.
                         </p>
                     </section>
 
                     <footer className="cgu-footer">
-                        <p>© 2026 OSMAUSIA Ltée. Tous droits réservés.</p>
-                        <p>Contact : hello@osmausia.mu | Port-Louis, Maurice</p>
+                        <p>© 2026 OSMAUSIA. Tous droits réservés.</p>
+                        <p>Contact : contact@osmausia.com | Rouen, France</p>
                     </footer>
                 </div>
             </div>

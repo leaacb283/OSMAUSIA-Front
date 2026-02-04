@@ -48,7 +48,7 @@ const Contact = () => {
                                 </div>
                                 <div className="contact-method__content">
                                     <h3>Email</h3>
-                                    <p>hello@osmausia.mu</p>
+                                    <p>contact@osmausia.com</p>
                                 </div>
                             </div>
                             <div className="contact-method">
@@ -61,7 +61,7 @@ const Contact = () => {
                                 </div>
                                 <div className="contact-method__content">
                                     <h3>Siège social</h3>
-                                    <p>Cybercity, Ebene, Île Maurice</p>
+                                    <p>Rouen, France</p>
                                 </div>
                             </div>
                             <div className="contact-method">
@@ -75,7 +75,7 @@ const Contact = () => {
                                 </div>
                                 <div className="contact-method__content">
                                     <h3>Partenariats</h3>
-                                    <p>partners@osmausia.mu</p>
+                                    <p>contact@osmausia.com</p>
                                 </div>
                             </div>
                         </div>

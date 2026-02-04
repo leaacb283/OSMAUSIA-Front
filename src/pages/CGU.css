@@ -1,12 +1,10 @@
 /* CGU / Legal Pages Styles - Modern Design */
 
 .cgu {
-    padding-top: 4rem;
-    padding-bottom: 5rem;
+    padding: 6rem 0 6rem;
     background: var(--color-background);
     color: var(--color-text-primary);
     line-height: 1.7;
-    min-height: 100vh;
 }
 
 /* Header with gradient accent */

@@ -62,9 +62,9 @@ const CookieConsent = () => {
                         <br />
                         Vous pouvez choisir de tout accepter ou de n'utiliser que les cookies essentiels.
                     </p>
-                    <a href="/privacy#cookies" target="_blank" rel="noopener noreferrer" className="cookie-consent__link">
+                    <Link to="/privacy" className="cookie-consent__link">
                         En savoir plus
-                    </a>
+                    </Link>
                 </div>
                 <div className="cookie-consent__actions">
                     <button
