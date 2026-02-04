@@ -3,7 +3,7 @@
  * Hybrid approach: HTTP for sending, WebSocket (STOMP) for real-time reception
  */
 
-import SockJS from 'sockjs-client';
+// import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import api from './api';
 
@@ -45,7 +45,8 @@ export const connectWebSocket = (onMessage, onConnect, onError) => {
 
     // Create STOMP client over SockJS
     stompClient = new Client({
-        webSocketFactory: () => new SockJS(WS_URL),
+        // webSocketFactory: () => new SockJS(WS_URL),
+        brokerURL: WS_URL,
         connectHeaders: connectHeaders,
         debug: (str) => {
             console.log('[STOMP]', str);

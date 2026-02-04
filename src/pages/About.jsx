@@ -63,7 +63,7 @@ const About = () => {
                     <h2>Pourquoi OSMAUSIA ?</h2>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center', marginTop: '4rem' }}>
                         <div>
-                            <img src="/images/hero/le-morne-aerial.png" alt="Vue aérienne du Morne Maurice" style={{ width: '100%', borderRadius: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }} />
+                            <img src={`${import.meta.env.BASE_URL}/images/hero/le-morne-aerial.png`} alt="Vue aérienne du Morne Maurice" style={{ width: '100%', borderRadius: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }} />
                         </div>
                         <div>
                             <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-color)' }}>

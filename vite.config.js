@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   // Frontend servi à la racine (osmausia.com/)
-  base: '/',
+  base: '/app/',
   resolve: {
     alias: {
       '@': '/src',

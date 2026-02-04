@@ -35,7 +35,7 @@ import MyReservations from './pages/MyReservations';
 
 function App() {
     return (
-        <BrowserRouter>
+        <BrowserRouter basename="/app">
             <ScrollToTop />
             <ThemeProvider>
                 <AuthProvider>
