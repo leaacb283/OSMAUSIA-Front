@@ -296,7 +296,7 @@ const Messages = () => {
                 </div>
             )}
 
-            <div className="messages-page__container">
+            <div className={`messages-page__container ${selectedPartner ? 'messages-page__container--chat-active' : ''}`}>
                 {/* Conversation list */}
                 <aside className="messages-page__sidebar">
                     <ConversationList
@@ -317,6 +317,10 @@ const Messages = () => {
                         onSendMessage={handleSendMessage}
                         loading={loadingMessages}
                         sending={sending}
+                        onBack={() => {
+                            setSelectedPartner(null);
+                            navigate('/messages');
+                        }}
                     />
                 </main>
             </div>

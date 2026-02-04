@@ -128,6 +128,23 @@
     background: rgba(30, 41, 59, 0.9);
 }
 
+/* Back button */
+.chat-window__back-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    padding: 0.5rem;
+    margin-right: 0.5rem;
+    border-radius: 9999px;
+    transition: background-color 0.2s;
+}
+
+.chat-window__back-btn:hover {
+    background: var(--color-border-light);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .messages-page {
@@ -140,18 +157,36 @@
         border: none;
         height: 100%;
         max-width: none;
+        flex-direction: column;
     }
 
     .messages-page__sidebar {
         width: 100%;
+        height: 100%;
+        border-right: none;
+        display: flex;
+        /* Default: Show list */
     }
 
-    /* Hide sidebar when chat is active */
-    .messages-page__container:has(.chat-window:not(.chat-window--empty)) .messages-page__sidebar {
+    .messages-page__chat {
+        width: 100%;
+        height: 100%;
+        display: none;
+        /* Default: Hide chat */
+    }
+
+    /* Active State (Chat Open) - using the class toggled in JSX */
+    .messages-page__container--chat-active .messages-page__sidebar {
         display: none;
     }
 
-    .messages-page__container:has(.chat-window:not(.chat-window--empty)) .messages-page__chat {
+    .messages-page__container--chat-active .messages-page__chat {
         display: flex;
+    }
+
+    .chat-window__back-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }

@@ -23,6 +23,16 @@
     padding: var(--space-6);
 }
 
+@media (max-width: 480px) {
+    .auth-form-section {
+        padding: var(--space-4);
+    }
+
+    .auth-container {
+        overflow-x: hidden;
+    }
+}
+
 .auth-form-wrapper {
     width: 100%;
     max-width: 440px;

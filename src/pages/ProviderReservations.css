@@ -60,6 +60,12 @@
     }
 }
 
+@media (max-width: 480px) {
+    .reservations-summary {
+        grid-template-columns: 1fr;
+    }
+}
+
 .summary-card {
     background: var(--color-surface);
     border-radius: var(--radius-xl);

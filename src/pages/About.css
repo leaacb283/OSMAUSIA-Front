@@ -180,6 +180,15 @@
 
 /* Responsive */
 @media (max-width: 992px) {
+    .about-page {
+        padding-bottom: 3rem;
+        overflow-x: hidden;
+    }
+
+    .about-hero {
+        padding: 2rem 1rem;
+    }
+
     .about-cards {
         grid-template-columns: 1fr;
         gap: 1.25rem;

@@ -7,6 +7,18 @@
     animation: fadeIn 0.5s ease;
 }
 
+@media (max-width: 768px) {
+    .dashboard {
+        padding: var(--space-4) 0;
+        overflow-x: hidden;
+    }
+
+    .dashboard-header {
+        padding: var(--space-6);
+        border-radius: var(--radius-xl);
+    }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
